@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alva Strategy Dashboards</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, sans-serif; background: #15161a; color: rgba(255,255,255,0.9); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+.container { text-align: center; padding: 40px; }
+h1 { font-size: 32px; font-weight: 400; margin-bottom: 8px; }
+.sub { color: rgba(255,255,255,0.5); font-size: 14px; margin-bottom: 48px; }
+.cards { display: flex; gap: 24px; justify-content: center; flex-wrap: wrap; }
+.card { background: #1a1b1f; border-radius: 8px; padding: 32px; width: 340px; text-align: left; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; border: 1px solid rgba(255,255,255,0.07); }
+.card:hover { transform: translateY(-4px); box-shadow: 0 8px 32px rgba(0,0,0,0.4); border-color: rgba(73,163,166,0.3); }
+.card-icon { font-size: 36px; margin-bottom: 16px; }
+.card-title { font-size: 18px; font-weight: 500; margin-bottom: 8px; }
+.card-desc { font-size: 13px; color: rgba(255,255,255,0.5); line-height: 1.6; }
+.badge { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 2px; margin-top: 12px; }
+.b1 { background: rgba(255,152,0,0.2); color: #ff9800; }
+.b2 { background: rgba(61,139,209,0.2); color: #3d8bd1; }
+.footer { margin-top: 48px; font-size: 12px; color: rgba(255,255,255,0.3); }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Alva Strategy Dashboards</h1>
+  <p class="sub">Powered by Alva Platform · Altra Backtest Engine · 2026-03-11</p>
+  <div class="cards">
+    <a class="card" href="crypto.html">
+      <div class="card-icon">📊</div>
+      <div class="card-title">Crypto 轮动策略</div>
+      <div class="card-desc">BTC / ETH / SOL / BNB 三策略回测对比<br>动量轮动 · 等权月度 · 复合风险调整</div>
+      <span class="badge b1">Sharpe 1.12 · Return +52%</span>
+    </a>
+    <a class="card" href="hk.html">
+      <div class="card-icon">📈</div>
+      <div class="card-title">恒指 vs 恒科 预测</div>
+      <div class="card-desc">HSI vs HSTECH 月度轮动分析<br>核心判断 · 技术指标 · Altra 回测</div>
+      <span class="badge b2">3月恒科占优 · 4月恒指更稳</span>
+    </a>
+  </div>
+  <div class="footer">Alva Platform · Data: Yahoo Finance + Binance</div>
+</div>
+</body>
+</html>
