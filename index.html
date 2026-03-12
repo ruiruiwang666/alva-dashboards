@@ -1,46 +1,48 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Alva Strategy Dashboards</title>
+<title>OpenAlva Dashboards</title>
 <style>
+@font-face { font-family: 'Delight'; src: url('https://alva-ai-static.b-cdn.net/fonts/Delight-Regular.ttf') format('truetype'); font-weight: 400; }
+@font-face { font-family: 'Delight'; src: url('https://alva-ai-static.b-cdn.net/fonts/Delight-Medium.ttf') format('truetype'); font-weight: 500; }
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: -apple-system, sans-serif; background: #15161a; color: rgba(255,255,255,0.9); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
-.container { text-align: center; padding: 40px; }
-h1 { font-size: 32px; font-weight: 400; margin-bottom: 8px; }
-.sub { color: rgba(255,255,255,0.5); font-size: 14px; margin-bottom: 48px; }
-.cards { display: flex; gap: 24px; justify-content: center; flex-wrap: wrap; }
-.card { background: #1a1b1f; border-radius: 8px; padding: 32px; width: 340px; text-align: left; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; border: 1px solid rgba(255,255,255,0.07); }
-.card:hover { transform: translateY(-4px); box-shadow: 0 8px 32px rgba(0,0,0,0.4); border-color: rgba(73,163,166,0.3); }
-.card-icon { font-size: 36px; margin-bottom: 16px; }
-.card-title { font-size: 18px; font-weight: 500; margin-bottom: 8px; }
-.card-desc { font-size: 13px; color: rgba(255,255,255,0.5); line-height: 1.6; }
-.badge { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 2px; margin-top: 12px; }
-.b1 { background: rgba(255,152,0,0.2); color: #ff9800; }
-.b2 { background: rgba(61,139,209,0.2); color: #3d8bd1; }
-.footer { margin-top: 48px; font-size: 12px; color: rgba(255,255,255,0.3); }
+body { font-family: 'Delight', -apple-system, sans-serif; background: #ffffff; color: #1a1a1a; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; }
+h1 { font-size: 32px; font-weight: 500; margin-bottom: 8px; }
+.subtitle { color: #808080; font-size: 14px; margin-bottom: 40px; }
+.cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; max-width: 900px; width: 100%; }
+.card { padding: 28px; border-radius: 16px; background: #f5f5f5; text-decoration: none; color: inherit; transition: all 0.2s; }
+.card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.08); transform: translateY(-2px); }
+.card .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; color: white; margin-bottom: 12px; }
+.card h2 { font-size: 16px; font-weight: 500; margin-bottom: 8px; }
+.card p { font-size: 13px; color: #808080; line-height: 1.5; }
+.new-badge { background: #e05357; color: white; font-size: 10px; padding: 1px 6px; border-radius: 3px; margin-left: 6px; }
+.footer { margin-top: 40px; font-size: 12px; color: #b0b0b0; }
+.footer a { color: #49a3a6; text-decoration: none; }
+@media (max-width: 768px) { .cards { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
-<div class="container">
-  <h1>Alva Strategy Dashboards</h1>
-  <p class="sub">Powered by Alva Platform · Altra Backtest Engine · 2026-03-11</p>
-  <div class="cards">
-    <a class="card" href="crypto.html">
-      <div class="card-icon">📊</div>
-      <div class="card-title">Crypto 轮动策略</div>
-      <div class="card-desc">BTC / ETH / SOL / BNB 三策略回测对比<br>动量轮动 · 等权月度 · 复合风险调整</div>
-      <span class="badge b1">Sharpe 1.12 · Return +52%</span>
-    </a>
-    <a class="card" href="hk.html">
-      <div class="card-icon">📈</div>
-      <div class="card-title">恒指 vs 恒科 预测</div>
-      <div class="card-desc">HSI vs HSTECH 月度轮动分析<br>核心判断 · 技术指标 · Altra 回测</div>
-      <span class="badge b2">3月恒科占优 · 4月恒指更稳</span>
-    </a>
-  </div>
-  <div class="footer">Alva Platform · Data: Yahoo Finance + Binance</div>
+<h1>OpenAlva Dashboards</h1>
+<div class="subtitle">Built with Alva Skill · Altra Backtest Engine · Alva Design System</div>
+<div class="cards">
+  <a href="strategies.html" class="card">
+    <div class="tag" style="background: #ff9800">Crypto</div><span class="new-badge">NEW</span>
+    <h2>5 Crypto Strategy Showcase</h2>
+    <p>5种加密货币轮动策略回测对比：动量瀑布、恐惧贪婪反转、波动率压缩突破、趋势+均值回归、大小盘轮动</p>
+  </a>
+  <a href="crypto.html" class="card">
+    <div class="tag" style="background: #49a3a6">Crypto</div>
+    <h2>Crypto Rotation Dashboard</h2>
+    <p>BTC/ETH/SOL/BNB rotation strategies: Momentum, Equal Weight, Composite Risk-Adjusted</p>
+  </a>
+  <a href="hk.html" class="card">
+    <div class="tag" style="background: #5f75c9">Stock</div>
+    <h2>HSI vs HSTECH Prediction</h2>
+    <p>恒指 vs 恒科轮动预测：3月看HSTECH，4月看HSI</p>
+  </a>
 </div>
+<div class="footer">Powered by <a href="https://skills.sh/alva-ai/skills/open-alva" target="_blank">OpenAlva</a></div>
 </body>
 </html>
