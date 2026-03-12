@@ -581,6 +581,240 @@ body {
   border-radius: 4px;
   min-height: 36px;
 }
+
+/* Key Takeaway Banner */
+.key-takeaway-banner {
+  font-size: 14px;
+  font-weight: 400;
+  font-style: italic;
+  color: var(--text-n7);
+  line-height: 1.7;
+  padding: 12px 16px;
+  border-left: 3px solid var(--main-m1);
+  margin-bottom: 20px;
+}
+
+/* Strategy Decision Flowchart */
+.flowchart {
+  background: var(--grey-g01);
+  border-radius: 8px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.flowchart-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-n9);
+  margin-bottom: 16px;
+}
+
+.flowchart-stage {
+  margin-bottom: 20px;
+}
+
+.flowchart-stage-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-n5);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 8px;
+}
+
+.flowchart-signals {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.flowchart-box {
+  background: var(--main-m1);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 400;
+  padding: 10px 16px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 200px;
+}
+
+.flowchart-box-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.8);
+}
+
+.flowchart-arrow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-n5);
+  padding: 4px 0;
+}
+
+.flowchart-arrow::before {
+  content: '';
+  display: inline-block;
+  width: 20px;
+  height: 1px;
+  background: var(--text-n5);
+  flex-shrink: 0;
+}
+
+.flowchart-arrow::after {
+  content: '';
+  display: inline-block;
+  width: 0;
+  height: 0;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+  border-left: 6px solid var(--text-n5);
+  flex-shrink: 0;
+}
+
+.flowchart-result {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 4px;
+}
+
+.flowchart-result-long {
+  background: var(--main-m3);
+  color: #ffffff;
+}
+
+.flowchart-result-cash {
+  background: var(--main-m4);
+  color: #ffffff;
+}
+
+.flowchart-vote {
+  background: var(--b0-page);
+  border-radius: 8px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.flowchart-vote-label {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text-n7);
+}
+
+.flowchart-sizing {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.flowchart-sizing-item {
+  background: var(--b0-page);
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text-n7);
+  flex: 1;
+  min-width: 180px;
+}
+
+.flowchart-sizing-item span {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-n5);
+  margin-bottom: 4px;
+}
+
+.flowchart-connector {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 0;
+}
+
+.flowchart-connector-line {
+  width: 1px;
+  height: 16px;
+  background: var(--text-n5);
+}
+
+.flowchart-connector-arrow {
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 5px solid var(--text-n5);
+}
+
+/* Implementation Guide */
+.impl-guide {
+  background: var(--grey-g01);
+  border-radius: 8px;
+  padding: 20px;
+  margin-top: 16px;
+}
+
+.impl-guide-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-n9);
+  margin-bottom: 12px;
+}
+
+.impl-steps {
+  list-style: none;
+  padding: 0;
+  counter-reset: impl-step;
+}
+
+.impl-steps li {
+  counter-increment: impl-step;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text-n7);
+  line-height: 1.7;
+  padding: 8px 0 8px 36px;
+  position: relative;
+}
+
+.impl-steps li + li {
+  border-top: 1px solid var(--line-l07);
+}
+
+.impl-steps li::before {
+  content: counter(impl-step);
+  position: absolute;
+  left: 0;
+  top: 8px;
+  width: 22px;
+  height: 22px;
+  background: var(--main-m1);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 500;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.impl-step-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-n5);
+}
 </style>
 </head>
 <body>
@@ -603,6 +837,11 @@ body {
   <!-- TAB 1: Overview -->
   <div id="tab-overview" class="tab-content active">
     <div class="section-stack">
+
+      <!-- Key Takeaway Banner -->
+      <div class="key-takeaway-banner">
+        This strategy achieved Sharpe 2.70 by combining momentum signals across crypto and traditional assets with risk parity weighting. Max drawdown was limited to -4.06%.
+      </div>
 
       <!-- Meta Info Bar -->
       <div class="meta-bar">
@@ -842,6 +1081,82 @@ body {
     <div class="section-stack">
       <div class="strategy-content">
 
+        <!-- Strategy Decision Flowchart -->
+        <div class="strategy-section">
+          <div class="strategy-section-title">Strategy Decision Flowchart</div>
+          <div class="flowchart">
+
+            <div class="flowchart-stage">
+              <div class="flowchart-stage-label">Signal Generation (3 parallel signals)</div>
+              <div class="flowchart-signals">
+                <div class="flowchart-box">
+                  <div>
+                    <div class="flowchart-box-label">Short Momentum (7d)</div>
+                    price &gt; price_7d_ago
+                  </div>
+                  <span class="flowchart-result flowchart-result-long">LONG</span>
+                </div>
+                <div class="flowchart-box">
+                  <div>
+                    <div class="flowchart-box-label">Medium Momentum (14d)</div>
+                    price &gt; price_14d_ago
+                  </div>
+                  <span class="flowchart-result flowchart-result-long">LONG</span>
+                </div>
+                <div class="flowchart-box">
+                  <div>
+                    <div class="flowchart-box-label">SMA Filter (30d)</div>
+                    price &gt; SMA_30
+                  </div>
+                  <span class="flowchart-result flowchart-result-long">LONG</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="flowchart-connector">
+              <div class="flowchart-connector-line"></div>
+              <div class="flowchart-connector-arrow"></div>
+            </div>
+
+            <div class="flowchart-stage">
+              <div class="flowchart-stage-label">Majority Vote</div>
+              <div class="flowchart-vote">
+                <div class="flowchart-vote-label">&ge;2 of 3 signals agree</div>
+                <div class="flowchart-arrow"></div>
+                <span class="flowchart-result flowchart-result-long">LONG</span>
+                <div style="width:8px"></div>
+                <div class="flowchart-vote-label">otherwise</div>
+                <div class="flowchart-arrow"></div>
+                <span class="flowchart-result flowchart-result-cash">CASH</span>
+              </div>
+            </div>
+
+            <div class="flowchart-connector">
+              <div class="flowchart-connector-line"></div>
+              <div class="flowchart-connector-arrow"></div>
+            </div>
+
+            <div class="flowchart-stage">
+              <div class="flowchart-stage-label">Position Sizing</div>
+              <div class="flowchart-sizing">
+                <div class="flowchart-sizing-item">
+                  <span>Weighting</span>
+                  Inverse-volatility weighting across assets
+                </div>
+                <div class="flowchart-sizing-item">
+                  <span>Cash Buffer</span>
+                  5% permanent cash buffer
+                </div>
+                <div class="flowchart-sizing-item">
+                  <span>Rebalance</span>
+                  Every 5 days
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
         <div class="strategy-section">
           <div class="strategy-section-title">Objective</div>
           <div class="strategy-objective">
@@ -898,6 +1213,35 @@ body {
               <li><code>cash_buffer</code> = 5%</li>
               <li><code>vote_threshold</code> = 2 out of 3</li>
             </ul>
+          </div>
+        </div>
+
+        <!-- Implementation Guide -->
+        <div class="strategy-section">
+          <div class="strategy-section-title">How to Implement This Strategy</div>
+          <div class="impl-guide">
+            <ol class="impl-steps">
+              <li>
+                <span class="impl-step-label">Data Feed</span><br>
+                Set up daily data feed for 9 assets: BTC, ETH, SOL, BNB, SPY, QQQ, GLD, TLT, XLE
+              </li>
+              <li>
+                <span class="impl-step-label">Signal Calculation</span><br>
+                Calculate 3 signals daily for each asset: 7d momentum, 14d momentum, price vs 30d SMA
+              </li>
+              <li>
+                <span class="impl-step-label">Rebalance</span><br>
+                Every 5 days, rebalance portfolio &mdash; allocate to LONG assets using inverse-volatility weights
+              </li>
+              <li>
+                <span class="impl-step-label">Cash Buffer</span><br>
+                Maintain 5% cash buffer at all times to ensure liquidity and reduce portfolio volatility
+              </li>
+              <li>
+                <span class="impl-step-label">Risk Monitoring</span><br>
+                Monitor drawdown continuously &mdash; circuit breaker triggers at 10% to protect capital
+              </li>
+            </ol>
           </div>
         </div>
 

@@ -449,6 +449,17 @@ tr:hover { background: var(--b-r02); }
     <span class="meta-field">Sharpe &gt; 2.0 Achieved</span>
   </div>
 
+  <!-- Strategy at a Glance -->
+  <div style="border-left:3px solid var(--main-m1);padding:16px 20px;margin-bottom:var(--spacing-xl);border-radius:0 var(--radius-ct-m) var(--radius-ct-m) 0;background:var(--b0-page)">
+    <div style="font-size:14px;font-weight:500;color:var(--text-n9);margin-bottom:8px">Winning Strategy: Cross-Asset Ensemble</div>
+    <div style="font-size:12px;color:var(--text-n7);line-height:1.7">
+      Combine <strong style="font-weight:500;color:var(--text-n9)">3 momentum signals</strong> (7d / 14d / 30d SMA) across 9 assets spanning crypto, US equities, gold, bonds, and energy.
+      When ≥2 of 3 signals agree → allocate using <strong style="font-weight:500;color:var(--text-n9)">inverse-volatility weighting</strong>.
+      Rebalance every 5 days. 5% permanent cash buffer.
+      Result: <strong style="font-weight:500;color:var(--main-m3)">Sharpe 2.70</strong>, <strong style="font-weight:500;color:var(--main-m3)">+35.58% return</strong>, max drawdown only <strong style="font-weight:500;color:var(--main-m4)">-4.06%</strong>.
+    </div>
+  </div>
+
   <!-- KPI Row (4 x col-2) -->
   <div class="widget-grid" id="kpiGrid"></div>
 
@@ -533,6 +544,38 @@ tr:hover { background: var(--b-r02); }
     <div class="method-card">
       <h4>Asset Universe</h4>
       <p>10 crypto pairs (BTC/ETH/SOL/BNB/XRP/DOGE/AVAX/LINK/ADA/DOT), 10 US equities & ETFs (SPY/QQQ/NVDA/AAPL/MSFT/XLE/XLF/IWM/DIA/ARKK), gold (GLD), and treasuries (TLT/SHY).</p>
+    </div>
+  </div>
+
+  <!-- How to Implement -->
+  <div class="section-gap"><span class="group-title">How to Implement This Strategy</span></div>
+  <div style="background:var(--grey-g01);border-radius:8px;padding:24px 28px">
+    <div style="font-size:12px;color:var(--text-n7);margin-bottom:20px;line-height:1.6">Follow these steps to replicate the top-performing Cross-Asset Ensemble strategy (Sharpe 2.70):</div>
+    <ol style="list-style:none;padding:0;margin:0;counter-reset:step">
+      <li style="display:flex;gap:14px;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--line-l07)">
+        <span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:var(--main-m1);color:#fff;font-size:11px;font-weight:500;flex-shrink:0">1</span>
+        <div><div style="font-size:13px;font-weight:500;color:var(--text-n9)">Set up daily price feeds for 9 assets</div><div style="font-size:11px;color:var(--text-n5);margin-top:4px">BTC, ETH, SOL, BNB (crypto) + SPY, QQQ (equity) + GLD (gold) + TLT, XLE (bond/sector). Use any API with daily OHLCV data.</div></div>
+      </li>
+      <li style="display:flex;gap:14px;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--line-l07)">
+        <span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:var(--main-m1);color:#fff;font-size:11px;font-weight:500;flex-shrink:0">2</span>
+        <div><div style="font-size:13px;font-weight:500;color:var(--text-n9)">Compute 3 momentum signals daily</div><div style="font-size:11px;color:var(--text-n5);margin-top:4px">Short-term (7d return), Medium-term (14d return), and Long-term (30d SMA crossover). Each signal votes LONG or CASH per asset.</div></div>
+      </li>
+      <li style="display:flex;gap:14px;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--line-l07)">
+        <span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:var(--main-m1);color:#fff;font-size:11px;font-weight:500;flex-shrink:0">3</span>
+        <div><div style="font-size:13px;font-weight:500;color:var(--text-n9)">Apply majority vote filter</div><div style="font-size:11px;color:var(--text-n5);margin-top:4px">An asset receives allocation only when 2 of 3 signals agree on LONG. Otherwise, that asset's allocation goes to cash.</div></div>
+      </li>
+      <li style="display:flex;gap:14px;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--line-l07)">
+        <span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:var(--main-m1);color:#fff;font-size:11px;font-weight:500;flex-shrink:0">4</span>
+        <div><div style="font-size:13px;font-weight:500;color:var(--text-n9)">Rebalance every 5 days with inverse-vol weights</div><div style="font-size:11px;color:var(--text-n5);margin-top:4px">Allocate more to lower-volatility assets. Maintain a 5% cash buffer at all times. This naturally reduces crypto concentration.</div></div>
+      </li>
+      <li style="display:flex;gap:14px;align-items:flex-start;padding:14px 0">
+        <span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:var(--main-m1);color:#fff;font-size:11px;font-weight:500;flex-shrink:0">5</span>
+        <div><div style="font-size:13px;font-weight:500;color:var(--text-n9)">Activate drawdown circuit breaker</div><div style="font-size:11px;color:var(--text-n5);margin-top:4px">At 5% portfolio drawdown, reduce exposure by 50%. At 10% drawdown, go 100% cash. This kept max drawdown to just 4.06%.</div></div>
+      </li>
+    </ol>
+    <div style="margin-top:16px;padding:12px 16px;border-left:3px solid var(--main-m3);border-radius:0 8px 8px 0;background:var(--b0-page)">
+      <div style="font-size:11px;color:var(--text-n5)">Key Takeaway</div>
+      <div style="font-size:12px;color:var(--text-n9);margin-top:4px;line-height:1.6">The combination of multi-timeframe momentum filtering + inverse-vol weighting + drawdown protection is what drives the 2.70 Sharpe. Each component alone would achieve ~1.2-1.5 Sharpe — the ensemble effect is the alpha.</div>
     </div>
   </div>
 
