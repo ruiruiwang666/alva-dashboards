@@ -163,6 +163,12 @@ tr:hover { background: rgba(88,166,255,0.05); }
 .cat-card .stat-row:last-child { border-bottom: none; }
 .cat-card .stat-label { color: var(--text2); }
 .cat-card .stat-val { font-weight: 600; }
+.ticker-pills { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
+.ticker-pill { padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; background: rgba(88,166,255,0.1); color: var(--accent); border: 1px solid rgba(88,166,255,0.2); }
+.ticker-pill.crypto { background: rgba(210,153,34,0.1); color: var(--gold); border-color: rgba(210,153,34,0.2); }
+.ticker-pill.equity { background: rgba(63,185,80,0.1); color: var(--green); border-color: rgba(63,185,80,0.2); }
+.ticker-pill.bond { background: rgba(188,140,255,0.1); color: var(--purple); border-color: rgba(188,140,255,0.2); }
+.ticker-pill.commodity { background: rgba(248,81,73,0.1); color: var(--red); border-color: rgba(248,81,73,0.2); }
 
 /* Footer */
 footer {
@@ -481,6 +487,11 @@ function renderCatCards() {
         <div class="stat-row"><span class="stat-label">Volatility</span><span class="stat-val">${s.m.vol}</span></div>
         <div class="stat-row"><span class="stat-label">Calmar Ratio</span><span class="stat-val">${s.m.calmar}</span></div>
         <div class="stat-row"><span class="stat-label">Parameters</span><span class="stat-val" style="font-size:0.8rem;color:var(--text2)">${s.params}</span></div>
+        <div style="margin-top:12px"><span class="stat-label" style="display:block;margin-bottom:6px">Traded Tickers</span>
+        <div class="ticker-pills">${(s.assets||'').split('/').map(t => {
+          const cls = ['BTC','ETH','SOL','BNB','XRP','DOGE','AVAX','LINK','ADA','DOT'].includes(t) ? 'crypto' : ['GLD'].includes(t) ? 'commodity' : ['TLT','SHY'].includes(t) ? 'bond' : 'equity';
+          return '<span class="ticker-pill '+cls+'">'+t+'</span>';
+        }).join('')}</div></div>
       </div>
     `;
   }).join('');
@@ -586,7 +597,7 @@ function selectCatTab(btn, mode) {
 function renderLeaderboard() {
   const table = document.getElementById('leaderboard');
   let html = `<thead><tr>
-    <th>#</th><th>Strategy</th><th>Category</th><th>Sharpe</th><th>Return</th><th>Annual Ret</th><th>Max DD</th><th>Volatility</th><th>Calmar</th><th>Parameters</th>
+    <th>#</th><th>Strategy</th><th>Category</th><th>Tickers</th><th>Sharpe</th><th>Return</th><th>Annual Ret</th><th>Max DD</th><th>Volatility</th><th>Calmar</th><th>Parameters</th>
   </tr></thead><tbody>`;
 
   const all = [...DATA.strategies.map(s => ({...s, isBm: false})), ...DATA.benchmarks.map(b => ({...b, isBm: true, category: 'Benchmark', params: '-'}))];
@@ -605,6 +616,7 @@ function renderLeaderboard() {
       <td><span class="rank ${rankClass}">${rank}</span></td>
       <td><b>${s.name}</b></td>
       <td>${s.category}</td>
+      <td style="max-width:180px;white-space:normal;"><span style="font-size:0.75rem;color:var(--text2)">${s.assets || '-'}</span></td>
       <td class="${sharpeColor}"><b>${s.m.sharpe}</b></td>
       <td class="${retColor}">${s.m.ret}</td>
       <td>${s.m.annual_ret || '-'}</td>

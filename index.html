@@ -8,46 +8,148 @@
 @font-face { font-family: 'Delight'; src: url('https://alva-ai-static.b-cdn.net/fonts/Delight-Regular.ttf') format('truetype'); font-weight: 400; }
 @font-face { font-family: 'Delight'; src: url('https://alva-ai-static.b-cdn.net/fonts/Delight-Medium.ttf') format('truetype'); font-weight: 500; }
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: 'Delight', -apple-system, sans-serif; background: #ffffff; color: #1a1a1a; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; }
-h1 { font-size: 32px; font-weight: 500; margin-bottom: 8px; }
-.subtitle { color: #808080; font-size: 14px; margin-bottom: 40px; }
-.cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; max-width: 900px; width: 100%; }
-.card { padding: 28px; border-radius: 16px; background: #f5f5f5; text-decoration: none; color: inherit; transition: all 0.2s; }
-.card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.08); transform: translateY(-2px); }
-.card .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; color: white; margin-bottom: 12px; }
-.card h2 { font-size: 16px; font-weight: 500; margin-bottom: 8px; }
-.card p { font-size: 13px; color: #808080; line-height: 1.5; }
-.new-badge { background: #e05357; color: white; font-size: 10px; padding: 1px 6px; border-radius: 3px; margin-left: 6px; }
-.footer { margin-top: 40px; font-size: 12px; color: #b0b0b0; }
+body { font-family: 'Delight', -apple-system, sans-serif; background: #ffffff; color: #1a1a1a; min-height: 100vh; padding: 40px 24px; -webkit-font-smoothing: antialiased; }
+.container { max-width: 1100px; margin: 0 auto; }
+h1 { font-size: 32px; font-weight: 400; margin-bottom: 8px; text-align: center; }
+.subtitle { color: #808080; font-size: 14px; margin-bottom: 12px; text-align: center; }
+.stats { display: flex; justify-content: center; gap: 24px; margin-bottom: 40px; }
+.stat { text-align: center; }
+.stat .num { font-size: 24px; font-weight: 400; color: #49a3a6; }
+.stat .label { font-size: 11px; color: #b0b0b0; }
+.section-title { font-size: 14px; font-weight: 500; color: #808080; margin-bottom: 12px; padding-left: 4px; letter-spacing: 0.5px; text-transform: uppercase; }
+.cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 32px; }
+.card { padding: 24px; border-radius: 12px; background: #fafafa; border: 1px solid rgba(0,0,0,0.06); text-decoration: none; color: inherit; transition: all 0.2s; }
+.card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateY(-2px); border-color: rgba(73,163,166,0.3); }
+.card .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px; color: white; margin-bottom: 10px; letter-spacing: 0.3px; }
+.card h2 { font-size: 15px; font-weight: 500; margin-bottom: 6px; line-height: 1.4; }
+.card p { font-size: 12px; color: #808080; line-height: 1.5; }
+.card-featured { grid-column: span 3; background: linear-gradient(135deg, #15161a, #1a2332); color: rgba(255,255,255,0.9); border: none; padding: 32px; }
+.card-featured p { color: rgba(255,255,255,0.6); }
+.card-featured:hover { border-color: transparent; box-shadow: 0 8px 30px rgba(0,0,0,0.15); }
+.new-badge { background: #e05357; color: white; font-size: 9px; padding: 1px 6px; border-radius: 3px; margin-left: 6px; vertical-align: middle; }
+.footer { text-align: center; padding: 32px 0; font-size: 12px; color: #b0b0b0; border-top: 1px solid rgba(0,0,0,0.06); margin-top: 16px; }
 .footer a { color: #49a3a6; text-decoration: none; }
-@media (max-width: 768px) { .cards { grid-template-columns: 1fr; } }
+@media (max-width: 900px) { .cards { grid-template-columns: repeat(2, 1fr); } .card-featured { grid-column: span 2; } }
+@media (max-width: 600px) { .cards { grid-template-columns: 1fr; } .card-featured { grid-column: span 1; } .stats { gap: 16px; } }
 </style>
 </head>
 <body>
+<div class="container">
+
 <h1>OpenAlva Dashboards</h1>
-<div class="subtitle">Built with Alva Skill · Altra Backtest Engine · Alva Design System</div>
+<div class="subtitle">Built with Alva Skill · Altra Backtest Engine · 250+ Data SDKs</div>
+
+<div class="stats">
+  <div class="stat"><div class="num">14</div><div class="label">Dashboards</div></div>
+  <div class="stat"><div class="num">5</div><div class="label">Asset Classes</div></div>
+  <div class="stat"><div class="num">288</div><div class="label">Strategies Tested</div></div>
+  <div class="stat"><div class="num">2.70</div><div class="label">Best Sharpe</div></div>
+</div>
+
+<!-- Featured -->
 <div class="cards">
-  <a href="optimized.html" class="card" style="grid-column: span 2; background: linear-gradient(135deg, #1a1a2e, #16213e); color: #e6edf3;">
-    <div class="tag" style="background: #3fb950">Sharpe &gt; 2.0</div><span class="new-badge">NEW</span>
-    <h2>Multi-Asset Portfolio Optimizer</h2>
-    <p>288种参数组合穷举优化 · 最佳 Sharpe 2.70 · 跨资产(Crypto+美股+黄金+美债)、纯Crypto、纯美股、黄金美债四大类别 · 波动率目标风险平价 + 多信号集成投票</p>
+  <a href="playbook.html" class="card card-featured">
+    <div class="tag" style="background: #49a3a6">Trading Strategy Playbook</div><span class="new-badge">NEW</span>
+    <h2>Cross-Asset Ensemble Strategy — Sharpe 2.70</h2>
+    <p>Alva Design System 标准 Playbook · 4个Tab (Overview/Analytics/Strategy/Feed) · 多信号集成投票 + 风险平价 · BTC/ETH/SOL/BNB + SPY/QQQ + GLD/TLT/XLE</p>
+  </a>
+</div>
+
+<!-- Strategy & Optimization -->
+<div class="section-title">📊 Strategy & Optimization</div>
+<div class="cards">
+  <a href="optimized.html" class="card">
+    <div class="tag" style="background: #7474d8">Multi-Asset</div>
+    <h2>Portfolio Optimizer</h2>
+    <p>288种参数穷举优化 · Sharpe 2.70 · 跨资产四大类别</p>
   </a>
   <a href="strategies.html" class="card">
     <div class="tag" style="background: #ff9800">Crypto</div>
-    <h2>5 Crypto Strategy Showcase</h2>
-    <p>5种加密货币轮动策略回测对比：动量瀑布、恐惧贪婪反转、波动率压缩突破、趋势+均值回归、大小盘轮动</p>
+    <h2>5 Crypto Strategies</h2>
+    <p>动量瀑布、恐惧贪婪反转、波动率压缩、趋势均值回归、大小盘轮动</p>
   </a>
   <a href="crypto.html" class="card">
     <div class="tag" style="background: #49a3a6">Crypto</div>
-    <h2>Crypto Rotation Dashboard</h2>
-    <p>BTC/ETH/SOL/BNB rotation strategies: Momentum, Equal Weight, Composite Risk-Adjusted</p>
-  </a>
-  <a href="hk.html" class="card">
-    <div class="tag" style="background: #5f75c9">Stock</div>
-    <h2>HSI vs HSTECH Prediction</h2>
-    <p>恒指 vs 恒科轮动预测：3月看HSTECH，4月看HSI</p>
+    <h2>Crypto Rotation</h2>
+    <p>BTC/ETH/SOL/BNB 轮动：动量、等权、复合风险调整</p>
   </a>
 </div>
-<div class="footer">Powered by <a href="https://skills.sh/alva-ai/skills/open-alva" target="_blank">OpenAlva</a></div>
+
+<!-- Viral / Fun -->
+<div class="section-title">🔥 Viral & Interactive</div>
+<div class="cards">
+  <a href="senator.html" class="card">
+    <div class="tag" style="background: #e05357">Viral</div>
+    <h2>Congress Trading Leaderboard</h2>
+    <p>A1 · 国会山股神排行榜 — 追踪议员交易，排名收益率</p>
+  </a>
+  <a href="panic.html" class="card">
+    <div class="tag" style="background: #e6a91a">Viral</div>
+    <h2>Global Panic Index</h2>
+    <p>A2 · 全球恐慌温度计 — VIX + Fear&Greed + 回撤合成指数</p>
+  </a>
+  <a href="calculator.html" class="card">
+    <div class="tag" style="background: #2a9b7d">Interactive</div>
+    <h2>$1000 Calculator</h2>
+    <p>A3 · 如果你投了$1000 — 选资产选日期，算回报</p>
+  </a>
+</div>
+
+<!-- Tools & Analysis -->
+<div class="section-title">🛠️ Tools & Analysis</div>
+<div class="cards">
+  <a href="stress.html" class="card">
+    <div class="tag" style="background: #3d8bd1">Tool</div>
+    <h2>Portfolio Stress Tester</h2>
+    <p>C8 · 组合压力测试 — Monte Carlo模拟 + 历史场景回放</p>
+  </a>
+  <a href="regime.html" class="card">
+    <div class="tag" style="background: #5f75c9">Research</div>
+    <h2>Macro Regime Classifier</h2>
+    <p>E13 · 宏观Regime分类 — SPY趋势+VIX信号识别市场状态</p>
+  </a>
+  <a href="smart-money.html" class="card">
+    <div class="tag" style="background: #a878dc">Research</div>
+    <h2>Smart Money vs Retail</h2>
+    <p>E12 · 聪明钱vs散户 — 机构流向 vs 散户情绪分歧分析</p>
+  </a>
+</div>
+
+<!-- Visualization -->
+<div class="section-title">🎨 Data Visualization</div>
+<div class="cards">
+  <a href="fund-flow.html" class="card">
+    <div class="tag" style="background: #40a544">Visual</div>
+    <h2>Fund Flow Heatmap</h2>
+    <p>D10 · 资金流向热力图 — Sector ETF 表现和动量排名</p>
+  </a>
+  <a href="narrative.html" class="card">
+    <div class="tag" style="background: #ff9800">Visual</div>
+    <h2>Crypto Narrative Tracker</h2>
+    <p>D11 · Crypto叙事追踪 — Store of Value/DeFi/Meme 叙事轮动</p>
+  </a>
+  <a href="geopolitical.html" class="card">
+    <div class="tag" style="background: #c76466">Research</div>
+    <h2>Geopolitical Comparator</h2>
+    <p>E14 · 地缘冲突对标 — 历史冲突后市场反应叠图对比</p>
+  </a>
+</div>
+
+<!-- Legacy -->
+<div class="section-title">📈 Legacy</div>
+<div class="cards">
+  <a href="hk.html" class="card">
+    <div class="tag" style="background: #5f75c9">Stock</div>
+    <h2>HSI vs HSTECH</h2>
+    <p>恒指 vs 恒科轮动预测</p>
+  </a>
+</div>
+
+</div>
+
+<div class="footer">
+  Powered by <a href="https://skills.sh/alva-ai/skills/open-alva" target="_blank">OpenAlva</a> ·
+  <a href="https://github.com/alva-ai/skills" target="_blank">GitHub</a>
+</div>
 </body>
 </html>

@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crypto Narrative Tracker | OpenAlva</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>
+  :root {
+    --bg: #0d1117;
+    --card: #161b22;
+    --border: #30363d;
+    --text: #e6edf3;
+    --text-muted: #8b949e;
+    --accent: #58a6ff;
+    --green: #3fb950;
+    --red: #f85149;
+    --yellow: #d29922;
+    --purple: #bc8cff;
+    --orange: #f0883e;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+  .header {
+    text-align: center;
+    padding: 32px 20px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    background: linear-gradient(135deg, #58a6ff, #bc8cff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .header p {
+    color: var(--text-muted);
+    font-size: 14px;
+    max-width: 680px;
+    margin: 0 auto;
+  }
+  .dashboard {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    overflow: hidden;
+  }
+  .card.full-width {
+    grid-column: 1 / -1;
+  }
+  .card h2 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: var(--text);
+  }
+  .card .subtitle {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+  }
+  .chart-container {
+    width: 100%;
+    height: 380px;
+  }
+  .chart-container.tall {
+    height: 450px;
+  }
+
+  /* Regime card */
+  .regime-card {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .regime-dominant {
+    background: linear-gradient(135deg, rgba(88,166,255,0.12), rgba(188,140,255,0.12));
+    border: 1px solid rgba(88,166,255,0.3);
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+  }
+  .regime-dominant .label {
+    font-size: 12px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+  .regime-dominant .value {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .regime-scores {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .regime-score-item {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    text-align: center;
+  }
+  .regime-score-item .narr-name {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+  }
+  .regime-score-item .narr-score {
+    font-size: 18px;
+    font-weight: 700;
+  }
+  .regime-score-item .narr-desc {
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  /* Flow cards */
+  .flow-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .flow-row:last-child { border-bottom: none; }
+  .flow-label {
+    width: 160px;
+    font-size: 13px;
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+  .flow-bar-wrap {
+    flex: 1;
+    height: 28px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 6px;
+    position: relative;
+    overflow: hidden;
+  }
+  .flow-bar {
+    height: 100%;
+    border-radius: 6px;
+    position: absolute;
+    top: 0;
+    transition: width 0.6s ease;
+  }
+  .flow-bar.positive {
+    left: 50%;
+    background: linear-gradient(90deg, rgba(63,185,80,0.6), var(--green));
+  }
+  .flow-bar.negative {
+    right: 50%;
+    background: linear-gradient(270deg, rgba(248,81,73,0.6), var(--red));
+  }
+  .flow-center {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: var(--text-muted);
+    opacity: 0.3;
+  }
+  .flow-value {
+    width: 70px;
+    text-align: right;
+    font-size: 13px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  .footer {
+    text-align: center;
+    padding: 24px 20px;
+    border-top: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 13px;
+  }
+  .footer a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+  .footer a:hover { text-decoration: underline; }
+
+  @media (max-width: 900px) {
+    .dashboard {
+      grid-template-columns: 1fr;
+    }
+    .header h1 { font-size: 22px; }
+    .chart-container { height: 320px; }
+    .chart-container.tall { height: 380px; }
+    .regime-scores { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 500px) {
+    .dashboard { padding: 12px; gap: 12px; }
+    .card { padding: 14px; }
+    .flow-label { width: 100px; font-size: 11px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Crypto Narrative Tracker</h1>
+  <p>Track sector rotation across crypto narratives &mdash; Store of Value, Smart Contracts, DeFi, Meme</p>
+</div>
+
+<div class="dashboard">
+
+  <!-- Regime Card -->
+  <div class="card regime-card" id="regime-section">
+    <div>
+      <h2>Current Regime</h2>
+      <div class="subtitle">Based on risk-adjusted 7-day momentum across narratives</div>
+    </div>
+    <div class="regime-dominant">
+      <div class="label">Dominant Narrative</div>
+      <div class="value" id="regime-dominant-text"></div>
+    </div>
+    <div class="regime-scores" id="regime-scores-grid"></div>
+  </div>
+
+  <!-- Narrative Flow -->
+  <div class="card" id="flow-section">
+    <h2>Narrative Money Flow</h2>
+    <div class="subtitle">7-day momentum as proxy for capital inflows/outflows by sector</div>
+    <div id="flow-chart" style="margin-top:8px;"></div>
+  </div>
+
+  <!-- Heatmap -->
+  <div class="card full-width">
+    <h2>Narrative Rotation Heatmap</h2>
+    <div class="subtitle">Weekly returns by narrative over the last 12 weeks (%)</div>
+    <div class="chart-container" id="heatmap-chart"></div>
+  </div>
+
+  <!-- Relative Strength -->
+  <div class="card full-width">
+    <h2>Relative Strength vs BTC</h2>
+    <div class="subtitle">Cumulative return of each narrative minus BTC return (BTC = 0 baseline)</div>
+    <div class="chart-container tall" id="relstrength-chart"></div>
+  </div>
+
+  <!-- Momentum Ranking -->
+  <div class="card">
+    <h2>Momentum Ranking</h2>
+    <div class="subtitle">7-day and 30-day price momentum by asset</div>
+    <div class="chart-container tall" id="momentum-chart"></div>
+  </div>
+
+  <!-- Correlation Matrix -->
+  <div class="card">
+    <h2>Correlation Matrix</h2>
+    <div class="subtitle">30-day rolling pairwise correlations</div>
+    <div class="chart-container tall" id="corr-chart"></div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <a href="index.html">&larr; Back to Dashboard Index</a> &nbsp;|&nbsp;
+  Built with <a href="https://openalva.com" target="_blank" rel="noopener">OpenAlva</a>
+</div>
+
+<script>
+// ===== EMBEDDED DATA =====
+const DASH = {
+  heatmap: {
+    labels: ["Dec 24","Dec 31","Jan 07","Jan 14","Jan 21","Jan 28","Feb 04","Feb 11","Feb 18","Feb 25","Mar 04","Mar 11"],
+    narratives: ["Store of Value","Smart Contract Platforms","DeFi/Infrastructure","Meme/Retail"],
+    data: {
+      "Store of Value": [1.65,-0.02,4.24,6.12,-7.73,-0.17,-18.07,-8.31,-0.93,2.3,6.88,-3.41],
+      "Smart Contract Platforms": [-0.37,0.16,14.22,4.74,-12.32,-2.3,-23.31,-11.89,3.52,11.18,-1.58,-2.78],
+      "DeFi/Infrastructure": [0.25,0.76,7.12,5.17,-9.49,-1.15,-22.33,-11.37,1.35,5.93,2.7,-2.42],
+      "Meme/Retail": [0.89,-4.86,21.1,-0.35,-11.49,-1.55,-18.91,-10.83,5.98,1.64,-1.11,-4.67]
+    }
+  },
+  relStrength: {
+    dates: [1730160000000,1730419200000,1730678400000,1730937600000,1731196800000,1731456000000,1731715200000,1731974400000,1732233600000,1732492800000,1732752000000,1733011200000,1733270400000,1733529600000,1733788800000,1734048000000,1734307200000,1734566400000,1734825600000,1735084800000,1735344000000,1735603200000,1735862400000,1736121600000,1736380800000,1736640000000,1736899200000,1737158400000,1737417600000,1737676800000,1737936000000,1738195200000,1738454400000,1738713600000,1738972800000,1739232000000,1739491200000,1739750400000,1740009600000,1740268800000,1740528000000,1740787200000,1741046400000,1741305600000,1741564800000,1741824000000,1742083200000,1742342400000,1742601600000,1742860800000,1743120000000,1743379200000,1743638400000,1743897600000,1744156800000,1744416000000,1744675200000,1744934400000,1745193600000,1745452800000,1745712000000,1745971200000,1746230400000,1746489600000,1746748800000,1747008000000,1747267200000,1747526400000,1747785600000,1748044800000,1748304000000,1748563200000,1748822400000,1749081600000,1749340800000,1749600000000,1749859200000,1750118400000,1750377600000,1750636800000,1750896000000,1751155200000,1751414400000,1751673600000,1751932800000,1752192000000,1752451200000,1752710400000,1752969600000,1753228800000,1753488000000,1753747200000,1754006400000,1754265600000,1754524800000,1754784000000,1755043200000,1755302400000,1755561600000,1755820800000,1756080000000,1756339200000,1756598400000,1756857600000,1757116800000,1757376000000,1757635200000,1757894400000,1758153600000,1758412800000,1758672000000,1758931200000,1759190400000,1759449600000,1759708800000,1759968000000,1760227200000,1760486400000,1760745600000,1761004800000,1761264000000,1761523200000,1761782400000,1762041600000,1762300800000,1762560000000,1762819200000,1763078400000,1763337600000,1763596800000,1763856000000,1764115200000,1764374400000,1764633600000,1764892800000,1765152000000,1765411200000,1765670400000,1765929600000,1766188800000,1766448000000,1766707200000,1766966400000,1767225600000,1767484800000,1767744000000,1768003200000,1768262400000,1768521600000,1768780800000,1769040000000,1769299200000,1769558400000,1769817600000,1770076800000,1770336000000,1770595200000,1770854400000,1771113600000,1771372800000,1771632000000,1771891200000,1772150400000,1772409600000,1772668800000,1772928000000,1773187200000],
+    narratives: ["Store of Value","Smart Contract Platforms","DeFi/Infrastructure","Meme/Retail"],
+    data: {
+      "Store of Value": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+      "Smart Contract Platforms": [0,-0.84,-4.37,2.6,18.92,5.21,18.65,17.75,38.79,47.1,53,63.31,75.16,76.47,49.11,60.83,47.22,24.97,23.59,29.08,28.54,23.47,46.06,42.95,26.79,28.98,35.15,35.36,22.76,20.14,16.28,15.82,0.47,-7.1,-10.16,-4.36,-1.94,-3.71,-6.86,-6.9,-7.73,-9.96,0.98,-5.59,-12.49,-11.4,-11.49,-10.63,-10.87,-7.49,-12.02,-15.49,-18.15,-22.32,-21.09,-20.04,-23.76,-22.2,-25.22,-21.24,-23.66,-26.19,-27.77,-31.03,-20.67,-14.45,-21.38,-25.43,-29.01,-28.67,-28.29,-33.06,-34.04,-37.9,-36.85,-35.19,-42.42,-42.5,-46.41,-47.99,-53.53,-49.68,-49.71,-51.57,-49.87,-47.13,-47.89,-33.64,-24.33,-31.39,-28.89,-32.45,-38.16,-33.74,-32.27,-29.39,-20.94,-18,-22.73,-10.74,-15.15,-10.96,-12.34,-12.18,-14.45,-8.84,-3.14,-7.72,1.13,-3.85,-11.99,-13.8,-15.81,-15.38,-17.28,-23.19,-33.1,-31.67,-32.33,-33.86,-35.18,-35.94,-38.54,-38.92,-43.04,-36.79,-40.08,-38.3,-39.49,-36.04,-40,-38.75,-42.36,-42.12,-41.74,-41.46,-43.71,-42.43,-45.23,-46.11,-46.12,-47.26,-46.18,-45.55,-43.73,-43.07,-43.86,-44.2,-47.8,-48.35,-47.98,-48.27,-47.96,-46.5,-45.4,-42.71,-42.61,-40.02,-40.91,-39.24,-40.01,-38.62,-36.93,-40.02,-42.45,-39.43,-42.18],
+      "DeFi/Infrastructure": [0,-0.61,-4.24,-1.61,1.62,-15.95,-11.66,-14.2,-13.55,-1.93,-1.6,0.65,27.44,29.62,16.74,43.25,35.35,17.55,16.28,24.81,21.71,14.05,23.47,20.57,12.55,11.26,14.41,16.97,24.16,18.63,18.29,15.54,3.32,-4.54,-3.91,0.34,2.48,4.38,-3.57,-3.38,-0.73,-5.69,-8.87,-2.75,-10.62,-8.45,-7.21,-4.69,-3.18,-2.79,-4.57,-6.37,-10.87,-14.22,-11.96,-12.26,-15.34,-14.12,-15.51,-15.79,-17.43,-19.41,-22.02,-24.88,-18.78,-15.95,-20.93,-25.34,-27,-28.06,-25.71,-30.02,-31,-32.71,-33.42,-31.23,-35.96,-35.25,-36.1,-37.67,-39.23,-36.91,-37.79,-38.58,-36.12,-39.93,-41.19,-28.15,-17.15,-22.18,-18.69,-20.22,-25.24,-22.29,-18.16,-3.96,2.02,3.72,12.61,26.99,16.9,23.97,20.21,17.3,13.53,16.88,23.23,17.09,24.27,25.27,19.74,17.74,16.63,25.38,28.51,29.44,29.89,20.12,14,12.91,14.65,14.25,11.25,11.85,0.23,6.79,2.07,3.94,4.53,7.14,3.29,6.18,2.19,3.88,7.64,7.68,5.49,7.4,2.95,2.18,1.85,0.37,2.48,2.54,4.91,5.58,6.08,6.23,4.18,3.39,2.1,1.08,1.86,-1.49,-1.71,-5.21,-6.53,-4.82,-6.66,-5.06,-4.28,-5.24,-3.02,-4.07,-5.01,-4.13,-4.68],
+      "Meme/Retail": [0,-1.74,-0.65,3.22,24.16,54.47,85.08,88.28,120.74,117.58,128.61,208.66,210.56,238.45,203.55,206,203.53,167.24,166.49,175.74,167.9,158.35,205.31,198.7,179.03,202.52,268.8,278.36,260.09,249,243.71,246.23,186.03,165.32,168.2,168.61,202.35,193.42,191.6,180.49,150.05,147.83,168.83,162.81,127.05,148.62,151.34,172.21,156.69,165.8,144.04,131.65,127.13,116.46,126.25,134.79,125.88,123.78,122.34,131.33,135.19,126.81,125.12,119.74,138.59,165.08,145.46,149.65,142.45,136.36,133.71,114.55,117.77,107.18,121.52,120.33,108.19,108.71,104.69,105.98,97.68,107.96,109.67,107.79,117.51,154.11,171.31,227.63,243.45,206.47,204.42,197.49,181.59,192.29,215.82,204.05,209.92,198.2,175.07,198.54,178.7,189.74,174.59,178.2,175.79,193.96,212.66,201.28,209.08,196.75,189.61,180.28,178.81,193.03,187.02,168.53,140.09,131.64,129.83,135.55,141.15,149.34,133.83,140.11,126.44,125.73,133.53,127.14,121.22,112.47,115.75,129.98,125.61,119.7,109.37,112.04,105.18,104.11,93.61,98.99,93.75,89.06,90.13,91.81,114.53,120.95,113.11,115.89,103.57,97.3,94.25,88.5,93.61,77.25,75.4,70.04,66.87,64.35,74.16,71.19,69.88,65.48,64.31,63.5,61.96,61.45,60.93]
+    }
+  },
+  momentum: {
+    sorted: ["AVAX","BNB","DOT","XRP","BTC","ETH","LINK","SOL","ADA","DOGE"],
+    data: {
+      BTC:{m7:-3.41,m30:0.08}, ETH:{m7:-3.54,m30:-2.52}, SOL:{m7:-4.70,m30:-0.22},
+      BNB:{m7:-0.99,m30:2.37}, XRP:{m7:-3.23,m30:-3.64}, DOGE:{m7:-6.12,m30:-3.36},
+      AVAX:{m7:0.53,m30:5.41}, LINK:{m7:-3.85,m30:1.81}, ADA:{m7:-4.96,m30:-2.70},
+      DOT:{m7:-1.23,m30:15.30}
+    }
+  },
+  narrFlows: {
+    narratives: ["Store of Value","Smart Contract Platforms","DeFi/Infrastructure","Meme/Retail"],
+    data: {
+      "Store of Value":{m7:-3.41,m30:0.08},
+      "Smart Contract Platforms":{m7:-2.78,m30:3.05},
+      "DeFi/Infrastructure":{m7:-2.42,m30:2.09},
+      "Meme/Retail":{m7:-4.67,m30:-3.50}
+    }
+  },
+  corrMatrix: {
+    tickers: ["BTC","ETH","SOL","BNB","XRP","DOGE","AVAX","LINK","ADA","DOT"],
+    data: [
+      [1.0,0.924,0.903,0.879,0.846,0.719,0.814,0.906,0.776,0.579],
+      [0.924,1.0,0.918,0.904,0.871,0.781,0.878,0.951,0.864,0.699],
+      [0.903,0.918,1.0,0.869,0.892,0.742,0.904,0.936,0.843,0.732],
+      [0.879,0.904,0.869,1.0,0.843,0.742,0.912,0.947,0.886,0.738],
+      [0.846,0.871,0.892,0.843,1.0,0.917,0.85,0.899,0.905,0.657],
+      [0.719,0.781,0.742,0.742,0.917,1.0,0.788,0.799,0.891,0.614],
+      [0.814,0.878,0.904,0.912,0.85,0.788,1.0,0.951,0.929,0.865],
+      [0.906,0.951,0.936,0.947,0.899,0.799,0.951,1.0,0.94,0.808],
+      [0.776,0.864,0.843,0.886,0.905,0.891,0.929,0.94,1.0,0.829],
+      [0.579,0.699,0.732,0.738,0.657,0.614,0.865,0.808,0.829,1.0]
+    ]
+  },
+  regime: {
+    scores: {"Store of Value":-1.2646,"Smart Contract Platforms":-0.6796,"DeFi/Infrastructure":-0.7136,"Meme/Retail":-1.2271},
+    dominant: "Smart Contract Platforms"
+  },
+  narrativeDef: {
+    "Store of Value":["BTC"],
+    "Smart Contract Platforms":["ETH","SOL","ADA","AVAX","DOT"],
+    "DeFi/Infrastructure":["LINK","BNB"],
+    "Meme/Retail":["DOGE","XRP"]
+  }
+};
+
+const NARR_COLORS = {
+  "Store of Value": "#f0883e",
+  "Smart Contract Platforms": "#58a6ff",
+  "DeFi/Infrastructure": "#3fb950",
+  "Meme/Retail": "#bc8cff"
+};
+const NARR_SHORT = {
+  "Store of Value": "SoV",
+  "Smart Contract Platforms": "Smart Contracts",
+  "DeFi/Infrastructure": "DeFi/Infra",
+  "Meme/Retail": "Meme/Retail"
+};
+
+// ===== UTILITIES =====
+function fmtDate(ts) {
+  const d = new Date(ts);
+  return d.toLocaleDateString('en-US', {month:'short', day:'numeric'});
+}
+function getColor(v, min, max) {
+  // Green for positive, red for negative
+  if (v > 0) {
+    const t = Math.min(v / Math.max(max, 1), 1);
+    const r = Math.round(22 + (63-22)*(1-t));
+    const g = Math.round(27 + (185-27)*t);
+    const b = Math.round(34 + (80-34)*(1-t));
+    return `rgb(${r},${g},${b})`;
+  } else {
+    const t = Math.min(Math.abs(v) / Math.max(Math.abs(min), 1), 1);
+    const r = Math.round(22 + (248-22)*t);
+    const g = Math.round(27 + (81-27)*(1-t*0.7));
+    const b = Math.round(34 + (73-34)*(1-t*0.5));
+    return `rgb(${r},${g},${b})`;
+  }
+}
+
+// ===== REGIME CARD =====
+(function renderRegime() {
+  document.getElementById('regime-dominant-text').textContent = DASH.regime.dominant;
+
+  const grid = document.getElementById('regime-scores-grid');
+  DASH.narrFlows.narratives.forEach(narr => {
+    const score = DASH.regime.scores[narr];
+    const isDominant = narr === DASH.regime.dominant;
+    const color = score >= 0 ? 'var(--green)' : (score > -1 ? 'var(--yellow)' : 'var(--red)');
+    const desc = score >= 0 ? 'Bullish' : (score > -0.8 ? 'Neutral' : 'Bearish');
+    const item = document.createElement('div');
+    item.className = 'regime-score-item';
+    if (isDominant) item.style.border = '1px solid var(--accent)';
+    item.innerHTML = `
+      <div class="narr-name">${NARR_SHORT[narr]}</div>
+      <div class="narr-score" style="color:${color}">${score.toFixed(2)}</div>
+      <div class="narr-desc">${desc}</div>
+    `;
+    grid.appendChild(item);
+  });
+})();
+
+// ===== NARRATIVE FLOW =====
+(function renderFlow() {
+  const container = document.getElementById('flow-chart');
+  const maxAbs = Math.max(
+    ...DASH.narrFlows.narratives.map(n => Math.abs(DASH.narrFlows.data[n].m7)),
+    ...DASH.narrFlows.narratives.map(n => Math.abs(DASH.narrFlows.data[n].m30))
+  );
+
+  // 7-day flows
+  const h7 = document.createElement('div');
+  h7.style.cssText = 'font-size:12px;color:var(--text-muted);margin-bottom:6px;font-weight:600;';
+  h7.textContent = '7-Day Momentum';
+  container.appendChild(h7);
+
+  DASH.narrFlows.narratives.forEach(narr => {
+    const val = DASH.narrFlows.data[narr].m7;
+    const pct = (Math.abs(val) / maxAbs * 50);
+    const row = document.createElement('div');
+    row.className = 'flow-row';
+    row.innerHTML = `
+      <div class="flow-label" style="color:${NARR_COLORS[narr]}">${NARR_SHORT[narr]}</div>
+      <div class="flow-bar-wrap">
+        <div class="flow-center"></div>
+        <div class="flow-bar ${val >= 0 ? 'positive' : 'negative'}" style="width:${pct}%"></div>
+      </div>
+      <div class="flow-value" style="color:${val >= 0 ? 'var(--green)' : 'var(--red)'}">${val >= 0 ? '+' : ''}${val.toFixed(1)}%</div>
+    `;
+    container.appendChild(row);
+  });
+
+  // 30-day flows
+  const h30 = document.createElement('div');
+  h30.style.cssText = 'font-size:12px;color:var(--text-muted);margin:14px 0 6px;font-weight:600;';
+  h30.textContent = '30-Day Momentum';
+  container.appendChild(h30);
+
+  DASH.narrFlows.narratives.forEach(narr => {
+    const val = DASH.narrFlows.data[narr].m30;
+    const pct = (Math.abs(val) / maxAbs * 50);
+    const row = document.createElement('div');
+    row.className = 'flow-row';
+    row.innerHTML = `
+      <div class="flow-label" style="color:${NARR_COLORS[narr]}">${NARR_SHORT[narr]}</div>
+      <div class="flow-bar-wrap">
+        <div class="flow-center"></div>
+        <div class="flow-bar ${val >= 0 ? 'positive' : 'negative'}" style="width:${pct}%"></div>
+      </div>
+      <div class="flow-value" style="color:${val >= 0 ? 'var(--green)' : 'var(--red)'}">${val >= 0 ? '+' : ''}${val.toFixed(1)}%</div>
+    `;
+    container.appendChild(row);
+  });
+})();
+
+// ===== HEATMAP CHART =====
+(function renderHeatmap() {
+  const chart = echarts.init(document.getElementById('heatmap-chart'));
+  const narrs = DASH.heatmap.narratives;
+  const weeks = DASH.heatmap.labels;
+
+  // Build heatmap data: [weekIdx, narrIdx, value]
+  const hData = [];
+  let allVals = [];
+  narrs.forEach((narr, ni) => {
+    weeks.forEach((w, wi) => {
+      const v = DASH.heatmap.data[narr][wi];
+      hData.push([wi, ni, v]);
+      allVals.push(v);
+    });
+  });
+  const vMin = Math.min(...allVals);
+  const vMax = Math.max(...allVals);
+
+  chart.setOption({
+    tooltip: {
+      formatter: function(p) {
+        const v = p.data[2];
+        return `<b>${narrs[p.data[1]]}</b><br/>${weeks[p.data[0]]}: <span style="color:${v >= 0 ? '#3fb950' : '#f85149'}">${v >= 0 ? '+' : ''}${v.toFixed(2)}%</span>`;
+      }
+    },
+    grid: { left: 160, right: 30, top: 20, bottom: 40 },
+    xAxis: {
+      type: 'category',
+      data: weeks,
+      axisLabel: { color: '#8b949e', fontSize: 10, rotate: 45 },
+      axisTick: { show: false },
+      axisLine: { lineStyle: { color: '#30363d' } },
+      splitLine: { show: false }
+    },
+    yAxis: {
+      type: 'category',
+      data: narrs,
+      axisLabel: { color: '#e6edf3', fontSize: 11 },
+      axisTick: { show: false },
+      axisLine: { lineStyle: { color: '#30363d' } },
+      splitLine: { show: false }
+    },
+    visualMap: {
+      min: vMin,
+      max: vMax,
+      calculable: false,
+      orient: 'horizontal',
+      left: 'center',
+      bottom: 0,
+      show: false,
+      inRange: {
+        color: ['#f85149', '#da3633', '#8b2020', '#1a1a2e', '#0d3320', '#238636', '#3fb950']
+      }
+    },
+    series: [{
+      type: 'heatmap',
+      data: hData,
+      label: {
+        show: true,
+        formatter: function(p) { return p.data[2].toFixed(1); },
+        color: '#e6edf3',
+        fontSize: 10
+      },
+      itemStyle: {
+        borderColor: '#161b22',
+        borderWidth: 2,
+        borderRadius: 4
+      },
+      emphasis: {
+        itemStyle: { borderColor: '#58a6ff', borderWidth: 2 }
+      }
+    }]
+  });
+  window.addEventListener('resize', () => chart.resize());
+})();
+
+// ===== RELATIVE STRENGTH CHART =====
+(function renderRelStrength() {
+  const chart = echarts.init(document.getElementById('relstrength-chart'));
+  const dates = DASH.relStrength.dates;
+
+  const series = DASH.relStrength.narratives.map(narr => ({
+    name: NARR_SHORT[narr],
+    type: 'line',
+    data: DASH.relStrength.data[narr],
+    smooth: true,
+    symbol: 'none',
+    lineStyle: { width: narr === 'Store of Value' ? 1 : 2.5 },
+    itemStyle: { color: NARR_COLORS[narr] },
+    areaStyle: narr === 'Store of Value' ? undefined : undefined
+  }));
+
+  // Add BTC baseline reference (already 0)
+  chart.setOption({
+    tooltip: {
+      trigger: 'axis',
+      backgroundColor: '#161b22',
+      borderColor: '#30363d',
+      textStyle: { color: '#e6edf3', fontSize: 12 },
+      formatter: function(params) {
+        let s = `<b>${fmtDate(dates[params[0].dataIndex])}</b><br/>`;
+        params.forEach(p => {
+          s += `<span style="color:${p.color}">\u25CF</span> ${p.seriesName}: <b>${p.value >= 0 ? '+' : ''}${p.value.toFixed(1)}%</b><br/>`;
+        });
+        return s;
+      }
+    },
+    legend: {
+      data: DASH.relStrength.narratives.map(n => NARR_SHORT[n]),
+      textStyle: { color: '#8b949e', fontSize: 11 },
+      top: 0,
+      itemGap: 16
+    },
+    grid: { left: 55, right: 20, top: 40, bottom: 30 },
+    xAxis: {
+      type: 'category',
+      data: dates.map(fmtDate),
+      axisLabel: { color: '#8b949e', fontSize: 10, interval: Math.floor(dates.length / 8) },
+      axisLine: { lineStyle: { color: '#30363d' } },
+      axisTick: { show: false }
+    },
+    yAxis: {
+      type: 'value',
+      name: 'vs BTC (%)',
+      nameTextStyle: { color: '#8b949e', fontSize: 10 },
+      axisLabel: { color: '#8b949e', fontSize: 10, formatter: '{value}%' },
+      splitLine: { lineStyle: { color: '#21262d' } },
+      axisLine: { show: false }
+    },
+    series: series
+  });
+  window.addEventListener('resize', () => chart.resize());
+})();
+
+// ===== MOMENTUM RANKING CHART =====
+(function renderMomentum() {
+  const chart = echarts.init(document.getElementById('momentum-chart'));
+  const sorted = DASH.momentum.sorted;
+
+  // Find narrative for each ticker
+  const tickerNarr = {};
+  Object.entries(DASH.narrativeDef).forEach(([narr, tickers]) => {
+    tickers.forEach(t => tickerNarr[t] = narr);
+  });
+
+  chart.setOption({
+    tooltip: {
+      trigger: 'axis',
+      backgroundColor: '#161b22',
+      borderColor: '#30363d',
+      textStyle: { color: '#e6edf3', fontSize: 12 },
+      formatter: function(params) {
+        const t = sorted[params[0].dataIndex];
+        let s = `<b>${t}</b> (${NARR_SHORT[tickerNarr[t]]})<br/>`;
+        params.forEach(p => {
+          const v = p.value;
+          s += `${p.seriesName}: <span style="color:${v >= 0 ? '#3fb950' : '#f85149'}">${v >= 0 ? '+' : ''}${v.toFixed(2)}%</span><br/>`;
+        });
+        return s;
+      }
+    },
+    legend: {
+      data: ['7-Day', '30-Day'],
+      textStyle: { color: '#8b949e', fontSize: 11 },
+      top: 0
+    },
+    grid: { left: 50, right: 20, top: 40, bottom: 30 },
+    xAxis: {
+      type: 'category',
+      data: sorted,
+      axisLabel: {
+        color: function(value, index) {
+          return NARR_COLORS[tickerNarr[value]] || '#e6edf3';
+        },
+        fontSize: 11,
+        fontWeight: 'bold'
+      },
+      axisLine: { lineStyle: { color: '#30363d' } },
+      axisTick: { show: false }
+    },
+    yAxis: {
+      type: 'value',
+      axisLabel: { color: '#8b949e', fontSize: 10, formatter: '{value}%' },
+      splitLine: { lineStyle: { color: '#21262d' } },
+      axisLine: { show: false }
+    },
+    series: [
+      {
+        name: '7-Day',
+        type: 'bar',
+        data: sorted.map(t => ({
+          value: DASH.momentum.data[t].m7,
+          itemStyle: {
+            color: DASH.momentum.data[t].m7 >= 0
+              ? new echarts.graphic.LinearGradient(0, 0, 0, 1, [{offset:0, color:'#3fb950'},{offset:1, color:'#238636'}])
+              : new echarts.graphic.LinearGradient(0, 0, 0, 1, [{offset:0, color:'#da3633'},{offset:1, color:'#f85149'}]),
+            borderRadius: [4, 4, 0, 0]
+          }
+        })),
+        barGap: '20%'
+      },
+      {
+        name: '30-Day',
+        type: 'bar',
+        data: sorted.map(t => ({
+          value: DASH.momentum.data[t].m30,
+          itemStyle: {
+            color: DASH.momentum.data[t].m30 >= 0
+              ? new echarts.graphic.LinearGradient(0, 0, 0, 1, [{offset:0, color:'rgba(63,185,80,0.5)'},{offset:1, color:'rgba(35,134,54,0.5)'}])
+              : new echarts.graphic.LinearGradient(0, 0, 0, 1, [{offset:0, color:'rgba(218,54,51,0.5)'},{offset:1, color:'rgba(248,81,73,0.5)'}]),
+            borderRadius: [4, 4, 0, 0]
+          }
+        })),
+        barGap: '20%'
+      }
+    ]
+  });
+  window.addEventListener('resize', () => chart.resize());
+})();
+
+// ===== CORRELATION MATRIX =====
+(function renderCorrelation() {
+  const chart = echarts.init(document.getElementById('corr-chart'));
+  const tickers = DASH.corrMatrix.tickers;
+  const matrix = DASH.corrMatrix.data;
+
+  const hData = [];
+  for (let i = 0; i < tickers.length; i++) {
+    for (let j = 0; j < tickers.length; j++) {
+      hData.push([j, i, matrix[i][j]]);
+    }
+  }
+
+  chart.setOption({
+    tooltip: {
+      formatter: function(p) {
+        return `${tickers[p.data[1]]} / ${tickers[p.data[0]]}<br/>Correlation: <b>${p.data[2].toFixed(3)}</b>`;
+      }
+    },
+    grid: { left: 50, right: 50, top: 10, bottom: 40 },
+    xAxis: {
+      type: 'category',
+      data: tickers,
+      axisLabel: { color: '#8b949e', fontSize: 10 },
+      axisTick: { show: false },
+      axisLine: { lineStyle: { color: '#30363d' } },
+      splitLine: { show: false }
+    },
+    yAxis: {
+      type: 'category',
+      data: tickers,
+      axisLabel: { color: '#8b949e', fontSize: 10 },
+      axisTick: { show: false },
+      axisLine: { lineStyle: { color: '#30363d' } },
+      splitLine: { show: false }
+    },
+    visualMap: {
+      min: 0.5,
+      max: 1,
+      show: true,
+      orient: 'vertical',
+      right: 0,
+      top: 'center',
+      itemHeight: 200,
+      textStyle: { color: '#8b949e', fontSize: 10 },
+      inRange: {
+        color: ['#161b22', '#0d3320', '#238636', '#3fb950', '#7ee787']
+      }
+    },
+    series: [{
+      type: 'heatmap',
+      data: hData,
+      label: {
+        show: true,
+        formatter: function(p) {
+          return p.data[2] === 1 ? '1.0' : p.data[2].toFixed(2);
+        },
+        color: '#e6edf3',
+        fontSize: 9
+      },
+      itemStyle: {
+        borderColor: '#0d1117',
+        borderWidth: 1,
+        borderRadius: 2
+      }
+    }]
+  });
+  window.addEventListener('resize', () => chart.resize());
+})();
+
+</script>
+</body>
+</html>
