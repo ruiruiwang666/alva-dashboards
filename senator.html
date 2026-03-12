@@ -197,17 +197,36 @@ const DATA = {"senators": [{"name": "Rep. Nancy Pelosi", "party": "D", "state": 
   window.addEventListener('resize', () => chart.resize());
 })();
 
-// Equity curves
+// Equity curves — computed from actual trade data
 (function(){
   const chart = echarts.init(document.getElementById('eqChart'));
   const colors = ['#49a3a6','#2a9b7d','#e6a91a','#a878dc','#e05357','#79c0ff','#56d364','#e3b341','#d2a8ff','#ff7b72'];
-  const series = DATA.senators.slice(0, 6).map((s, i) => ({
-    name: s.name.split(' ').pop(),
-    type:'line',smooth:true,symbol:'none',
-    data: s.equity.map(e => [e.d, e.v]),
-    lineStyle:{width:2},
-    itemStyle:{color:colors[i]}
-  }));
+  const START_CAPITAL = 100000;
+  const series = DATA.senators.slice(0, 6).map((s, i) => {
+    // Get this senator's trades sorted by exit date
+    const trades = DATA.trades
+      .filter(t => t.senator === s.name)
+      .sort((a, b) => a.exit_date - b.exit_date);
+    // Build equity curve from cumulative P&L at each trade exit
+    let cumPnl = 0;
+    const points = [];
+    if (trades.length > 0) {
+      // Start point: first trade entry date at $100k
+      const firstEntry = Math.min(...trades.map(t => t.entry_date));
+      points.push([firstEntry, START_CAPITAL]);
+      trades.forEach(t => {
+        cumPnl += t.pnl;
+        points.push([t.exit_date, START_CAPITAL + cumPnl]);
+      });
+    }
+    return {
+      name: s.name.split(' ').pop(),
+      type:'line',smooth:false,symbol:'circle',symbolSize:4,
+      data: points,
+      lineStyle:{width:2},
+      itemStyle:{color:colors[i]}
+    };
+  });
   chart.setOption({
     backgroundColor:'transparent',
     tooltip:{trigger:'axis',backgroundColor:'#fafafa',borderColor:'rgba(0,0,0,0.07)',textStyle:{color:'rgba(0,0,0,0.9)',fontSize:12},
