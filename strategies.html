@@ -6,6 +6,10 @@
 <title>Crypto Strategy Showcase | OpenAlva</title>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
 <style>
+:root { --spacing-xs: 8px; --spacing-s: 12px; --spacing-m: 16px; --spacing-xl: 24px; --spacing-xxl: 28px; }
+
+html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; }
+
 @font-face { font-family: 'Delight'; src: url('https://alva-ai-static.b-cdn.net/fonts/Delight-Regular.ttf') format('truetype'); font-weight: 400; }
 @font-face { font-family: 'Delight'; src: url('https://alva-ai-static.b-cdn.net/fonts/Delight-Medium.ttf') format('truetype'); font-weight: 500; }
 
@@ -50,7 +54,7 @@ body { font-family: 'Delight', -apple-system, sans-serif; background: var(--b0-p
 .kpi-row { display: flex; gap: 16px; flex-wrap: wrap; }
 .kpi-card {
   flex: 1; min-width: 160px; padding: 20px;
-  background: var(--grey-g01); border-radius: 12px;
+  background: var(--grey-g01); border-radius: 8px;
 }
 .kpi-card .label { font-size: 12px; color: var(--text-n5); margin-bottom: 6px; }
 .kpi-card .value { font-size: 24px; font-weight: 500; }
@@ -59,7 +63,7 @@ body { font-family: 'Delight', -apple-system, sans-serif; background: var(--b0-p
 .negative { color: var(--main-m4); }
 
 .chart-card {
-  border-radius: 12px;
+  border-radius: 8px;
   padding: 20px;
   background-image: radial-gradient(circle, var(--grey-g02) 1px, transparent 1px);
   background-size: 16px 16px;
@@ -67,7 +71,7 @@ body { font-family: 'Delight', -apple-system, sans-serif; background: var(--b0-p
 .chart-card h3 { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
 .chart-card .desc { font-size: 12px; color: var(--text-n5); margin-bottom: 12px; }
 
-.table-card { border-radius: 12px; padding: 20px; }
+.table-card { border-radius: 8px; padding: 20px; }
 .table-card h3 { font-size: 14px; font-weight: 500; margin-bottom: 12px; }
 table { width: 100%; border-collapse: collapse; font-size: 13px; }
 th { text-align: left; padding: 8px 12px; color: var(--text-n5); font-weight: 400; border-bottom: 1px solid var(--grey-g02); }
@@ -77,7 +81,7 @@ tr:last-child td { border-bottom: none; }
 
 .strategy-cards { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
 .strat-mini {
-  padding: 16px; border-radius: 12px; background: var(--grey-g01);
+  padding: 16px; border-radius: 8px; background: var(--grey-g01);
   cursor: default; transition: box-shadow 0.2s;
 }
 .strat-mini:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
@@ -389,7 +393,7 @@ function fmtDate(ms) {
   ];
   let html = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">';
   details.forEach((d, i) => {
-    html += `<div style="padding:20px;background:var(--grey-g01);border-radius:12px;border-left:3px solid ${COLORS[i]}">
+    html += `<div style="padding:20px;background:var(--grey-g01);border-radius: 8px;border-left:3px solid ${COLORS[i]}">
       <div style="font-size:15px;font-weight:500;margin-bottom:8px">${d.emoji} ${d.name}</div>
       <div style="font-size:13px;color:var(--text-n7);line-height:1.6;margin-bottom:8px">${d.logic}</div>
       <div style="font-size:11px;color:var(--text-n5)">⚙️ ${d.params}</div>

@@ -6,6 +6,23 @@
   <title>Alva Strategy Dashboard - BTC/ETH/SOL/BNB Rotation</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
   <style>
+/* ── Alva Design System ── */
+@font-face { font-family: 'Delight'; src: url('https://alva-ai-static.b-cdn.net/fonts/Delight-Regular.ttf') format('truetype'); font-weight: 400; font-style: normal; }
+@font-face { font-family: 'Delight'; src: url('https://alva-ai-static.b-cdn.net/fonts/Delight-Medium.ttf') format('truetype'); font-weight: 500; font-style: normal; }
+:root {
+  --main-m1: #49a3a6; --main-m3: #2a9b7d; --main-m4: #e05357;
+  --main-m5: #e6a91a; --main-m6: #ff9800;
+  --text-n9: rgba(0,0,0,0.9); --text-n7: rgba(0,0,0,0.7);
+  --text-n5: rgba(0,0,0,0.5); --text-n3: rgba(0,0,0,0.3);
+  --b0-page: #ffffff; --grey-g01: #fafafa; --grey-g02: #f5f5f5;
+  --line-l07: rgba(0,0,0,0.07); --line-l05: rgba(0,0,0,0.05);
+  --spacing-xxs: 4px; --spacing-xs: 8px; --spacing-s: 12px;
+  --spacing-m: 16px; --spacing-l: 20px; --spacing-xl: 24px;
+  --spacing-xxl: 28px; --spacing-xxxl: 32px;
+  --radius-ct-s: 4px; --radius-ct-m: 6px; --radius-ct-l: 8px;
+}
+html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; }
+
     :root {
       --bg: #0f1117;
       --card: #1a1d2e;
@@ -21,7 +38,7 @@
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+      font-family: 'Delight', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
@@ -33,7 +50,7 @@
     }
     .header h1 {
       font-size: 28px;
-      font-weight: 700;
+      font-weight: 500;
       background: linear-gradient(135deg, #6c5ce7, #a29bfe, #74b9ff);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
@@ -52,10 +69,10 @@
     .asset-badge {
       background: var(--card);
       border: 1px solid var(--border);
-      border-radius: 20px;
+      border-radius: 8px;
       padding: 4px 14px;
       font-size: 13px;
-      font-weight: 600;
+      font-weight: 500;
     }
     .asset-badge.btc { color: #f7931a; border-color: #f7931a40; }
     .asset-badge.eth { color: #627eea; border-color: #627eea40; }
@@ -72,7 +89,7 @@
     .strategy-card {
       background: var(--card);
       border: 1px solid var(--border);
-      border-radius: 16px;
+      border-radius: 8px;
       padding: 24px;
       position: relative;
       overflow: hidden;
@@ -89,13 +106,13 @@
       background: var(--green);
       color: #000;
       font-size: 11px;
-      font-weight: 700;
+      font-weight: 500;
       padding: 3px 10px;
-      border-radius: 10px;
+      border-radius: 8px;
     }
     .card-title {
       font-size: 16px;
-      font-weight: 600;
+      font-weight: 500;
       margin-bottom: 4px;
     }
     .card-desc {
@@ -112,14 +129,14 @@
     }
     .metric-row:last-child { border-bottom: none; }
     .metric-label { font-size: 13px; color: var(--muted); }
-    .metric-value { font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; }
+    .metric-value { font-size: 14px; font-weight: 500; font-variant-numeric: tabular-nums; }
     .metric-value.positive { color: var(--green); }
     .metric-value.negative { color: var(--red); }
     .metric-value.neutral { color: var(--blue); }
 
     .big-return {
       font-size: 36px;
-      font-weight: 700;
+      font-weight: 500;
       margin-bottom: 4px;
       font-variant-numeric: tabular-nums;
     }
@@ -139,12 +156,12 @@
     .chart-container {
       background: var(--card);
       border: 1px solid var(--border);
-      border-radius: 16px;
+      border-radius: 8px;
       padding: 24px;
     }
     .chart-title {
       font-size: 16px;
-      font-weight: 600;
+      font-weight: 500;
       margin-bottom: 16px;
     }
 
@@ -152,7 +169,7 @@
     .table-container {
       background: var(--card);
       border: 1px solid var(--border);
-      border-radius: 16px;
+      border-radius: 8px;
       padding: 24px;
       overflow-x: auto;
     }
@@ -177,7 +194,7 @@
     }
     tr:last-child td { border-bottom: none; }
     tr:hover td { background: rgba(108, 92, 231, 0.05); }
-    .highlight-cell { font-weight: 700; color: var(--green); }
+    .highlight-cell { font-weight: 500; color: var(--green); }
 
     .footer {
       text-align: center;

@@ -6,40 +6,57 @@
 <title>Congress Trading Leaderboard — OpenAlva Showcase</title>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
 <style>
-:root { --bg:#0d1117; --card:#161b22; --border:#30363d; --text:#e6edf3; --text2:#8b949e; --accent:#58a6ff; --green:#3fb950; --red:#f85149; --gold:#d29922; --blue:#58a6ff; --purple:#bc8cff; }
+/* ── Alva Design System ── */
+@font-face { font-family: 'Delight'; src: url('https://alva-ai-static.b-cdn.net/fonts/Delight-Regular.ttf') format('truetype'); font-weight: 400; font-style: normal; }
+@font-face { font-family: 'Delight'; src: url('https://alva-ai-static.b-cdn.net/fonts/Delight-Medium.ttf') format('truetype'); font-weight: 500; font-style: normal; }
+:root {
+  --main-m1: #49a3a6; --main-m3: #2a9b7d; --main-m4: #e05357;
+  --main-m5: #e6a91a; --main-m6: #ff9800;
+  --text-n9: rgba(0,0,0,0.9); --text-n7: rgba(0,0,0,0.7);
+  --text-n5: rgba(0,0,0,0.5); --text-n3: rgba(0,0,0,0.3);
+  --b0-page: #ffffff; --grey-g01: #fafafa; --grey-g02: #f5f5f5;
+  --line-l07: rgba(0,0,0,0.07); --line-l05: rgba(0,0,0,0.05);
+  --spacing-xxs: 4px; --spacing-xs: 8px; --spacing-s: 12px;
+  --spacing-m: 16px; --spacing-l: 20px; --spacing-xl: 24px;
+  --spacing-xxl: 28px; --spacing-xxxl: 32px;
+  --radius-ct-s: 4px; --radius-ct-m: 6px; --radius-ct-l: 8px;
+}
+html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; }
+
+:root { --bg:var(--b0-page); --card:var(--grey-g01); --border:rgba(0,0,0,0.07); --text:rgba(0,0,0,0.9); --text2:rgba(0,0,0,0.5); --accent:#49a3a6; --green:#2a9b7d; --red:#e05357; --gold:#e6a91a; --blue:#49a3a6; --purple:#a878dc; }
 *{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;}
+body{font-family: 'Delight', -apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;}
 .container{max-width:1400px;margin:0 auto;padding:24px;}
 header{text-align:center;padding:48px 24px 32px;border-bottom:1px solid var(--border);margin-bottom:32px;}
-header h1{font-size:2.2rem;font-weight:700;background:linear-gradient(135deg,#f85149,var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px;}
+header h1{font-size:2.2rem;font-weight:500;background:linear-gradient(135deg,#e05357,var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px;}
 header p{color:var(--text2);font-size:1.05rem;max-width:720px;margin:0 auto;}
-.badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:0.8rem;font-weight:600;margin:12px 4px 0;}
+.badge{display:inline-block;padding:4px 12px;border-radius: 8px;font-size:0.8rem;font-weight:500;margin:12px 4px 0;}
 .badge-r{background:rgba(248,81,73,0.15);color:var(--red);border:1px solid rgba(248,81,73,0.3);}
 .badge-d{background:rgba(88,166,255,0.15);color:var(--blue);border:1px solid rgba(88,166,255,0.3);}
 .badge-gold{background:rgba(210,153,34,0.15);color:var(--gold);border:1px solid rgba(210,153,34,0.3);}
 .hero-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:32px;}
-.hero-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center;}
+.hero-card{background:var(--card);border:1px solid var(--border);border-radius: 8px;padding:20px;text-align:center;}
 .hero-card .label{color:var(--text2);font-size:0.85rem;margin-bottom:4px;}
-.hero-card .value{font-size:1.8rem;font-weight:700;}
+.hero-card .value{font-size:1.8rem;font-weight:500;}
 .hero-card .sub{color:var(--text2);font-size:0.8rem;margin-top:4px;}
 .green{color:var(--green);} .red{color:var(--red);} .gold{color:var(--gold);} .blue{color:var(--blue);}
-.section{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:24px;}
-.section h2{font-size:1.3rem;font-weight:600;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.section{background:var(--card);border:1px solid var(--border);border-radius: 8px;padding:24px;margin-bottom:24px;}
+.section h2{font-size:1.3rem;font-weight:500;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
 .chart{width:100%;height:400px;}
 .table-wrap{overflow-x:auto;}
 table{width:100%;border-collapse:collapse;font-size:0.9rem;}
-th{text-align:left;padding:10px 14px;border-bottom:2px solid var(--border);color:var(--text2);font-weight:600;white-space:nowrap;}
+th{text-align:left;padding:10px 14px;border-bottom:2px solid var(--border);color:var(--text2);font-weight:500;white-space:nowrap;}
 td{padding:10px 14px;border-bottom:1px solid var(--border);white-space:nowrap;}
 tr:hover{background:rgba(88,166,255,0.05);}
-.rank{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;font-weight:700;font-size:0.85rem;}
+.rank{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;font-weight:500;font-size:0.85rem;}
 .rank-1{background:linear-gradient(135deg,#ffd700,#ffaa00);color:#000;}
 .rank-2{background:linear-gradient(135deg,#c0c0c0,#a0a0a0);color:#000;}
 .rank-3{background:linear-gradient(135deg,#cd7f32,#a0622a);color:#fff;}
 .rank-n{background:var(--border);color:var(--text2);}
-.avatar{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;font-weight:700;font-size:0.8rem;margin-right:8px;}
+.avatar{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;font-weight:500;font-size:0.8rem;margin-right:8px;}
 .party-r{background:rgba(248,81,73,0.2);color:var(--red);border:2px solid var(--red);}
 .party-d{background:rgba(88,166,255,0.2);color:var(--blue);border:2px solid var(--blue);}
-.party-tag{padding:2px 8px;border-radius:4px;font-size:0.75rem;font-weight:600;}
+.party-tag{padding:2px 8px;border-radius:4px;font-size:0.75rem;font-weight:500;}
 .party-tag-r{background:rgba(248,81,73,0.15);color:var(--red);}
 .party-tag-d{background:rgba(88,166,255,0.15);color:var(--blue);}
 .two-col{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
@@ -134,15 +151,15 @@ const DATA = {"senators": [{"name": "Rep. Nancy Pelosi", "party": "D", "state": 
   const ps = DATA.party_stats;
   chart.setOption({
     backgroundColor:'transparent',
-    tooltip:{trigger:'axis',backgroundColor:'#1c2128',borderColor:'#30363d',textStyle:{color:'#e6edf3'}},
+    tooltip:{trigger:'axis',backgroundColor:'#fafafa',borderColor:'rgba(0,0,0,0.07)',textStyle:{color:'rgba(0,0,0,0.9)'}},
     grid:{left:80,right:20,top:30,bottom:40},
-    xAxis:{type:'category',data:['Total P&L','Avg Return %','Total Trades'],axisLabel:{color:'#8b949e'},axisLine:{lineStyle:{color:'#30363d'}}},
-    yAxis:{type:'value',axisLabel:{color:'#8b949e'},splitLine:{lineStyle:{color:'#21262d'}}},
+    xAxis:{type:'category',data:['Total P&L','Avg Return %','Total Trades'],axisLabel:{color:'rgba(0,0,0,0.5)'},axisLine:{lineStyle:{color:'rgba(0,0,0,0.07)'}}},
+    yAxis:{type:'value',axisLabel:{color:'rgba(0,0,0,0.5)'},splitLine:{lineStyle:{color:'rgba(0,0,0,0.05)'}}},
     series:[
-      {name:'Republican',type:'bar',data:[ps.R.pnl, ps.R.avg_ret * 1000, ps.R.trades * 1000],itemStyle:{color:'#f85149'},barWidth:'30%'},
-      {name:'Democrat',type:'bar',data:[ps.D.pnl, ps.D.avg_ret * 1000, ps.D.trades * 1000],itemStyle:{color:'#58a6ff'},barWidth:'30%'}
+      {name:'Republican',type:'bar',data:[ps.R.pnl, ps.R.avg_ret * 1000, ps.R.trades * 1000],itemStyle:{color:'#e05357'},barWidth:'30%'},
+      {name:'Democrat',type:'bar',data:[ps.D.pnl, ps.D.avg_ret * 1000, ps.D.trades * 1000],itemStyle:{color:'#49a3a6'},barWidth:'30%'}
     ],
-    legend:{bottom:0,textStyle:{color:'#8b949e'}}
+    legend:{bottom:0,textStyle:{color:'rgba(0,0,0,0.5)'}}
   });
   window.addEventListener('resize', () => chart.resize());
 })();
@@ -153,11 +170,11 @@ const DATA = {"senators": [{"name": "Rep. Nancy Pelosi", "party": "D", "state": 
   const mt = DATA.most_traded;
   chart.setOption({
     backgroundColor:'transparent',
-    tooltip:{trigger:'axis',backgroundColor:'#1c2128',borderColor:'#30363d',textStyle:{color:'#e6edf3'}},
+    tooltip:{trigger:'axis',backgroundColor:'#fafafa',borderColor:'rgba(0,0,0,0.07)',textStyle:{color:'rgba(0,0,0,0.9)'}},
     grid:{left:60,right:20,top:10,bottom:30},
-    xAxis:{type:'value',axisLabel:{color:'#8b949e'},splitLine:{lineStyle:{color:'#21262d'}}},
-    yAxis:{type:'category',data:mt.map(t=>t.ticker).reverse(),axisLabel:{color:'#8b949e',fontWeight:600},axisLine:{lineStyle:{color:'#30363d'}}},
-    series:[{type:'bar',data:mt.map(t=>t.count).reverse(),itemStyle:{color:new echarts.graphic.LinearGradient(0,0,1,0,[{offset:0,color:'#58a6ff'},{offset:1,color:'#bc8cff'}])},barWidth:'60%',label:{show:true,position:'right',color:'#e6edf3',fontSize:12,formatter:'{c} trades'}}]
+    xAxis:{type:'value',axisLabel:{color:'rgba(0,0,0,0.5)'},splitLine:{lineStyle:{color:'rgba(0,0,0,0.05)'}}},
+    yAxis:{type:'category',data:mt.map(t=>t.ticker).reverse(),axisLabel:{color:'rgba(0,0,0,0.5)',fontWeight:600},axisLine:{lineStyle:{color:'rgba(0,0,0,0.07)'}}},
+    series:[{type:'bar',data:mt.map(t=>t.count).reverse(),itemStyle:{color:new echarts.graphic.LinearGradient(0,0,1,0,[{offset:0,color:'#49a3a6'},{offset:1,color:'#a878dc'}])},barWidth:'60%',label:{show:true,position:'right',color:'rgba(0,0,0,0.9)',fontSize:12,formatter:'{c} trades'}}]
   });
   window.addEventListener('resize', () => chart.resize());
 })();
@@ -165,7 +182,7 @@ const DATA = {"senators": [{"name": "Rep. Nancy Pelosi", "party": "D", "state": 
 // Equity curves
 (function(){
   const chart = echarts.init(document.getElementById('eqChart'));
-  const colors = ['#58a6ff','#3fb950','#d29922','#bc8cff','#f85149','#79c0ff','#56d364','#e3b341','#d2a8ff','#ff7b72'];
+  const colors = ['#49a3a6','#2a9b7d','#e6a91a','#a878dc','#e05357','#79c0ff','#56d364','#e3b341','#d2a8ff','#ff7b72'];
   const series = DATA.senators.slice(0, 6).map((s, i) => ({
     name: s.name.split(' ').pop(),
     type:'line',smooth:true,symbol:'none',
@@ -175,7 +192,7 @@ const DATA = {"senators": [{"name": "Rep. Nancy Pelosi", "party": "D", "state": 
   }));
   chart.setOption({
     backgroundColor:'transparent',
-    tooltip:{trigger:'axis',backgroundColor:'#1c2128',borderColor:'#30363d',textStyle:{color:'#e6edf3',fontSize:12},
+    tooltip:{trigger:'axis',backgroundColor:'#fafafa',borderColor:'rgba(0,0,0,0.07)',textStyle:{color:'rgba(0,0,0,0.9)',fontSize:12},
       formatter: params => {
         let d = new Date(params[0].value[0]);
         let ds = d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
@@ -184,10 +201,10 @@ const DATA = {"senators": [{"name": "Rep. Nancy Pelosi", "party": "D", "state": 
         return html;
       }
     },
-    legend:{type:'scroll',bottom:0,textStyle:{color:'#8b949e',fontSize:11}},
+    legend:{type:'scroll',bottom:0,textStyle:{color:'rgba(0,0,0,0.5)',fontSize:11}},
     grid:{left:70,right:20,top:20,bottom:50},
-    xAxis:{type:'time',axisLine:{lineStyle:{color:'#30363d'}},axisLabel:{color:'#8b949e',fontSize:11}},
-    yAxis:{type:'value',axisLine:{show:false},splitLine:{lineStyle:{color:'#21262d'}},axisLabel:{color:'#8b949e',formatter:v=>'$'+(v/1000).toFixed(0)+'k'}},
+    xAxis:{type:'time',axisLine:{lineStyle:{color:'rgba(0,0,0,0.07)'}},axisLabel:{color:'rgba(0,0,0,0.5)',fontSize:11}},
+    yAxis:{type:'value',axisLine:{show:false},splitLine:{lineStyle:{color:'rgba(0,0,0,0.05)'}},axisLabel:{color:'rgba(0,0,0,0.5)',formatter:v=>'$'+(v/1000).toFixed(0)+'k'}},
     series
   });
   window.addEventListener('resize', () => chart.resize());

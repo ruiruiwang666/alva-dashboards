@@ -6,14 +6,31 @@
 <title>$1000 Investment Calculator - OpenAlva</title>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
 <style>
+/* ── Alva Design System ── */
+@font-face { font-family: 'Delight'; src: url('https://alva-ai-static.b-cdn.net/fonts/Delight-Regular.ttf') format('truetype'); font-weight: 400; font-style: normal; }
+@font-face { font-family: 'Delight'; src: url('https://alva-ai-static.b-cdn.net/fonts/Delight-Medium.ttf') format('truetype'); font-weight: 500; font-style: normal; }
+:root {
+  --main-m1: #49a3a6; --main-m3: #2a9b7d; --main-m4: #e05357;
+  --main-m5: #e6a91a; --main-m6: #ff9800;
+  --text-n9: rgba(0,0,0,0.9); --text-n7: rgba(0,0,0,0.7);
+  --text-n5: rgba(0,0,0,0.5); --text-n3: rgba(0,0,0,0.3);
+  --b0-page: #ffffff; --grey-g01: #fafafa; --grey-g02: #f5f5f5;
+  --line-l07: rgba(0,0,0,0.07); --line-l05: rgba(0,0,0,0.05);
+  --spacing-xxs: 4px; --spacing-xs: 8px; --spacing-s: 12px;
+  --spacing-m: 16px; --spacing-l: 20px; --spacing-xl: 24px;
+  --spacing-xxl: 28px; --spacing-xxxl: 32px;
+  --radius-ct-s: 4px; --radius-ct-m: 6px; --radius-ct-l: 8px;
+}
+html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; }
+
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--bg:#0d1117;--card:#161b22;--border:#30363d;--text:#e6edf3;--text-dim:#8b949e;--accent:#58a6ff;--green:#3fb950;--red:#f85149}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
+:root{--bg:var(--b0-page);--card:var(--grey-g01);--border:rgba(0,0,0,0.07);--text:rgba(0,0,0,0.9);--text-dim:rgba(0,0,0,0.5);--accent:#49a3a6;--green:#2a9b7d;--red:#e05357}
+body{font-family: 'Delight', -apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
 a{color:var(--accent);text-decoration:none}
 a:hover{text-decoration:underline}
 
 .header{padding:32px 24px 16px;text-align:center}
-.header h1{font-size:28px;font-weight:700;margin-bottom:6px;background:linear-gradient(135deg,var(--accent),#a371f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.header h1{font-size:28px;font-weight:500;margin-bottom:6px;background:linear-gradient(135deg,var(--accent),#a371f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .header p{color:var(--text-dim);font-size:14px;max-width:600px;margin:0 auto}
 
 .controls{display:flex;flex-wrap:wrap;gap:12px;padding:12px 24px;justify-content:center;align-items:center}
@@ -24,28 +41,28 @@ select:focus,input[type="date"]:focus{border-color:var(--accent)}
 input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(0.8)}
 
 .presets{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
-.preset-btn{background:var(--card);border:1px solid var(--border);color:var(--text-dim);padding:6px 14px;border-radius:16px;font-size:12px;cursor:pointer;transition:all .2s}
+.preset-btn{background:var(--card);border:1px solid var(--border);color:var(--text-dim);padding:6px 14px;border-radius: 8px;font-size:12px;cursor:pointer;transition:all .2s}
 .preset-btn:hover,.preset-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
 
 .main{flex:1;padding:12px 24px;display:flex;flex-direction:column;gap:16px}
 
 .summary-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
-.stat-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius: 8px;padding:16px;text-align:center}
 .stat-card .label{font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
-.stat-card .value{font-size:22px;font-weight:700}
+.stat-card .value{font-size:22px;font-weight:500}
 .stat-card .sub{font-size:12px;color:var(--text-dim);margin-top:2px}
 .green{color:var(--green)}.red{color:var(--red)}.accent{color:var(--accent)}
 
-.chart-container{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;flex:1;min-height:400px;position:relative}
+.chart-container{background:var(--card);border:1px solid var(--border);border-radius: 8px;padding:16px;flex:1;min-height:400px;position:relative}
 #chart{width:100%;height:100%;min-height:380px}
 
-.compare-section{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px}
+.compare-section{background:var(--card);border:1px solid var(--border);border-radius: 8px;padding:20px}
 .compare-section h3{font-size:15px;margin-bottom:12px;color:var(--text-dim)}
 .compare-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
 .compare-item{display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--bg);border-radius:8px;border:1px solid var(--border);cursor:pointer;transition:all .2s;font-size:13px}
 .compare-item:hover{border-color:var(--accent)}
 .compare-item.selected{border-color:var(--accent);background:rgba(88,166,255,.08)}
-.compare-item .ticker{font-weight:600;min-width:40px}
+.compare-item .ticker{font-weight:500;min-width:40px}
 .compare-item .ret{font-size:12px;margin-left:auto}
 
 .footer{padding:20px 24px;text-align:center;font-size:12px;color:var(--text-dim);border-top:1px solid var(--border);margin-top:16px}
@@ -130,7 +147,7 @@ const PRICE_DATA = {"BTC":[{"d":1730160000000,"c":72736.42},{"d":1730246400000,"
 
 const ALL_TICKERS = ['BTC','ETH','SOL','BNB','XRP','SPY','QQQ','NVDA','AAPL','MSFT','GLD','TLT'];
 const TICKER_NAMES = {BTC:'Bitcoin',ETH:'Ethereum',SOL:'Solana',BNB:'BNB',XRP:'Ripple',SPY:'S&P 500',QQQ:'Nasdaq 100',NVDA:'NVIDIA',AAPL:'Apple',MSFT:'Microsoft',GLD:'Gold',TLT:'20+ Yr Treasury'};
-const TICKER_COLORS = {BTC:'#f7931a',ETH:'#627eea',SOL:'#9945ff',BNB:'#f0b90b',XRP:'#00aae4',SPY:'#58a6ff',QQQ:'#a371f7',NVDA:'#76b900',AAPL:'#a2aaad',MSFT:'#00a4ef',GLD:'#ffd700',TLT:'#3fb950'};
+const TICKER_COLORS = {BTC:'#f7931a',ETH:'#627eea',SOL:'#9945ff',BNB:'#f0b90b',XRP:'#00aae4',SPY:'#49a3a6',QQQ:'#a371f7',NVDA:'#76b900',AAPL:'#a2aaad',MSFT:'#00a4ef',GLD:'#ffd700',TLT:'#2a9b7d'};
 
 let chart;
 let currentAsset = 'BTC';
@@ -351,28 +368,28 @@ function update() {
     type: 'line',
     data: dates.map(() => 1000),
     symbol: 'none',
-    lineStyle: {width: 1, color: '#30363d', type: 'dashed'},
-    itemStyle: {color: '#30363d'}
+    lineStyle: {width: 1, color: 'rgba(0,0,0,0.07)', type: 'dashed'},
+    itemStyle: {color: 'rgba(0,0,0,0.07)'}
   });
   legendData.push('$1000 Baseline');
 
   chart.setOption({
     tooltip: {
       trigger: 'axis',
-      backgroundColor: '#161b22',
-      borderColor: '#30363d',
-      textStyle: {color: '#e6edf3', fontSize: 12},
+      backgroundColor: 'var(--grey-g01)',
+      borderColor: 'rgba(0,0,0,0.07)',
+      textStyle: {color: 'rgba(0,0,0,0.9)', fontSize: 12},
       formatter: function(params) {
-        let html = '<div style="font-weight:600;margin-bottom:4px">' + params[0].axisValue + '</div>';
+        let html = '<div style="font-weight:500;margin-bottom:4px">' + params[0].axisValue + '</div>';
         params.forEach(p => {
           if (p.seriesName === '$1000 Baseline') return;
           const val = parseFloat(p.value instanceof Array ? p.value[1] : p.value);
           const ret = ((val - 1000) / 1000 * 100).toFixed(2);
-          const color = val >= 1000 ? '#3fb950' : '#f85149';
+          const color = val >= 1000 ? '#2a9b7d' : '#e05357';
           html += '<div style="display:flex;align-items:center;gap:6px;margin:2px 0">';
           html += '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:' + p.color + '"></span>';
           html += '<span>' + p.seriesName + '</span>';
-          html += '<span style="margin-left:auto;font-weight:600;color:' + color + '">$' + val.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}) + ' (' + (ret >= 0 ? '+' : '') + ret + '%)</span>';
+          html += '<span style="margin-left:auto;font-weight:500;color:' + color + '">$' + val.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}) + ' (' + (ret >= 0 ? '+' : '') + ret + '%)</span>';
           html += '</div>';
         });
         return html;
@@ -381,14 +398,14 @@ function update() {
     legend: {
       data: legendData,
       top: 0,
-      textStyle: {color: '#8b949e', fontSize: 11}
+      textStyle: {color: 'rgba(0,0,0,0.5)', fontSize: 11}
     },
     grid: {left: 60, right: 20, top: 40, bottom: 30},
     xAxis: {
       type: 'category',
       data: dates,
-      axisLine: {lineStyle: {color: '#30363d'}},
-      axisLabel: {color: '#8b949e', fontSize: 10, rotate: 0,
+      axisLine: {lineStyle: {color: 'rgba(0,0,0,0.07)'}},
+      axisLabel: {color: 'rgba(0,0,0,0.5)', fontSize: 10, rotate: 0,
         formatter: function(v) {
           const parts = v.split('-');
           const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -401,8 +418,8 @@ function update() {
     yAxis: {
       type: 'value',
       axisLine: {show: false},
-      axisLabel: {color: '#8b949e', fontSize: 11, formatter: function(v) { return '$' + v.toLocaleString(); }},
-      splitLine: {lineStyle: {color: '#21262d'}},
+      axisLabel: {color: 'rgba(0,0,0,0.5)', fontSize: 11, formatter: function(v) { return '$' + v.toLocaleString(); }},
+      splitLine: {lineStyle: {color: 'rgba(0,0,0,0.05)'}},
       axisTick: {show: false}
     },
     series: series,

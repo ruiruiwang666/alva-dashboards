@@ -6,47 +6,64 @@
 <title>Portfolio Stress Tester | OpenAlva</title>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
 <style>
+/* ── Alva Design System ── */
+@font-face { font-family: 'Delight'; src: url('https://alva-ai-static.b-cdn.net/fonts/Delight-Regular.ttf') format('truetype'); font-weight: 400; font-style: normal; }
+@font-face { font-family: 'Delight'; src: url('https://alva-ai-static.b-cdn.net/fonts/Delight-Medium.ttf') format('truetype'); font-weight: 500; font-style: normal; }
+:root {
+  --main-m1: #49a3a6; --main-m3: #2a9b7d; --main-m4: #e05357;
+  --main-m5: #e6a91a; --main-m6: #ff9800;
+  --text-n9: rgba(0,0,0,0.9); --text-n7: rgba(0,0,0,0.7);
+  --text-n5: rgba(0,0,0,0.5); --text-n3: rgba(0,0,0,0.3);
+  --b0-page: #ffffff; --grey-g01: #fafafa; --grey-g02: #f5f5f5;
+  --line-l07: rgba(0,0,0,0.07); --line-l05: rgba(0,0,0,0.05);
+  --spacing-xxs: 4px; --spacing-xs: 8px; --spacing-s: 12px;
+  --spacing-m: 16px; --spacing-l: 20px; --spacing-xl: 24px;
+  --spacing-xxl: 28px; --spacing-xxxl: 32px;
+  --radius-ct-s: 4px; --radius-ct-m: 6px; --radius-ct-l: 8px;
+}
+html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; }
+
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--bg:#0d1117;--card:#161b22;--border:#30363d;--text:#e6edf3;--text2:#8b949e;--accent:#58a6ff;--green:#3fb950;--red:#f85149;--yellow:#d29922;--purple:#bc8cff}
-body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;line-height:1.5;min-height:100vh}
+:root{--bg:var(--b0-page);--card:var(--grey-g01);--border:rgba(0,0,0,0.07);--text:rgba(0,0,0,0.9);--text2:rgba(0,0,0,0.5);--accent:#49a3a6;--green:#2a9b7d;--red:#e05357;--yellow:#e6a91a;--purple:#a878dc}
+body{background:var(--bg);color:var(--text);font-family: 'Delight', -apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;line-height:1.5;min-height:100vh}
 a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
 .header{text-align:center;padding:2rem 1rem 1rem;border-bottom:1px solid var(--border)}
-.header h1{font-size:2rem;font-weight:700;color:var(--text);margin-bottom:0.25rem}
+.header h1{font-size:2rem;font-weight:500;color:var(--text);margin-bottom:0.25rem}
 .header h1 span{color:var(--accent)}
 .header p{color:var(--text2);font-size:0.95rem;max-width:600px;margin:0 auto}
 .container{max-width:1400px;margin:0 auto;padding:1.5rem 1rem}
 .grid{display:grid;gap:1.25rem}
 .grid-2{grid-template-columns:1fr 1fr}
 .grid-3{grid-template-columns:1fr 1fr 1fr}
-.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.25rem;overflow:hidden}
-.card-title{font-size:1rem;font-weight:600;color:var(--text);margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem}
+.card{background:var(--card);border:1px solid var(--border);border-radius: 8px;padding:1.25rem;overflow:hidden}
+.card-title{font-size:1rem;font-weight:500;color:var(--text);margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem}
 .card-title .icon{font-size:1.1rem}
 .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:0.75rem}
 .stat-box{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:0.75rem}
 .stat-label{font-size:0.7rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--text2);margin-bottom:0.25rem}
-.stat-value{font-size:1.1rem;font-weight:700}
+.stat-value{font-size:1.1rem;font-weight:500}
 .stat-value.positive{color:var(--green)}.stat-value.negative{color:var(--red)}.stat-value.neutral{color:var(--accent)}
 .slider-row{display:flex;align-items:center;gap:0.75rem;margin-bottom:0.6rem}
-.slider-row label{width:50px;font-size:0.85rem;font-weight:600;color:var(--text2);flex-shrink:0}
+.slider-row label{width:50px;font-size:0.85rem;font-weight:500;color:var(--text2);flex-shrink:0}
 .slider-row input[type=range]{flex:1;-webkit-appearance:none;background:var(--bg);height:6px;border-radius:3px;outline:none}
 .slider-row input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--accent);cursor:pointer}
-.slider-row .val{width:48px;text-align:right;font-size:0.85rem;font-weight:600;color:var(--accent);flex-shrink:0}
+.slider-row .val{width:48px;text-align:right;font-size:0.85rem;font-weight:500;color:var(--accent);flex-shrink:0}
 .total-bar{margin-top:0.75rem;padding:0.5rem 0.75rem;background:var(--bg);border-radius:6px;display:flex;justify-content:space-between;align-items:center;font-size:0.85rem}
-.total-bar .total-label{color:var(--text2)}.total-bar .total-val{font-weight:700;font-size:1rem}
+.total-bar .total-label{color:var(--text2)}.total-bar .total-val{font-weight:500;font-size:1rem}
 .total-bar .total-val.ok{color:var(--green)}.total-bar .total-val.over{color:var(--red)}
 .preset-row{display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:1rem}
 .preset-btn{background:var(--bg);border:1px solid var(--border);color:var(--text2);padding:0.35rem 0.75rem;border-radius:6px;cursor:pointer;font-size:0.8rem;transition:all 0.2s}
 .preset-btn:hover{border-color:var(--accent);color:var(--accent)}
-.preset-btn.active{background:var(--accent);color:#0d1117;border-color:var(--accent);font-weight:600}
+.preset-btn.active{background:var(--accent);color:var(--b0-page);border-color:var(--accent);font-weight:500}
 .scenario-card{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:0.6rem}
-.scenario-name{font-weight:600;font-size:0.9rem;margin-bottom:0.25rem;display:flex;align-items:center;gap:0.5rem}
+.scenario-name{font-weight:500;font-size:0.9rem;margin-bottom:0.25rem;display:flex;align-items:center;gap:0.5rem}
 .scenario-desc{font-size:0.75rem;color:var(--text2);margin-bottom:0.5rem}
 .scenario-stats{display:flex;gap:1rem;flex-wrap:wrap}
-.scenario-stat{font-size:0.8rem}.scenario-stat span{font-weight:700}
+.scenario-stat{font-size:0.8rem}.scenario-stat span{font-weight:500}
 .mc-stats{display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-top:0.75rem}
 .mc-stat{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:0.5rem 0.75rem}
 .mc-stat .mc-label{font-size:0.7rem;color:var(--text2);text-transform:uppercase}
-.mc-stat .mc-val{font-size:0.95rem;font-weight:700}
+.mc-stat .mc-val{font-size:0.95rem;font-weight:500}
 .chart-container{width:100%;height:300px}
 .chart-container.tall{height:380px}
 footer{text-align:center;padding:2rem 1rem;border-top:1px solid var(--border);margin-top:2rem;color:var(--text2);font-size:0.85rem}
@@ -446,7 +463,7 @@ function renderMonteCarlo(mc){
   }
   const days=Array.from({length:mc.nDays+1},(_,i)=>i);
   mcChartInst.setOption({
-    tooltip:{trigger:'axis',backgroundColor:'#161b22',borderColor:'#30363d',textStyle:{color:'#e6edf3'},
+    tooltip:{trigger:'axis',backgroundColor:'var(--grey-g01)',borderColor:'rgba(0,0,0,0.07)',textStyle:{color:'rgba(0,0,0,0.9)'},
       formatter:function(params){
         let d='Day '+params[0].axisValue;
         params.forEach(p=>{d+='<br/>'+p.marker+p.seriesName+': $'+p.value[1].toFixed(2)});
@@ -454,15 +471,15 @@ function renderMonteCarlo(mc){
       }
     },
     grid:{top:20,right:20,bottom:30,left:50},
-    xAxis:{type:'category',data:days,axisLabel:{color:'#8b949e',formatter:v=>v%63===0?'D'+v:''},axisLine:{lineStyle:{color:'#30363d'}},splitLine:{show:false}},
-    yAxis:{type:'value',axisLabel:{color:'#8b949e',formatter:'${value}'},axisLine:{lineStyle:{color:'#30363d'}},splitLine:{lineStyle:{color:'#30363d',type:'dashed'}}},
+    xAxis:{type:'category',data:days,axisLabel:{color:'rgba(0,0,0,0.5)',formatter:v=>v%63===0?'D'+v:''},axisLine:{lineStyle:{color:'rgba(0,0,0,0.07)'}},splitLine:{show:false}},
+    yAxis:{type:'value',axisLabel:{color:'rgba(0,0,0,0.5)',formatter:'${value}'},axisLine:{lineStyle:{color:'rgba(0,0,0,0.07)'}},splitLine:{lineStyle:{color:'rgba(0,0,0,0.07)',type:'dashed'}}},
     series:[
       {name:'5th-95th',type:'line',data:days.map((d,i)=>[d,mc.bands[95][i]]),lineStyle:{width:0},areaStyle:{color:'rgba(88,166,255,0.08)'},symbol:'none',z:1},
       {name:'5th',type:'line',data:days.map((d,i)=>[d,mc.bands[5][i]]),lineStyle:{width:1,color:'rgba(88,166,255,0.3)'},areaStyle:{color:'rgba(88,166,255,0.08)',origin:'auto'},symbol:'none',z:1},
       {name:'25th-75th',type:'line',data:days.map((d,i)=>[d,mc.bands[75][i]]),lineStyle:{width:0},areaStyle:{color:'rgba(88,166,255,0.12)'},symbol:'none',z:2},
       {name:'25th',type:'line',data:days.map((d,i)=>[d,mc.bands[25][i]]),lineStyle:{width:1,color:'rgba(88,166,255,0.5)'},areaStyle:{color:'rgba(88,166,255,0.12)',origin:'auto'},symbol:'none',z:2},
-      {name:'Median',type:'line',data:days.map((d,i)=>[d,mc.bands[50][i]]),lineStyle:{width:2,color:'#58a6ff'},symbol:'none',z:3},
-      {name:'$100 Start',type:'line',data:[[0,100],[mc.nDays,100]],lineStyle:{width:1,color:'#8b949e',type:'dashed'},symbol:'none',z:0},
+      {name:'Median',type:'line',data:days.map((d,i)=>[d,mc.bands[50][i]]),lineStyle:{width:2,color:'#49a3a6'},symbol:'none',z:3},
+      {name:'$100 Start',type:'line',data:[[0,100],[mc.nDays,100]],lineStyle:{width:1,color:'rgba(0,0,0,0.5)',type:'dashed'},symbol:'none',z:0},
     ]
   },true);
 
@@ -477,14 +494,14 @@ function renderMonteCarlo(mc){
 function renderDrawdown(dd,dates){
   if(!dd.length){ddChartInst.clear();return}
   ddChartInst.setOption({
-    tooltip:{trigger:'axis',backgroundColor:'#161b22',borderColor:'#30363d',textStyle:{color:'#e6edf3'},
+    tooltip:{trigger:'axis',backgroundColor:'var(--grey-g01)',borderColor:'rgba(0,0,0,0.07)',textStyle:{color:'rgba(0,0,0,0.9)'},
       formatter:p=>p[0].axisValue+'<br/>Drawdown: '+(p[0].value[1]*100).toFixed(2)+'%'},
     grid:{top:20,right:20,bottom:30,left:55},
-    xAxis:{type:'category',data:dates,axisLabel:{color:'#8b949e',rotate:30,fontSize:10,formatter:v=>{const d=new Date(v);return (d.getMonth()+1)+'/'+d.getDate()}},axisLine:{lineStyle:{color:'#30363d'}},splitLine:{show:false}},
-    yAxis:{type:'value',axisLabel:{color:'#8b949e',formatter:v=>(v*100).toFixed(0)+'%'},axisLine:{lineStyle:{color:'#30363d'}},splitLine:{lineStyle:{color:'#30363d',type:'dashed'}}},
+    xAxis:{type:'category',data:dates,axisLabel:{color:'rgba(0,0,0,0.5)',rotate:30,fontSize:10,formatter:v=>{const d=new Date(v);return (d.getMonth()+1)+'/'+d.getDate()}},axisLine:{lineStyle:{color:'rgba(0,0,0,0.07)'}},splitLine:{show:false}},
+    yAxis:{type:'value',axisLabel:{color:'rgba(0,0,0,0.5)',formatter:v=>(v*100).toFixed(0)+'%'},axisLine:{lineStyle:{color:'rgba(0,0,0,0.07)'}},splitLine:{lineStyle:{color:'rgba(0,0,0,0.07)',type:'dashed'}}},
     series:[{
       type:'line',data:dates.map((d,i)=>[d,dd[i]]),
-      lineStyle:{width:1.5,color:'#f85149'},
+      lineStyle:{width:1.5,color:'#e05357'},
       areaStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'rgba(248,81,73,0.3)'},{offset:1,color:'rgba(248,81,73,0.02)'}])},
       symbol:'none'
     }]
@@ -500,16 +517,16 @@ function renderCorrelation(active,corr){
   corrChartInst.setOption({
     tooltip:{formatter:p=>active[p.value[1]]+' / '+active[p.value[0]]+': '+p.value[2].toFixed(2)},
     grid:{top:30,right:20,bottom:40,left:60},
-    xAxis:{type:'category',data:active,axisLabel:{color:'#8b949e',fontSize:11},axisLine:{lineStyle:{color:'#30363d'}},splitLine:{show:false}},
-    yAxis:{type:'category',data:active,axisLabel:{color:'#8b949e',fontSize:11},axisLine:{lineStyle:{color:'#30363d'}},splitLine:{show:false}},
+    xAxis:{type:'category',data:active,axisLabel:{color:'rgba(0,0,0,0.5)',fontSize:11},axisLine:{lineStyle:{color:'rgba(0,0,0,0.07)'}},splitLine:{show:false}},
+    yAxis:{type:'category',data:active,axisLabel:{color:'rgba(0,0,0,0.5)',fontSize:11},axisLine:{lineStyle:{color:'rgba(0,0,0,0.07)'}},splitLine:{show:false}},
     visualMap:{min:-1,max:1,calculable:false,orient:'horizontal',left:'center',bottom:0,
-      inRange:{color:['#f85149','#161b22','#3fb950']},
-      textStyle:{color:'#8b949e'},show:true},
+      inRange:{color:['#e05357','var(--grey-g01)','#2a9b7d']},
+      textStyle:{color:'rgba(0,0,0,0.5)'},show:true},
     series:[{
       type:'heatmap',data:data,
-      label:{show:true,color:'#e6edf3',fontSize:10,formatter:p=>p.value[2].toFixed(2)},
+      label:{show:true,color:'rgba(0,0,0,0.9)',fontSize:10,formatter:p=>p.value[2].toFixed(2)},
       emphasis:{itemStyle:{shadowBlur:5,shadowColor:'rgba(0,0,0,0.5)'}},
-      itemStyle:{borderColor:'#0d1117',borderWidth:2}
+      itemStyle:{borderColor:'var(--b0-page)',borderWidth:2}
     }]
   },true);
 }

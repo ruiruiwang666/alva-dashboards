@@ -6,27 +6,44 @@
 <title>Smart Money vs Retail — OpenAlva Showcase</title>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
 <style>
-:root{--bg:#0d1117;--card:#161b22;--border:#30363d;--text:#e6edf3;--text2:#8b949e;--accent:#58a6ff;--green:#3fb950;--red:#f85149;--gold:#d29922;--purple:#bc8cff;}
+/* ── Alva Design System ── */
+@font-face { font-family: 'Delight'; src: url('https://alva-ai-static.b-cdn.net/fonts/Delight-Regular.ttf') format('truetype'); font-weight: 400; font-style: normal; }
+@font-face { font-family: 'Delight'; src: url('https://alva-ai-static.b-cdn.net/fonts/Delight-Medium.ttf') format('truetype'); font-weight: 500; font-style: normal; }
+:root {
+  --main-m1: #49a3a6; --main-m3: #2a9b7d; --main-m4: #e05357;
+  --main-m5: #e6a91a; --main-m6: #ff9800;
+  --text-n9: rgba(0,0,0,0.9); --text-n7: rgba(0,0,0,0.7);
+  --text-n5: rgba(0,0,0,0.5); --text-n3: rgba(0,0,0,0.3);
+  --b0-page: #ffffff; --grey-g01: #fafafa; --grey-g02: #f5f5f5;
+  --line-l07: rgba(0,0,0,0.07); --line-l05: rgba(0,0,0,0.05);
+  --spacing-xxs: 4px; --spacing-xs: 8px; --spacing-s: 12px;
+  --spacing-m: 16px; --spacing-l: 20px; --spacing-xl: 24px;
+  --spacing-xxl: 28px; --spacing-xxxl: 32px;
+  --radius-ct-s: 4px; --radius-ct-m: 6px; --radius-ct-l: 8px;
+}
+html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; }
+
+:root{--bg:var(--b0-page);--card:var(--grey-g01);--border:rgba(0,0,0,0.07);--text:rgba(0,0,0,0.9);--text2:rgba(0,0,0,0.5);--accent:#49a3a6;--green:#2a9b7d;--red:#e05357;--gold:#e6a91a;--purple:#a878dc;}
 *{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;}
+body{font-family: 'Delight', -apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;}
 .container{max-width:1400px;margin:0 auto;padding:24px;}
 header{text-align:center;padding:48px 24px 32px;border-bottom:1px solid var(--border);margin-bottom:32px;}
-header h1{font-size:2.2rem;font-weight:700;background:linear-gradient(135deg,var(--green),var(--red));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px;}
+header h1{font-size:2.2rem;font-weight:500;background:linear-gradient(135deg,var(--green),var(--red));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px;}
 header p{color:var(--text2);font-size:1.05rem;max-width:720px;margin:0 auto;}
-.badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:0.8rem;font-weight:600;margin:12px 4px 0;}
+.badge{display:inline-block;padding:4px 12px;border-radius: 8px;font-size:0.8rem;font-weight:500;margin:12px 4px 0;}
 .badge-sm{background:rgba(63,185,80,0.15);color:var(--green);border:1px solid rgba(63,185,80,0.3);}
 .badge-rt{background:rgba(248,81,73,0.15);color:var(--red);border:1px solid rgba(248,81,73,0.3);}
 
 .signal-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:32px;}
-.signal-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center;}
-.signal-card .ticker{font-size:1.4rem;font-weight:700;margin-bottom:8px;}
+.signal-card{background:var(--card);border:1px solid var(--border);border-radius: 8px;padding:20px;text-align:center;}
+.signal-card .ticker{font-size:1.4rem;font-weight:500;margin-bottom:8px;}
 .signal-card .label{color:var(--text2);font-size:0.8rem;}
-.signal-card .bar-wrap{height:8px;background:#21262d;border-radius:4px;margin:6px 0;position:relative;overflow:hidden;}
+.signal-card .bar-wrap{height:8px;background:rgba(0,0,0,0.05);border-radius:4px;margin:6px 0;position:relative;overflow:hidden;}
 .signal-card .bar-sm{height:100%;background:var(--green);border-radius:4px;position:absolute;left:50%;}
 .signal-card .bar-rt{height:100%;background:var(--red);border-radius:4px;position:absolute;right:50%;}
-.signal-card .div-val{font-size:1.1rem;font-weight:700;margin-top:8px;}
-.section{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:24px;}
-.section h2{font-size:1.3rem;font-weight:600;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.signal-card .div-val{font-size:1.1rem;font-weight:500;margin-top:8px;}
+.section{background:var(--card);border:1px solid var(--border);border-radius: 8px;padding:24px;margin-bottom:24px;}
+.section h2{font-size:1.3rem;font-weight:500;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
 .chart{width:100%;height:400px;}
 .two-col{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
 .tab-bar{display:flex;gap:4px;margin-bottom:16px;background:rgba(255,255,255,0.03);border-radius:8px;padding:4px;flex-wrap:wrap;}
@@ -84,13 +101,13 @@ const TICKERS = Object.keys(DATA);
   TICKERS.forEach(t => {
     const d = DATA[t];
     const div = d.divergence;
-    const divColor = div > 0.2 ? '#3fb950' : div < -0.2 ? '#f85149' : '#d29922';
+    const divColor = div > 0.2 ? '#2a9b7d' : div < -0.2 ? '#e05357' : '#e6a91a';
     const signal = div > 0.2 ? '🟢 Smart Money Bullish' : div < -0.2 ? '🔴 Retail Overextended' : '🟡 Neutral';
     const smWidth = Math.abs(d.current_smart) * 50;
     const rtWidth = Math.abs(d.current_retail) * 50;
     html += `<div class="signal-card">
       <div class="ticker">${t}</div>
-      <div class="label">Smart: <span style="color:#3fb950">${d.current_smart > 0 ? '+' : ''}${d.current_smart}</span> | Retail: <span style="color:#f85149">${d.current_retail > 0 ? '+' : ''}${d.current_retail}</span></div>
+      <div class="label">Smart: <span style="color:#2a9b7d">${d.current_smart > 0 ? '+' : ''}${d.current_smart}</span> | Retail: <span style="color:#e05357">${d.current_retail > 0 ? '+' : ''}${d.current_retail}</span></div>
       <div class="bar-wrap">
         <div class="bar-sm" style="width:${smWidth}%;${d.current_smart<0?'right:50%;left:auto':''}"></div>
         <div class="bar-rt" style="width:${rtWidth}%;${d.current_retail>0?'left:50%;right:auto':''}"></div>
@@ -125,18 +142,18 @@ function renderDivChart(ticker) {
   const d = DATA[ticker];
   divInst.setOption({
     backgroundColor:'transparent',
-    tooltip:{trigger:'axis',backgroundColor:'#1c2128',borderColor:'#30363d',textStyle:{color:'#e6edf3',fontSize:12}},
-    legend:{bottom:0,textStyle:{color:'#8b949e',fontSize:11}},
+    tooltip:{trigger:'axis',backgroundColor:'#fafafa',borderColor:'rgba(0,0,0,0.07)',textStyle:{color:'rgba(0,0,0,0.9)',fontSize:12}},
+    legend:{bottom:0,textStyle:{color:'rgba(0,0,0,0.5)',fontSize:11}},
     grid:{left:60,right:60,top:30,bottom:50},
-    xAxis:{type:'time',axisLine:{lineStyle:{color:'#30363d'}},axisLabel:{color:'#8b949e',fontSize:11}},
+    xAxis:{type:'time',axisLine:{lineStyle:{color:'rgba(0,0,0,0.07)'}},axisLabel:{color:'rgba(0,0,0,0.5)',fontSize:11}},
     yAxis:[
-      {type:'value',name:'Signal',axisLine:{show:false},splitLine:{lineStyle:{color:'#21262d'}},axisLabel:{color:'#8b949e'},min:-1,max:1},
-      {type:'value',name:'Price',axisLine:{show:false},splitLine:{show:false},axisLabel:{color:'#8b949e',formatter:v=>'$'+v.toLocaleString()},position:'right'}
+      {type:'value',name:'Signal',axisLine:{show:false},splitLine:{lineStyle:{color:'rgba(0,0,0,0.05)'}},axisLabel:{color:'rgba(0,0,0,0.5)'},min:-1,max:1},
+      {type:'value',name:'Price',axisLine:{show:false},splitLine:{show:false},axisLabel:{color:'rgba(0,0,0,0.5)',formatter:v=>'$'+v.toLocaleString()},position:'right'}
     ],
     series:[
-      {name:'Smart Money',type:'line',data:d.dates.map((dt,i)=>[dt,d.smart[i]]),smooth:true,symbol:'none',lineStyle:{width:2,color:'#3fb950'},areaStyle:{opacity:0.05,color:'#3fb950'}},
-      {name:'Retail',type:'line',data:d.dates.map((dt,i)=>[dt,d.retail[i]]),smooth:true,symbol:'none',lineStyle:{width:2,color:'#f85149'},areaStyle:{opacity:0.05,color:'#f85149'}},
-      {name:'Price',type:'line',yAxisIndex:1,data:d.dates.map((dt,i)=>[dt,d.prices[i]]),smooth:true,symbol:'none',lineStyle:{width:1.5,color:'#58a6ff',type:'dashed'}}
+      {name:'Smart Money',type:'line',data:d.dates.map((dt,i)=>[dt,d.smart[i]]),smooth:true,symbol:'none',lineStyle:{width:2,color:'#2a9b7d'},areaStyle:{opacity:0.05,color:'#2a9b7d'}},
+      {name:'Retail',type:'line',data:d.dates.map((dt,i)=>[dt,d.retail[i]]),smooth:true,symbol:'none',lineStyle:{width:2,color:'#e05357'},areaStyle:{opacity:0.05,color:'#e05357'}},
+      {name:'Price',type:'line',yAxisIndex:1,data:d.dates.map((dt,i)=>[dt,d.prices[i]]),smooth:true,symbol:'none',lineStyle:{width:1.5,color:'#49a3a6',type:'dashed'}}
     ]
   }, true);
 }
@@ -145,7 +162,7 @@ renderDivChart(TICKERS[0]);
 // Flow chart
 (function(){
   const chart = echarts.init(document.getElementById('flowChart'));
-  const colors = ['#58a6ff','#3fb950','#d29922','#bc8cff','#f85149','#79c0ff'];
+  const colors = ['#49a3a6','#2a9b7d','#e6a91a','#a878dc','#e05357','#79c0ff'];
   const series = TICKERS.slice(0,4).map((t,i) => ({
     name:t+' Smart',type:'line',smooth:true,symbol:'none',
     data:DATA[t].dates.map((d,j)=>[d,DATA[t].smart_flow[j]]),
@@ -153,11 +170,11 @@ renderDivChart(TICKERS[0]);
   }));
   chart.setOption({
     backgroundColor:'transparent',
-    tooltip:{trigger:'axis',backgroundColor:'#1c2128',borderColor:'#30363d',textStyle:{color:'#e6edf3',fontSize:12}},
-    legend:{bottom:0,textStyle:{color:'#8b949e',fontSize:11}},
+    tooltip:{trigger:'axis',backgroundColor:'#fafafa',borderColor:'rgba(0,0,0,0.07)',textStyle:{color:'rgba(0,0,0,0.9)',fontSize:12}},
+    legend:{bottom:0,textStyle:{color:'rgba(0,0,0,0.5)',fontSize:11}},
     grid:{left:60,right:20,top:20,bottom:50},
-    xAxis:{type:'time',axisLine:{lineStyle:{color:'#30363d'}},axisLabel:{color:'#8b949e',fontSize:11}},
-    yAxis:{type:'value',name:'Cumulative Flow',axisLine:{show:false},splitLine:{lineStyle:{color:'#21262d'}},axisLabel:{color:'#8b949e'}},
+    xAxis:{type:'time',axisLine:{lineStyle:{color:'rgba(0,0,0,0.07)'}},axisLabel:{color:'rgba(0,0,0,0.5)',fontSize:11}},
+    yAxis:{type:'value',name:'Cumulative Flow',axisLine:{show:false},splitLine:{lineStyle:{color:'rgba(0,0,0,0.05)'}},axisLabel:{color:'rgba(0,0,0,0.5)'}},
     series
   });
   window.addEventListener('resize', () => chart.resize());
@@ -180,13 +197,13 @@ renderDivChart(TICKERS[0]);
     backgroundColor:'transparent',
     tooltip:{formatter:p=>`${TICKERS[p.value[1]]} (${periods[p.value[0]]}): ${p.value[2]>0?'+':''}${p.value[2]}`},
     grid:{left:70,right:60,top:10,bottom:30},
-    xAxis:{type:'category',data:periods,axisLabel:{color:'#8b949e'},axisLine:{lineStyle:{color:'#30363d'}}},
-    yAxis:{type:'category',data:TICKERS,axisLabel:{color:'#8b949e',fontWeight:600},axisLine:{lineStyle:{color:'#30363d'}}},
+    xAxis:{type:'category',data:periods,axisLabel:{color:'rgba(0,0,0,0.5)'},axisLine:{lineStyle:{color:'rgba(0,0,0,0.07)'}}},
+    yAxis:{type:'category',data:TICKERS,axisLabel:{color:'rgba(0,0,0,0.5)',fontWeight:600},axisLine:{lineStyle:{color:'rgba(0,0,0,0.07)'}}},
     visualMap:{min:-1,max:1,calculable:false,orient:'vertical',right:0,top:'center',
-      inRange:{color:['#f85149','#484f58','#3fb950']},
-      textStyle:{color:'#8b949e'}},
-    series:[{type:'heatmap',data:heatData,label:{show:true,color:'#e6edf3',fontSize:11,formatter:p=>(p.value[2]>0?'+':'')+p.value[2]},
-      itemStyle:{borderColor:'#161b22',borderWidth:3,borderRadius:4},emphasis:{itemStyle:{borderColor:'#58a6ff',borderWidth:2}}}]
+      inRange:{color:['#e05357','#484f58','#2a9b7d']},
+      textStyle:{color:'rgba(0,0,0,0.5)'}},
+    series:[{type:'heatmap',data:heatData,label:{show:true,color:'rgba(0,0,0,0.9)',fontSize:11,formatter:p=>(p.value[2]>0?'+':'')+p.value[2]},
+      itemStyle:{borderColor:'var(--grey-g01)',borderWidth:3,borderRadius:4},emphasis:{itemStyle:{borderColor:'#49a3a6',borderWidth:2}}}]
   });
   window.addEventListener('resize', () => chart.resize());
 })();
@@ -194,27 +211,27 @@ renderDivChart(TICKERS[0]);
 // Signal table
 (function(){
   let html = '<table style="width:100%;border-collapse:collapse;"><thead><tr>';
-  html += '<th style="text-align:left;padding:10px 14px;border-bottom:2px solid #30363d;color:#8b949e;">Asset</th>';
-  html += '<th style="text-align:left;padding:10px 14px;border-bottom:2px solid #30363d;color:#8b949e;">Smart Money</th>';
-  html += '<th style="text-align:left;padding:10px 14px;border-bottom:2px solid #30363d;color:#8b949e;">Retail</th>';
-  html += '<th style="text-align:left;padding:10px 14px;border-bottom:2px solid #30363d;color:#8b949e;">Divergence</th>';
-  html += '<th style="text-align:left;padding:10px 14px;border-bottom:2px solid #30363d;color:#8b949e;">Signal</th>';
+  html += '<th style="text-align:left;padding:10px 14px;border-bottom:2px solid rgba(0,0,0,0.07);color:rgba(0,0,0,0.5);">Asset</th>';
+  html += '<th style="text-align:left;padding:10px 14px;border-bottom:2px solid rgba(0,0,0,0.07);color:rgba(0,0,0,0.5);">Smart Money</th>';
+  html += '<th style="text-align:left;padding:10px 14px;border-bottom:2px solid rgba(0,0,0,0.07);color:rgba(0,0,0,0.5);">Retail</th>';
+  html += '<th style="text-align:left;padding:10px 14px;border-bottom:2px solid rgba(0,0,0,0.07);color:rgba(0,0,0,0.5);">Divergence</th>';
+  html += '<th style="text-align:left;padding:10px 14px;border-bottom:2px solid rgba(0,0,0,0.07);color:rgba(0,0,0,0.5);">Signal</th>';
   html += '</tr></thead><tbody>';
   TICKERS.forEach(t => {
     const d = DATA[t];
     const div = d.divergence;
     let signal, sigColor;
-    if (div > 0.3) { signal = '🟢 STRONG BUY — Smart money accumulating, retail skeptical'; sigColor = '#3fb950'; }
-    else if (div > 0.1) { signal = '🟢 BUY — Smart money leading'; sigColor = '#3fb950'; }
-    else if (div < -0.3) { signal = '🔴 SELL — Retail FOMO, smart money distributing'; sigColor = '#f85149'; }
-    else if (div < -0.1) { signal = '🟡 CAUTION — Retail overly bullish'; sigColor = '#d29922'; }
-    else { signal = '⚪ NEUTRAL — No clear divergence'; sigColor = '#8b949e'; }
+    if (div > 0.3) { signal = '🟢 STRONG BUY — Smart money accumulating, retail skeptical'; sigColor = '#2a9b7d'; }
+    else if (div > 0.1) { signal = '🟢 BUY — Smart money leading'; sigColor = '#2a9b7d'; }
+    else if (div < -0.3) { signal = '🔴 SELL — Retail FOMO, smart money distributing'; sigColor = '#e05357'; }
+    else if (div < -0.1) { signal = '🟡 CAUTION — Retail overly bullish'; sigColor = '#e6a91a'; }
+    else { signal = '⚪ NEUTRAL — No clear divergence'; sigColor = 'rgba(0,0,0,0.5)'; }
     
-    html += `<tr style="border-bottom:1px solid #30363d;">
-      <td style="padding:10px 14px;font-weight:700;">${t}</td>
-      <td style="padding:10px 14px;color:#3fb950;">${d.current_smart > 0 ? '+' : ''}${d.current_smart}</td>
-      <td style="padding:10px 14px;color:#f85149;">${d.current_retail > 0 ? '+' : ''}${d.current_retail}</td>
-      <td style="padding:10px 14px;font-weight:700;color:${sigColor};">${div > 0 ? '+' : ''}${div}</td>
+    html += `<tr style="border-bottom:1px solid rgba(0,0,0,0.07);">
+      <td style="padding:10px 14px;font-weight:500;">${t}</td>
+      <td style="padding:10px 14px;color:#2a9b7d;">${d.current_smart > 0 ? '+' : ''}${d.current_smart}</td>
+      <td style="padding:10px 14px;color:#e05357;">${d.current_retail > 0 ? '+' : ''}${d.current_retail}</td>
+      <td style="padding:10px 14px;font-weight:500;color:${sigColor};">${div > 0 ? '+' : ''}${div}</td>
       <td style="padding:10px 14px;color:${sigColor};">${signal}</td>
     </tr>`;
   });

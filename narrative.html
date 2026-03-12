@@ -6,24 +6,41 @@
 <title>Crypto Narrative Tracker | OpenAlva</title>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
 <style>
+/* ── Alva Design System ── */
+@font-face { font-family: 'Delight'; src: url('https://alva-ai-static.b-cdn.net/fonts/Delight-Regular.ttf') format('truetype'); font-weight: 400; font-style: normal; }
+@font-face { font-family: 'Delight'; src: url('https://alva-ai-static.b-cdn.net/fonts/Delight-Medium.ttf') format('truetype'); font-weight: 500; font-style: normal; }
+:root {
+  --main-m1: #49a3a6; --main-m3: #2a9b7d; --main-m4: #e05357;
+  --main-m5: #e6a91a; --main-m6: #ff9800;
+  --text-n9: rgba(0,0,0,0.9); --text-n7: rgba(0,0,0,0.7);
+  --text-n5: rgba(0,0,0,0.5); --text-n3: rgba(0,0,0,0.3);
+  --b0-page: #ffffff; --grey-g01: #fafafa; --grey-g02: #f5f5f5;
+  --line-l07: rgba(0,0,0,0.07); --line-l05: rgba(0,0,0,0.05);
+  --spacing-xxs: 4px; --spacing-xs: 8px; --spacing-s: 12px;
+  --spacing-m: 16px; --spacing-l: 20px; --spacing-xl: 24px;
+  --spacing-xxl: 28px; --spacing-xxxl: 32px;
+  --radius-ct-s: 4px; --radius-ct-m: 6px; --radius-ct-l: 8px;
+}
+html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; }
+
   :root {
-    --bg: #0d1117;
-    --card: #161b22;
-    --border: #30363d;
-    --text: #e6edf3;
-    --text-muted: #8b949e;
-    --accent: #58a6ff;
-    --green: #3fb950;
-    --red: #f85149;
-    --yellow: #d29922;
-    --purple: #bc8cff;
+    --bg: var(--b0-page);
+    --card: var(--grey-g01);
+    --border: rgba(0,0,0,0.07);
+    --text: rgba(0,0,0,0.9);
+    --text-muted: rgba(0,0,0,0.5);
+    --accent: #49a3a6;
+    --green: #2a9b7d;
+    --red: #e05357;
+    --yellow: #e6a91a;
+    --purple: #a878dc;
     --orange: #f0883e;
   }
   * { margin:0; padding:0; box-sizing:border-box; }
   body {
     background: var(--bg);
     color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    font-family: 'Delight', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
     line-height: 1.5;
     min-height: 100vh;
   }
@@ -34,9 +51,9 @@
   }
   .header h1 {
     font-size: 28px;
-    font-weight: 700;
+    font-weight: 500;
     margin-bottom: 6px;
-    background: linear-gradient(135deg, #58a6ff, #bc8cff);
+    background: linear-gradient(135deg, #49a3a6, #a878dc);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -58,7 +75,7 @@
   .card {
     background: var(--card);
     border: 1px solid var(--border);
-    border-radius: 12px;
+    border-radius: 8px;
     padding: 20px;
     overflow: hidden;
   }
@@ -67,7 +84,7 @@
   }
   .card h2 {
     font-size: 16px;
-    font-weight: 600;
+    font-weight: 500;
     margin-bottom: 4px;
     color: var(--text);
   }
@@ -93,7 +110,7 @@
   .regime-dominant {
     background: linear-gradient(135deg, rgba(88,166,255,0.12), rgba(188,140,255,0.12));
     border: 1px solid rgba(88,166,255,0.3);
-    border-radius: 10px;
+    border-radius: 8px;
     padding: 20px;
     text-align: center;
   }
@@ -106,7 +123,7 @@
   }
   .regime-dominant .value {
     font-size: 22px;
-    font-weight: 700;
+    font-weight: 500;
     color: var(--accent);
   }
   .regime-scores {
@@ -128,7 +145,7 @@
   }
   .regime-score-item .narr-score {
     font-size: 18px;
-    font-weight: 700;
+    font-weight: 500;
   }
   .regime-score-item .narr-desc {
     font-size: 10px;
@@ -187,7 +204,7 @@
     width: 70px;
     text-align: right;
     font-size: 13px;
-    font-weight: 600;
+    font-weight: 500;
     flex-shrink: 0;
   }
 
@@ -354,9 +371,9 @@ const DASH = {
 
 const NARR_COLORS = {
   "Store of Value": "#f0883e",
-  "Smart Contract Platforms": "#58a6ff",
-  "DeFi/Infrastructure": "#3fb950",
-  "Meme/Retail": "#bc8cff"
+  "Smart Contract Platforms": "#49a3a6",
+  "DeFi/Infrastructure": "#2a9b7d",
+  "Meme/Retail": "#a878dc"
 };
 const NARR_SHORT = {
   "Store of Value": "SoV",
@@ -419,7 +436,7 @@ function getColor(v, min, max) {
 
   // 7-day flows
   const h7 = document.createElement('div');
-  h7.style.cssText = 'font-size:12px;color:var(--text-muted);margin-bottom:6px;font-weight:600;';
+  h7.style.cssText = 'font-size:12px;color:var(--text-muted);margin-bottom:6px;font-weight:500;';
   h7.textContent = '7-Day Momentum';
   container.appendChild(h7);
 
@@ -441,7 +458,7 @@ function getColor(v, min, max) {
 
   // 30-day flows
   const h30 = document.createElement('div');
-  h30.style.cssText = 'font-size:12px;color:var(--text-muted);margin:14px 0 6px;font-weight:600;';
+  h30.style.cssText = 'font-size:12px;color:var(--text-muted);margin:14px 0 6px;font-weight:500;';
   h30.textContent = '30-Day Momentum';
   container.appendChild(h30);
 
@@ -485,24 +502,24 @@ function getColor(v, min, max) {
     tooltip: {
       formatter: function(p) {
         const v = p.data[2];
-        return `<b>${narrs[p.data[1]]}</b><br/>${weeks[p.data[0]]}: <span style="color:${v >= 0 ? '#3fb950' : '#f85149'}">${v >= 0 ? '+' : ''}${v.toFixed(2)}%</span>`;
+        return `<b>${narrs[p.data[1]]}</b><br/>${weeks[p.data[0]]}: <span style="color:${v >= 0 ? '#2a9b7d' : '#e05357'}">${v >= 0 ? '+' : ''}${v.toFixed(2)}%</span>`;
       }
     },
     grid: { left: 160, right: 30, top: 20, bottom: 40 },
     xAxis: {
       type: 'category',
       data: weeks,
-      axisLabel: { color: '#8b949e', fontSize: 10, rotate: 45 },
+      axisLabel: { color: 'rgba(0,0,0,0.5)', fontSize: 10, rotate: 45 },
       axisTick: { show: false },
-      axisLine: { lineStyle: { color: '#30363d' } },
+      axisLine: { lineStyle: { color: 'rgba(0,0,0,0.07)' } },
       splitLine: { show: false }
     },
     yAxis: {
       type: 'category',
       data: narrs,
-      axisLabel: { color: '#e6edf3', fontSize: 11 },
+      axisLabel: { color: 'rgba(0,0,0,0.9)', fontSize: 11 },
       axisTick: { show: false },
-      axisLine: { lineStyle: { color: '#30363d' } },
+      axisLine: { lineStyle: { color: 'rgba(0,0,0,0.07)' } },
       splitLine: { show: false }
     },
     visualMap: {
@@ -514,7 +531,7 @@ function getColor(v, min, max) {
       bottom: 0,
       show: false,
       inRange: {
-        color: ['#f85149', '#da3633', '#8b2020', '#1a1a2e', '#0d3320', '#238636', '#3fb950']
+        color: ['#e05357', '#da3633', '#8b2020', 'var(--b0-page)', '#0d3320', '#238636', '#2a9b7d']
       }
     },
     series: [{
@@ -523,16 +540,16 @@ function getColor(v, min, max) {
       label: {
         show: true,
         formatter: function(p) { return p.data[2].toFixed(1); },
-        color: '#e6edf3',
+        color: 'rgba(0,0,0,0.9)',
         fontSize: 10
       },
       itemStyle: {
-        borderColor: '#161b22',
+        borderColor: 'var(--grey-g01)',
         borderWidth: 2,
         borderRadius: 4
       },
       emphasis: {
-        itemStyle: { borderColor: '#58a6ff', borderWidth: 2 }
+        itemStyle: { borderColor: '#49a3a6', borderWidth: 2 }
       }
     }]
   });
@@ -559,9 +576,9 @@ function getColor(v, min, max) {
   chart.setOption({
     tooltip: {
       trigger: 'axis',
-      backgroundColor: '#161b22',
-      borderColor: '#30363d',
-      textStyle: { color: '#e6edf3', fontSize: 12 },
+      backgroundColor: 'var(--grey-g01)',
+      borderColor: 'rgba(0,0,0,0.07)',
+      textStyle: { color: 'rgba(0,0,0,0.9)', fontSize: 12 },
       formatter: function(params) {
         let s = `<b>${fmtDate(dates[params[0].dataIndex])}</b><br/>`;
         params.forEach(p => {
@@ -572,7 +589,7 @@ function getColor(v, min, max) {
     },
     legend: {
       data: DASH.relStrength.narratives.map(n => NARR_SHORT[n]),
-      textStyle: { color: '#8b949e', fontSize: 11 },
+      textStyle: { color: 'rgba(0,0,0,0.5)', fontSize: 11 },
       top: 0,
       itemGap: 16
     },
@@ -580,16 +597,16 @@ function getColor(v, min, max) {
     xAxis: {
       type: 'category',
       data: dates.map(fmtDate),
-      axisLabel: { color: '#8b949e', fontSize: 10, interval: Math.floor(dates.length / 8) },
-      axisLine: { lineStyle: { color: '#30363d' } },
+      axisLabel: { color: 'rgba(0,0,0,0.5)', fontSize: 10, interval: Math.floor(dates.length / 8) },
+      axisLine: { lineStyle: { color: 'rgba(0,0,0,0.07)' } },
       axisTick: { show: false }
     },
     yAxis: {
       type: 'value',
       name: 'vs BTC (%)',
-      nameTextStyle: { color: '#8b949e', fontSize: 10 },
-      axisLabel: { color: '#8b949e', fontSize: 10, formatter: '{value}%' },
-      splitLine: { lineStyle: { color: '#21262d' } },
+      nameTextStyle: { color: 'rgba(0,0,0,0.5)', fontSize: 10 },
+      axisLabel: { color: 'rgba(0,0,0,0.5)', fontSize: 10, formatter: '{value}%' },
+      splitLine: { lineStyle: { color: 'rgba(0,0,0,0.05)' } },
       axisLine: { show: false }
     },
     series: series
@@ -611,22 +628,22 @@ function getColor(v, min, max) {
   chart.setOption({
     tooltip: {
       trigger: 'axis',
-      backgroundColor: '#161b22',
-      borderColor: '#30363d',
-      textStyle: { color: '#e6edf3', fontSize: 12 },
+      backgroundColor: 'var(--grey-g01)',
+      borderColor: 'rgba(0,0,0,0.07)',
+      textStyle: { color: 'rgba(0,0,0,0.9)', fontSize: 12 },
       formatter: function(params) {
         const t = sorted[params[0].dataIndex];
         let s = `<b>${t}</b> (${NARR_SHORT[tickerNarr[t]]})<br/>`;
         params.forEach(p => {
           const v = p.value;
-          s += `${p.seriesName}: <span style="color:${v >= 0 ? '#3fb950' : '#f85149'}">${v >= 0 ? '+' : ''}${v.toFixed(2)}%</span><br/>`;
+          s += `${p.seriesName}: <span style="color:${v >= 0 ? '#2a9b7d' : '#e05357'}">${v >= 0 ? '+' : ''}${v.toFixed(2)}%</span><br/>`;
         });
         return s;
       }
     },
     legend: {
       data: ['7-Day', '30-Day'],
-      textStyle: { color: '#8b949e', fontSize: 11 },
+      textStyle: { color: 'rgba(0,0,0,0.5)', fontSize: 11 },
       top: 0
     },
     grid: { left: 50, right: 20, top: 40, bottom: 30 },
@@ -635,18 +652,18 @@ function getColor(v, min, max) {
       data: sorted,
       axisLabel: {
         color: function(value, index) {
-          return NARR_COLORS[tickerNarr[value]] || '#e6edf3';
+          return NARR_COLORS[tickerNarr[value]] || 'rgba(0,0,0,0.9)';
         },
         fontSize: 11,
         fontWeight: 'bold'
       },
-      axisLine: { lineStyle: { color: '#30363d' } },
+      axisLine: { lineStyle: { color: 'rgba(0,0,0,0.07)' } },
       axisTick: { show: false }
     },
     yAxis: {
       type: 'value',
-      axisLabel: { color: '#8b949e', fontSize: 10, formatter: '{value}%' },
-      splitLine: { lineStyle: { color: '#21262d' } },
+      axisLabel: { color: 'rgba(0,0,0,0.5)', fontSize: 10, formatter: '{value}%' },
+      splitLine: { lineStyle: { color: 'rgba(0,0,0,0.05)' } },
       axisLine: { show: false }
     },
     series: [
@@ -657,8 +674,8 @@ function getColor(v, min, max) {
           value: DASH.momentum.data[t].m7,
           itemStyle: {
             color: DASH.momentum.data[t].m7 >= 0
-              ? new echarts.graphic.LinearGradient(0, 0, 0, 1, [{offset:0, color:'#3fb950'},{offset:1, color:'#238636'}])
-              : new echarts.graphic.LinearGradient(0, 0, 0, 1, [{offset:0, color:'#da3633'},{offset:1, color:'#f85149'}]),
+              ? new echarts.graphic.LinearGradient(0, 0, 0, 1, [{offset:0, color:'#2a9b7d'},{offset:1, color:'#238636'}])
+              : new echarts.graphic.LinearGradient(0, 0, 0, 1, [{offset:0, color:'#da3633'},{offset:1, color:'#e05357'}]),
             borderRadius: [4, 4, 0, 0]
           }
         })),
@@ -706,17 +723,17 @@ function getColor(v, min, max) {
     xAxis: {
       type: 'category',
       data: tickers,
-      axisLabel: { color: '#8b949e', fontSize: 10 },
+      axisLabel: { color: 'rgba(0,0,0,0.5)', fontSize: 10 },
       axisTick: { show: false },
-      axisLine: { lineStyle: { color: '#30363d' } },
+      axisLine: { lineStyle: { color: 'rgba(0,0,0,0.07)' } },
       splitLine: { show: false }
     },
     yAxis: {
       type: 'category',
       data: tickers,
-      axisLabel: { color: '#8b949e', fontSize: 10 },
+      axisLabel: { color: 'rgba(0,0,0,0.5)', fontSize: 10 },
       axisTick: { show: false },
-      axisLine: { lineStyle: { color: '#30363d' } },
+      axisLine: { lineStyle: { color: 'rgba(0,0,0,0.07)' } },
       splitLine: { show: false }
     },
     visualMap: {
@@ -727,9 +744,9 @@ function getColor(v, min, max) {
       right: 0,
       top: 'center',
       itemHeight: 200,
-      textStyle: { color: '#8b949e', fontSize: 10 },
+      textStyle: { color: 'rgba(0,0,0,0.5)', fontSize: 10 },
       inRange: {
-        color: ['#161b22', '#0d3320', '#238636', '#3fb950', '#7ee787']
+        color: ['var(--grey-g01)', '#0d3320', '#238636', '#2a9b7d', '#7ee787']
       }
     },
     series: [{
@@ -740,11 +757,11 @@ function getColor(v, min, max) {
         formatter: function(p) {
           return p.data[2] === 1 ? '1.0' : p.data[2].toFixed(2);
         },
-        color: '#e6edf3',
+        color: 'rgba(0,0,0,0.9)',
         fontSize: 9
       },
       itemStyle: {
-        borderColor: '#0d1117',
+        borderColor: 'var(--b0-page)',
         borderWidth: 1,
         borderRadius: 2
       }

@@ -6,24 +6,41 @@
 <title>Geopolitical Conflict Comparator — OpenAlva Showcase</title>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
 <style>
-:root{--bg:#0d1117;--card:#161b22;--border:#30363d;--text:#e6edf3;--text2:#8b949e;--accent:#58a6ff;--green:#3fb950;--red:#f85149;--gold:#d29922;--purple:#bc8cff;}
+/* ── Alva Design System ── */
+@font-face { font-family: 'Delight'; src: url('https://alva-ai-static.b-cdn.net/fonts/Delight-Regular.ttf') format('truetype'); font-weight: 400; font-style: normal; }
+@font-face { font-family: 'Delight'; src: url('https://alva-ai-static.b-cdn.net/fonts/Delight-Medium.ttf') format('truetype'); font-weight: 500; font-style: normal; }
+:root {
+  --main-m1: #49a3a6; --main-m3: #2a9b7d; --main-m4: #e05357;
+  --main-m5: #e6a91a; --main-m6: #ff9800;
+  --text-n9: rgba(0,0,0,0.9); --text-n7: rgba(0,0,0,0.7);
+  --text-n5: rgba(0,0,0,0.5); --text-n3: rgba(0,0,0,0.3);
+  --b0-page: #ffffff; --grey-g01: #fafafa; --grey-g02: #f5f5f5;
+  --line-l07: rgba(0,0,0,0.07); --line-l05: rgba(0,0,0,0.05);
+  --spacing-xxs: 4px; --spacing-xs: 8px; --spacing-s: 12px;
+  --spacing-m: 16px; --spacing-l: 20px; --spacing-xl: 24px;
+  --spacing-xxl: 28px; --spacing-xxxl: 32px;
+  --radius-ct-s: 4px; --radius-ct-m: 6px; --radius-ct-l: 8px;
+}
+html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; }
+
+:root{--bg:var(--b0-page);--card:var(--grey-g01);--border:rgba(0,0,0,0.07);--text:rgba(0,0,0,0.9);--text2:rgba(0,0,0,0.5);--accent:#49a3a6;--green:#2a9b7d;--red:#e05357;--gold:#e6a91a;--purple:#a878dc;}
 *{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;}
+body{font-family: 'Delight', -apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;}
 .container{max-width:1400px;margin:0 auto;padding:24px;}
 header{text-align:center;padding:48px 24px 32px;border-bottom:1px solid var(--border);margin-bottom:32px;}
-header h1{font-size:2.2rem;font-weight:700;background:linear-gradient(135deg,var(--red),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px;}
+header h1{font-size:2.2rem;font-weight:500;background:linear-gradient(135deg,var(--red),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px;}
 header p{color:var(--text2);font-size:1.05rem;max-width:720px;margin:0 auto;}
-.section{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:24px;}
-.section h2{font-size:1.3rem;font-weight:600;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.section{background:var(--card);border:1px solid var(--border);border-radius: 8px;padding:24px;margin-bottom:24px;}
+.section h2{font-size:1.3rem;font-weight:500;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
 .chart{width:100%;height:400px;}
 .chart-lg{width:100%;height:500px;}
 .two-col{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
 .event-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;}
-.event-card{background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:10px;padding:16px;transition:transform 0.2s;}
+.event-card{background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius: 8px;padding:16px;transition:transform 0.2s;}
 .event-card:hover{transform:translateY(-2px);}
 .event-card .ev-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
-.event-card .ev-label{font-weight:600;font-size:0.95rem;}
-.event-card .ev-severity{padding:2px 8px;border-radius:4px;font-size:0.75rem;font-weight:600;}
+.event-card .ev-label{font-weight:500;font-size:0.95rem;}
+.event-card .ev-severity{padding:2px 8px;border-radius:4px;font-size:0.75rem;font-weight:500;}
 .sev-high{background:rgba(248,81,73,0.2);color:var(--red);}
 .sev-medium{background:rgba(210,153,34,0.2);color:var(--gold);}
 .sev-low{background:rgba(88,166,255,0.2);color:var(--accent);}
@@ -31,10 +48,10 @@ header p{color:var(--text2);font-size:1.05rem;max-width:720px;margin:0 auto;}
 .event-card .ev-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
 .event-card .ev-stat{text-align:center;padding:6px;background:rgba(0,0,0,0.2);border-radius:6px;}
 .event-card .ev-stat .label{font-size:0.7rem;color:var(--text2);}
-.event-card .ev-stat .val{font-size:0.95rem;font-weight:700;}
+.event-card .ev-stat .val{font-size:0.95rem;font-weight:500;}
 .green{color:var(--green);} .red{color:var(--red);} .gold{color:var(--gold);}
 table{width:100%;border-collapse:collapse;font-size:0.9rem;}
-th{text-align:left;padding:10px 14px;border-bottom:2px solid var(--border);color:var(--text2);font-weight:600;white-space:nowrap;}
+th{text-align:left;padding:10px 14px;border-bottom:2px solid var(--border);color:var(--text2);font-weight:500;white-space:nowrap;}
 td{padding:10px 14px;border-bottom:1px solid var(--border);white-space:nowrap;}
 tr:hover{background:rgba(88,166,255,0.05);}
 footer{text-align:center;padding:32px;color:var(--text2);font-size:0.85rem;border-top:1px solid var(--border);margin-top:16px;}
@@ -94,20 +111,20 @@ const DATA = {"events": [{"date": 1744119000000, "drop": -11.5, "recovery_20d": 
   const h = DATA.historical;
   chart.setOption({
     backgroundColor:'transparent',
-    tooltip:{trigger:'axis',backgroundColor:'#1c2128',borderColor:'#30363d',textStyle:{color:'#e6edf3'}},
-    legend:{bottom:0,textStyle:{color:'#8b949e',fontSize:11}},
+    tooltip:{trigger:'axis',backgroundColor:'#fafafa',borderColor:'rgba(0,0,0,0.07)',textStyle:{color:'rgba(0,0,0,0.9)'}},
+    legend:{bottom:0,textStyle:{color:'rgba(0,0,0,0.5)',fontSize:11}},
     grid:{left:60,right:60,top:30,bottom:50},
-    xAxis:{type:'category',data:h.map(e=>e.event.split(' (')[0]),axisLabel:{color:'#8b949e',fontSize:10,rotate:35},axisLine:{lineStyle:{color:'#30363d'}}},
+    xAxis:{type:'category',data:h.map(e=>e.event.split(' (')[0]),axisLabel:{color:'rgba(0,0,0,0.5)',fontSize:10,rotate:35},axisLine:{lineStyle:{color:'rgba(0,0,0,0.07)'}}},
     yAxis:[
-      {type:'value',name:'% Change',axisLine:{show:false},splitLine:{lineStyle:{color:'#21262d'}},axisLabel:{color:'#8b949e',formatter:v=>v+'%'}},
-      {type:'value',name:'Recovery Days',axisLine:{show:false},splitLine:{show:false},axisLabel:{color:'#8b949e'},position:'right'}
+      {type:'value',name:'% Change',axisLine:{show:false},splitLine:{lineStyle:{color:'rgba(0,0,0,0.05)'}},axisLabel:{color:'rgba(0,0,0,0.5)',formatter:v=>v+'%'}},
+      {type:'value',name:'Recovery Days',axisLine:{show:false},splitLine:{show:false},axisLabel:{color:'rgba(0,0,0,0.5)'},position:'right'}
     ],
     series:[
-      {name:'SPY Drop',type:'bar',data:h.map(e=>({value:e.spy_drop,itemStyle:{color:e.spy_drop<-10?'#b62324':'#f85149'}})),barWidth:'20%'},
-      {name:'Gold Move',type:'bar',data:h.map(e=>({value:e.gold_gain,itemStyle:{color:e.gold_gain>=0?'#d29922':'#f85149'}})),barWidth:'20%'},
-      {name:'Oil Move',type:'bar',data:h.map(e=>({value:e.oil_gain,itemStyle:{color:e.oil_gain>=0?'#8b949e':'#f85149'}})),barWidth:'20%'},
+      {name:'SPY Drop',type:'bar',data:h.map(e=>({value:e.spy_drop,itemStyle:{color:e.spy_drop<-10?'#b62324':'#e05357'}})),barWidth:'20%'},
+      {name:'Gold Move',type:'bar',data:h.map(e=>({value:e.gold_gain,itemStyle:{color:e.gold_gain>=0?'#e6a91a':'#e05357'}})),barWidth:'20%'},
+      {name:'Oil Move',type:'bar',data:h.map(e=>({value:e.oil_gain,itemStyle:{color:e.oil_gain>=0?'rgba(0,0,0,0.5)':'#e05357'}})),barWidth:'20%'},
       {name:'Recovery Days',type:'line',yAxisIndex:1,data:h.map(e=>e.recovery_days),smooth:true,
-        lineStyle:{width:3,color:'#58a6ff'},symbol:'circle',symbolSize:8,itemStyle:{color:'#58a6ff'}}
+        lineStyle:{width:3,color:'#49a3a6'},symbol:'circle',symbolSize:8,itemStyle:{color:'#49a3a6'}}
     ]
   });
   window.addEventListener('resize',()=>chart.resize());
@@ -123,15 +140,15 @@ const DATA = {"events": [{"date": 1744119000000, "drop": -11.5, "recovery_20d": 
   
   chart.setOption({
     backgroundColor:'transparent',
-    tooltip:{trigger:'item',backgroundColor:'#1c2128',borderColor:'#30363d',textStyle:{color:'#e6edf3'}},
+    tooltip:{trigger:'item',backgroundColor:'#fafafa',borderColor:'rgba(0,0,0,0.07)',textStyle:{color:'rgba(0,0,0,0.9)'}},
     series:[{
       type:'pie',radius:['40%','70%'],
       data:[
-        {value:Math.abs(avgGold),name:'Gold Avg Gain: '+avgGold.toFixed(1)+'%',itemStyle:{color:'#d29922'}},
-        {value:Math.abs(avgOil),name:'Oil Avg Move: '+avgOil.toFixed(1)+'%',itemStyle:{color:'#8b949e'}},
-        {value:Math.abs(avgSpy),name:'SPY Avg Drop: '+avgSpy.toFixed(1)+'%',itemStyle:{color:'#f85149'}},
+        {value:Math.abs(avgGold),name:'Gold Avg Gain: '+avgGold.toFixed(1)+'%',itemStyle:{color:'#e6a91a'}},
+        {value:Math.abs(avgOil),name:'Oil Avg Move: '+avgOil.toFixed(1)+'%',itemStyle:{color:'rgba(0,0,0,0.5)'}},
+        {value:Math.abs(avgSpy),name:'SPY Avg Drop: '+avgSpy.toFixed(1)+'%',itemStyle:{color:'#e05357'}},
       ],
-      label:{color:'#e6edf3',fontSize:11},
+      label:{color:'rgba(0,0,0,0.9)',fontSize:11},
       emphasis:{itemStyle:{shadowBlur:10,shadowOffsetX:0,shadowColor:'rgba(0,0,0,0.5)'}}
     }]
   });
@@ -144,13 +161,13 @@ const DATA = {"events": [{"date": 1744119000000, "drop": -11.5, "recovery_20d": 
   const h = DATA.historical.slice().sort((a,b)=>b.recovery_days-a.recovery_days);
   chart.setOption({
     backgroundColor:'transparent',
-    tooltip:{trigger:'axis',backgroundColor:'#1c2128',borderColor:'#30363d',textStyle:{color:'#e6edf3'}},
+    tooltip:{trigger:'axis',backgroundColor:'#fafafa',borderColor:'rgba(0,0,0,0.07)',textStyle:{color:'rgba(0,0,0,0.9)'}},
     grid:{left:160,right:40,top:10,bottom:30},
-    xAxis:{type:'value',name:'Days to Recovery',axisLabel:{color:'#8b949e'},splitLine:{lineStyle:{color:'#21262d'}}},
-    yAxis:{type:'category',data:h.map(e=>e.event.split(' (')[0]),axisLabel:{color:'#8b949e',fontSize:11},axisLine:{lineStyle:{color:'#30363d'}}},
+    xAxis:{type:'value',name:'Days to Recovery',axisLabel:{color:'rgba(0,0,0,0.5)'},splitLine:{lineStyle:{color:'rgba(0,0,0,0.05)'}}},
+    yAxis:{type:'category',data:h.map(e=>e.event.split(' (')[0]),axisLabel:{color:'rgba(0,0,0,0.5)',fontSize:11},axisLine:{lineStyle:{color:'rgba(0,0,0,0.07)'}}},
     series:[{type:'bar',data:h.map(e=>({value:e.recovery_days,
-      itemStyle:{color:e.recovery_days>100?'#f85149':e.recovery_days>30?'#d29922':'#3fb950'}})),
-      label:{show:true,position:'right',color:'#e6edf3',fontSize:11,formatter:p=>p.value+' days'}}]
+      itemStyle:{color:e.recovery_days>100?'#e05357':e.recovery_days>30?'#e6a91a':'#2a9b7d'}})),
+      label:{show:true,position:'right',color:'rgba(0,0,0,0.9)',fontSize:11,formatter:p=>p.value+' days'}}]
   });
   window.addEventListener('resize',()=>chart.resize());
 })();
@@ -203,15 +220,15 @@ const DATA = {"events": [{"date": 1744119000000, "drop": -11.5, "recovery_20d": 
   const avgRecovery = Math.round(h.reduce((s,e)=>s+e.recovery_days,0)/h.length);
   const goldWins = h.filter(e=>e.gold_gain>0).length;
   const cards = [
-    {icon:'⏱️',title:'Average Recovery',text:avgRecovery+' days for markets to recover from geopolitical shocks',color:'#58a6ff'},
-    {icon:'🥇',title:'Gold as Safe Haven',text:'Gold rose in '+goldWins+'/'+h.length+' conflicts — the most reliable hedge',color:'#d29922'},
-    {icon:'📉',title:'Worst Case',text:'Gulf War: -19.9% SPY, 189 days recovery; Russia-Ukraine: -11.3%, 120 days',color:'#f85149'},
-    {icon:'⚡',title:'Fastest Recovery',text:'US-Iran 2020: Only 3 days to recover a -1.6% drop',color:'#3fb950'},
+    {icon:'⏱️',title:'Average Recovery',text:avgRecovery+' days for markets to recover from geopolitical shocks',color:'#49a3a6'},
+    {icon:'🥇',title:'Gold as Safe Haven',text:'Gold rose in '+goldWins+'/'+h.length+' conflicts — the most reliable hedge',color:'#e6a91a'},
+    {icon:'📉',title:'Worst Case',text:'Gulf War: -19.9% SPY, 189 days recovery; Russia-Ukraine: -11.3%, 120 days',color:'#e05357'},
+    {icon:'⚡',title:'Fastest Recovery',text:'US-Iran 2020: Only 3 days to recover a -1.6% drop',color:'#2a9b7d'},
   ];
   document.getElementById('takeaways').innerHTML = cards.map(c =>
-    `<div style="padding:16px;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:10px;border-left:3px solid ${c.color}">
+    `<div style="padding:16px;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius: 8px;border-left:3px solid ${c.color}">
       <div style="font-size:1.5rem;margin-bottom:4px;">${c.icon}</div>
-      <div style="font-weight:600;margin-bottom:4px;">${c.title}</div>
+      <div style="font-weight:500;margin-bottom:4px;">${c.title}</div>
       <div style="font-size:0.85rem;color:var(--text2);">${c.text}</div>
     </div>`
   ).join('');
