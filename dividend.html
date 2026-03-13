@@ -195,7 +195,7 @@ body { font-family: 'Delight', -apple-system, BlinkMacSystemFont, 'Segoe UI', sa
   <div class="controls-card">
     <div class="controls-row">
       <div class="control-group" style="flex: 2;">
-        <div class="controls-label">Select Stock</div>
+        <div class="controls-label">Select Stocks</div>
         <div class="pill-group" id="stock-pills"></div>
       </div>
     </div>
@@ -298,7 +298,7 @@ const INVEST_OPTIONS = [1000, 5000, 10000, 25000, 50000];
 const CONTRIB_OPTIONS = [0, 100, 200, 500];
 const CHART_COLORS = ['#7474d8','#ff9800','#3d8bd1','#40a544','#a878dc','#dc7aa5','#c76466','#5f75c9','#0d7498','#838383'];
 
-let selectedStock = 'JNJ';
+let selectedStocks = ['JNJ'];
 let initialInvestment = 10000;
 let monthlyContrib = 200;
 let horizon = 20;
@@ -313,15 +313,15 @@ function fmt(n) {
 
 function fmtFull(n) { return '$' + Math.round(n).toLocaleString(); }
 
-function buildPills(containerId, items, selectedVal, onClick, isStock) {
+function buildPills(containerId, items, selectedVal, onClick) {
   const container = document.getElementById(containerId);
   container.innerHTML = '';
   items.forEach(item => {
     const btn = document.createElement('button');
-    btn.className = 'pill' + (isStock ? ' pill-stock' : '');
-    const val = isStock ? item.name : item;
-    const label = isStock ? item.name : (typeof item === 'number' ? fmt(item) : item);
-    btn.innerHTML = isStock ? item.name + '<span class="pill-yield">' + (item.yield * 100).toFixed(1) + '% yield</span>' : label;
+    btn.className = 'pill';
+    const val = item;
+    const label = typeof item === 'number' ? fmt(item) : item;
+    btn.innerHTML = label;
     if (val === selectedVal || (typeof val === 'number' && val === selectedVal)) btn.classList.add('active');
     btn.addEventListener('click', () => {
       container.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
@@ -332,8 +332,33 @@ function buildPills(containerId, items, selectedVal, onClick, isStock) {
   });
 }
 
-function compute() {
-  const stock = STOCKS[selectedStock];
+function buildStockPills() {
+  const container = document.getElementById('stock-pills');
+  container.innerHTML = '';
+  Object.values(STOCKS).forEach(stock => {
+    const btn = document.createElement('button');
+    btn.className = 'pill pill-stock';
+    if (selectedStocks.includes(stock.name)) btn.classList.add('active');
+    btn.innerHTML = stock.name + '<span class="pill-yield">' + (stock.yield * 100).toFixed(1) + '% yield</span>';
+    btn.addEventListener('click', () => {
+      const idx = selectedStocks.indexOf(stock.name);
+      if (idx >= 0) {
+        if (selectedStocks.length > 1) {
+          selectedStocks.splice(idx, 1);
+          btn.classList.remove('active');
+        }
+      } else {
+        selectedStocks.push(stock.name);
+        btn.classList.add('active');
+      }
+      updateAll();
+    });
+    container.appendChild(btn);
+  });
+}
+
+function compute(stockName) {
+  const stock = STOCKS[stockName || selectedStocks[selectedStocks.length - 1]];
   const years = horizon;
   const init = initialInvestment;
   const monthly = monthlyContrib;
@@ -425,11 +450,17 @@ function compute() {
 }
 
 function updateAll() {
-  const data = compute();
+  // Compute data for all selected stocks
+  const allData = {};
+  selectedStocks.forEach(name => { allData[name] = compute(name); });
+
+  // Primary stock for KPIs and insight = most recently added (last in array)
+  const primaryName = selectedStocks[selectedStocks.length - 1];
+  const data = allData[primaryName];
   const years = data.years;
   const xLabels = Array.from({length: years + 1}, (_, i) => 'Year ' + i);
 
-  // KPIs
+  // KPIs (show primary stock)
   document.getElementById('kpi-total').textContent = fmtFull(data.totalValue);
   document.getElementById('kpi-invested').textContent = fmtFull(data.totalInvested);
   document.getElementById('kpi-invested-sub').textContent = fmtFull(initialInvestment) + ' initial + ' + fmtFull(data.totalInvested - initialInvestment) + ' contributions';
@@ -437,38 +468,86 @@ function updateAll() {
   document.getElementById('kpi-div-yield-sub').textContent = (data.finalYearDiv / data.totalValue * 100).toFixed(1) + '% yield on value';
   document.getElementById('kpi-total-divs').textContent = fmtFull(data.totalDividendsEarned);
 
-  // Snowball stacked area chart
-  snowballChart.setOption({
-    tooltip: {
-      trigger: 'axis',
-      backgroundColor: '#fff',
-      borderColor: 'rgba(0,0,0,0.07)',
-      borderWidth: 1,
-      textStyle: { color: 'rgba(0,0,0,0.7)', fontFamily: 'Delight', fontSize: 13 },
-      formatter: function(params) {
-        let total = 0;
-        params.forEach(p => total += p.value);
-        let s = '<div style="font-weight:500;margin-bottom:4px">' + params[0].axisValue + '</div>';
-        s += '<div style="color:rgba(0,0,0,0.5);margin-bottom:6px">Total: ' + fmtFull(total) + '</div>';
-        params.slice().reverse().forEach(p => {
-          s += '<div style="display:flex;align-items:center;gap:6px;margin-bottom:2px"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:' + p.color + '"></span>' + p.seriesName + ': ' + fmtFull(p.value) + '</div>';
-        });
-        return s;
-      }
-    },
-    grid: { left: 60, right: 20, top: 20, bottom: 40 },
-    xAxis: { type: 'category', data: xLabels, axisLine: { lineStyle: { color: 'rgba(0,0,0,0.07)' } }, axisLabel: { color: 'rgba(0,0,0,0.5)', fontSize: 11, fontFamily: 'Delight', interval: Math.max(1, Math.floor(years / 8)) } },
-    yAxis: { type: 'value', axisLine: { show: false }, splitLine: { lineStyle: { color: 'rgba(0,0,0,0.05)' } }, axisLabel: { color: 'rgba(0,0,0,0.5)', fontSize: 11, fontFamily: 'Delight', formatter: function(v) { return fmt(v); } } },
-    series: [
-      { name: 'Original Investment', type: 'line', stack: 'total', areaStyle: { color: '#838383', opacity: 0.25 }, lineStyle: { width: 0 }, symbol: 'none', data: data.origLayer, emphasis: { disabled: true } },
-      { name: 'Contributions', type: 'line', stack: 'total', areaStyle: { color: '#3d8bd1', opacity: 0.35 }, lineStyle: { width: 0 }, symbol: 'none', data: data.contribLayer, emphasis: { disabled: true } },
-      { name: 'Dividend Reinvestment Growth', type: 'line', stack: 'total', areaStyle: { color: '#40a544', opacity: 0.45 }, lineStyle: { width: 0 }, symbol: 'none', data: data.growthLayer, emphasis: { disabled: true } }
-    ],
-    backgroundColor: 'transparent'
-  });
+  // Snowball Effect chart
+  if (selectedStocks.length === 1) {
+    // Single stock: stacked area (original behavior)
+    snowballChart.setOption({
+      tooltip: {
+        trigger: 'axis',
+        backgroundColor: '#fff',
+        borderColor: 'rgba(0,0,0,0.07)',
+        borderWidth: 1,
+        textStyle: { color: 'rgba(0,0,0,0.7)', fontFamily: 'Delight', fontSize: 13 },
+        formatter: function(params) {
+          let total = 0;
+          params.forEach(p => total += p.value);
+          let s = '<div style="font-weight:500;margin-bottom:4px">' + params[0].axisValue + '</div>';
+          s += '<div style="color:rgba(0,0,0,0.5);margin-bottom:6px">Total: ' + fmtFull(total) + '</div>';
+          params.slice().reverse().forEach(p => {
+            s += '<div style="display:flex;align-items:center;gap:6px;margin-bottom:2px"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:' + p.color + '"></span>' + p.seriesName + ': ' + fmtFull(p.value) + '</div>';
+          });
+          return s;
+        }
+      },
+      legend: { show: false },
+      grid: { left: 60, right: 20, top: 20, bottom: 40 },
+      xAxis: { type: 'category', data: xLabels, axisLine: { lineStyle: { color: 'rgba(0,0,0,0.07)' } }, axisLabel: { color: 'rgba(0,0,0,0.5)', fontSize: 11, fontFamily: 'Delight', interval: Math.max(1, Math.floor(years / 8)) } },
+      yAxis: { type: 'value', axisLine: { show: false }, splitLine: { lineStyle: { color: 'rgba(0,0,0,0.05)' } }, axisLabel: { color: 'rgba(0,0,0,0.5)', fontSize: 11, fontFamily: 'Delight', formatter: function(v) { return fmt(v); } } },
+      series: [
+        { name: 'Original Investment', type: 'line', stack: 'total', areaStyle: { color: '#838383', opacity: 0.25 }, lineStyle: { width: 0 }, symbol: 'none', data: data.origLayer, emphasis: { disabled: true } },
+        { name: 'Contributions', type: 'line', stack: 'total', areaStyle: { color: '#3d8bd1', opacity: 0.35 }, lineStyle: { width: 0 }, symbol: 'none', data: data.contribLayer, emphasis: { disabled: true } },
+        { name: 'Dividend Reinvestment Growth', type: 'line', stack: 'total', areaStyle: { color: '#40a544', opacity: 0.45 }, lineStyle: { width: 0 }, symbol: 'none', data: data.growthLayer, emphasis: { disabled: true } }
+      ],
+      backgroundColor: 'transparent'
+    }, true);
+  } else {
+    // Multi-stock: overlay lines for comparison
+    var snowballSeries = selectedStocks.map(function(name, i) {
+      var sd = allData[name];
+      return {
+        name: name,
+        type: 'line',
+        data: sd.dripValues.map(function(v) { return Math.round(v); }),
+        smooth: true,
+        symbol: 'none',
+        lineStyle: { width: 2.5, color: CHART_COLORS[i % CHART_COLORS.length] },
+        itemStyle: { color: CHART_COLORS[i % CHART_COLORS.length] }
+      };
+    });
+    snowballChart.setOption({
+      tooltip: {
+        trigger: 'axis',
+        backgroundColor: '#fff',
+        borderColor: 'rgba(0,0,0,0.07)',
+        borderWidth: 1,
+        textStyle: { color: 'rgba(0,0,0,0.7)', fontFamily: 'Delight', fontSize: 13 },
+        formatter: function(params) {
+          var s = '<div style="font-weight:500;margin-bottom:4px">' + params[0].axisValue + '</div>';
+          params.forEach(function(p) {
+            s += '<div style="display:flex;align-items:center;gap:6px;margin-bottom:2px"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:' + p.color + '"></span>' + p.seriesName + ': ' + fmtFull(p.value) + '</div>';
+          });
+          return s;
+        }
+      },
+      legend: {
+        show: true,
+        data: selectedStocks,
+        bottom: 0,
+        textStyle: { fontFamily: 'Delight', fontSize: 12, color: 'rgba(0,0,0,0.5)' },
+        icon: 'circle',
+        itemWidth: 8,
+        itemHeight: 8
+      },
+      grid: { left: 60, right: 20, top: 20, bottom: 45 },
+      xAxis: { type: 'category', data: xLabels, axisLine: { lineStyle: { color: 'rgba(0,0,0,0.07)' } }, axisLabel: { color: 'rgba(0,0,0,0.5)', fontSize: 11, fontFamily: 'Delight', interval: Math.max(1, Math.floor(years / 8)) } },
+      yAxis: { type: 'value', axisLine: { show: false }, splitLine: { lineStyle: { color: 'rgba(0,0,0,0.05)' } }, axisLabel: { color: 'rgba(0,0,0,0.5)', fontSize: 11, fontFamily: 'Delight', formatter: function(v) { return fmt(v); } } },
+      series: snowballSeries,
+      backgroundColor: 'transparent'
+    }, true);
+  }
 
-  // DRIP vs No-DRIP chart
-  let dripGap = data.dripValues[years] - data.noDripValues[years];
+  // DRIP vs No-DRIP chart (show first selected stock only)
+  var firstData = allData[selectedStocks[0]];
   dripChart.setOption({
     tooltip: {
       trigger: 'axis',
@@ -488,18 +567,28 @@ function updateAll() {
         return s;
       }
     },
-    legend: { data: ['With DRIP', 'Without DRIP'], bottom: 0, textStyle: { fontFamily: 'Delight', fontSize: 12, color: 'rgba(0,0,0,0.5)' }, icon: 'circle', itemWidth: 8, itemHeight: 8 },
+    legend: { data: ['With DRIP (' + selectedStocks[0] + ')', 'Without DRIP (' + selectedStocks[0] + ')'], bottom: 0, textStyle: { fontFamily: 'Delight', fontSize: 12, color: 'rgba(0,0,0,0.5)' }, icon: 'circle', itemWidth: 8, itemHeight: 8 },
     grid: { left: 60, right: 20, top: 20, bottom: 45 },
     xAxis: { type: 'category', data: xLabels, axisLine: { lineStyle: { color: 'rgba(0,0,0,0.07)' } }, axisLabel: { color: 'rgba(0,0,0,0.5)', fontSize: 11, fontFamily: 'Delight', interval: Math.max(1, Math.floor(years / 8)) } },
     yAxis: { type: 'value', axisLine: { show: false }, splitLine: { lineStyle: { color: 'rgba(0,0,0,0.05)' } }, axisLabel: { color: 'rgba(0,0,0,0.5)', fontSize: 11, fontFamily: 'Delight', formatter: function(v) { return fmt(v); } } },
     series: [
-      { name: 'With DRIP', type: 'line', data: data.dripValues.map(v => Math.round(v)), smooth: true, symbol: 'none', lineStyle: { width: 2.5, color: '#40a544' }, itemStyle: { color: '#40a544' } },
-      { name: 'Without DRIP', type: 'line', data: data.noDripValues.map(v => Math.round(v)), smooth: true, symbol: 'none', lineStyle: { width: 2.5, color: '#838383', type: 'dashed' }, itemStyle: { color: '#838383' } }
+      { name: 'With DRIP (' + selectedStocks[0] + ')', type: 'line', data: firstData.dripValues.map(v => Math.round(v)), smooth: true, symbol: 'none', lineStyle: { width: 2.5, color: '#40a544' }, itemStyle: { color: '#40a544' } },
+      { name: 'Without DRIP (' + selectedStocks[0] + ')', type: 'line', data: firstData.noDripValues.map(v => Math.round(v)), smooth: true, symbol: 'none', lineStyle: { width: 2.5, color: '#838383', type: 'dashed' }, itemStyle: { color: '#838383' } }
     ],
     backgroundColor: 'transparent'
   });
 
-  // Annual Dividend Income bar chart
+  // Annual Dividend Income bar chart (grouped bars for each selected stock)
+  var incomeSeries = selectedStocks.map(function(name, i) {
+    var sd = allData[name];
+    return {
+      name: name,
+      type: 'bar',
+      data: sd.annualDividends.slice(1).map(function(v) { return Math.round(v); }),
+      itemStyle: { color: CHART_COLORS[i % CHART_COLORS.length], borderRadius: [3, 3, 0, 0] },
+      barMaxWidth: 32
+    };
+  });
   incomeChart.setOption({
     tooltip: {
       trigger: 'axis',
@@ -508,20 +597,30 @@ function updateAll() {
       borderWidth: 1,
       textStyle: { color: 'rgba(0,0,0,0.7)', fontFamily: 'Delight', fontSize: 13 },
       formatter: function(params) {
-        return '<div style="font-weight:500;margin-bottom:4px">' + params[0].axisValue + '</div>' +
-               '<div>Dividend Income: ' + fmtFull(params[0].value) + '</div>';
+        var s = '<div style="font-weight:500;margin-bottom:4px">' + params[0].axisValue + '</div>';
+        params.forEach(function(p) {
+          s += '<div style="display:flex;align-items:center;gap:6px;margin-bottom:2px"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:' + p.color + '"></span>' + p.seriesName + ': ' + fmtFull(p.value) + '</div>';
+        });
+        return s;
       }
     },
-    grid: { left: 60, right: 20, top: 20, bottom: 40 },
+    legend: selectedStocks.length > 1 ? {
+      show: true,
+      data: selectedStocks,
+      bottom: 0,
+      textStyle: { fontFamily: 'Delight', fontSize: 12, color: 'rgba(0,0,0,0.5)' },
+      icon: 'circle',
+      itemWidth: 8,
+      itemHeight: 8
+    } : { show: false },
+    grid: { left: 60, right: 20, top: 20, bottom: selectedStocks.length > 1 ? 45 : 40 },
     xAxis: { type: 'category', data: xLabels.slice(1), axisLine: { lineStyle: { color: 'rgba(0,0,0,0.07)' } }, axisLabel: { color: 'rgba(0,0,0,0.5)', fontSize: 11, fontFamily: 'Delight', interval: Math.max(1, Math.floor(years / 8)) } },
     yAxis: { type: 'value', axisLine: { show: false }, splitLine: { lineStyle: { color: 'rgba(0,0,0,0.05)' } }, axisLabel: { color: 'rgba(0,0,0,0.5)', fontSize: 11, fontFamily: 'Delight', formatter: function(v) { return fmt(v); } } },
-    series: [
-      { name: 'Dividend Income', type: 'bar', data: data.annualDividends.slice(1).map(v => Math.round(v)), itemStyle: { color: '#40a544', borderRadius: [3, 3, 0, 0] }, barMaxWidth: 32 }
-    ],
+    series: incomeSeries,
     backgroundColor: 'transparent'
-  });
+  }, true);
 
-  // Insight text
+  // Insight text (show primary stock)
   const stock = data.stock;
   const growthFromDrip = data.totalValue - data.totalInvested;
   const pctGain = ((data.totalValue / data.totalInvested - 1) * 100).toFixed(0);
@@ -533,10 +632,9 @@ function updateAll() {
 }
 
 function init() {
-  const stockItems = Object.values(STOCKS).map(s => ({ name: s.name, yield: s.yield }));
-  buildPills('stock-pills', stockItems, selectedStock, v => { selectedStock = v; updateAll(); }, true);
-  buildPills('invest-pills', INVEST_OPTIONS, initialInvestment, v => { initialInvestment = v; updateAll(); }, false);
-  buildPills('contrib-pills', CONTRIB_OPTIONS, monthlyContrib, v => { monthlyContrib = v; updateAll(); }, false);
+  buildStockPills();
+  buildPills('invest-pills', INVEST_OPTIONS, initialInvestment, v => { initialInvestment = v; updateAll(); });
+  buildPills('contrib-pills', CONTRIB_OPTIONS, monthlyContrib, v => { monthlyContrib = v; updateAll(); });
 
   const slider = document.getElementById('horizon-slider');
   const sliderVal = document.getElementById('horizon-value');

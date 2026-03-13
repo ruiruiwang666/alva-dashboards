@@ -82,7 +82,7 @@ body { font-family: 'Delight', -apple-system, BlinkMacSystemFont, 'Segoe UI', sa
 <div class="container">
   <div class="header">
     <h1>Market Fear & Greed Index</h1>
-    <p>7-signal composite &middot; Updated March 13, 2026</p>
+    <p>7-signal composite &middot; Updated March 13, 2026 at 4:30 PM ET (after market close)</p>
   </div>
 
   <div class="gauge-section">
@@ -425,12 +425,22 @@ function initHistory() {
         silent: true,
         symbol: 'none',
         lineStyle: { type: 'dashed', color: 'rgba(0,0,0,0.07)', width: 1 },
-        label: { show: true, position: 'insideStartTop', fontSize: 10, fontFamily: 'Delight', color: 'rgba(0,0,0,0.25)' },
+        label: { show: true, position: 'insideEndTop', fontSize: 10, fontFamily: 'Delight', color: 'rgba(0,0,0,0.35)' },
         data: [
           { yAxis: 20, label: { formatter: 'Extreme Fear' } },
           { yAxis: 40, label: { formatter: 'Fear' } },
           { yAxis: 60, label: { formatter: 'Neutral' } },
           { yAxis: 80, label: { formatter: 'Greed' } }
+        ]
+      },
+      markArea: {
+        silent: true,
+        data: [
+          [{ yAxis: 0, itemStyle: { color: 'rgba(183,28,28,0.06)' } }, { yAxis: 20 }],
+          [{ yAxis: 20, itemStyle: { color: 'rgba(224,83,87,0.05)' } }, { yAxis: 40 }],
+          [{ yAxis: 40, itemStyle: { color: 'rgba(158,158,158,0.04)' } }, { yAxis: 60 }],
+          [{ yAxis: 60, itemStyle: { color: 'rgba(64,165,68,0.05)' } }, { yAxis: 80 }],
+          [{ yAxis: 80, itemStyle: { color: 'rgba(27,94,32,0.06)' } }, { yAxis: 100 }]
         ]
       }
     }]

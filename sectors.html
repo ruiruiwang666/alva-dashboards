@@ -201,7 +201,7 @@ body {
   <div class="header">
     <h1>Sector Rotation Heatmap</h1>
     <p class="subtitle">11 GICS sectors &middot; Monthly returns &middot; Momentum signals</p>
-    <p class="subtitle" style="margin-top:4px;font-size:12px">Data as of March 13, 2026 (market close) &middot; Updated daily</p>
+    <p class="subtitle" style="margin-top:4px;font-size:12px">Data as of March 13, 2026, 4:00 PM ET (market close) &middot; Updated daily at 4:30 PM ET</p>
   </div>
 
   <div class="kpi-row">
@@ -250,17 +250,17 @@ body {
             <tr><th>Sector</th><th>Signal</th><th>3M Return</th></tr>
           </thead>
           <tbody>
-            <tr><td>Technology</td><td><span class="signal-badge overweight">Overweight</span></td><td style="color:var(--main-m3)">+11.4%</td></tr>
-            <tr><td>Financials</td><td><span class="signal-badge overweight">Overweight</span></td><td style="color:var(--main-m3)">+8.7%</td></tr>
-            <tr><td>Healthcare</td><td><span class="signal-badge overweight">Overweight</span></td><td style="color:var(--main-m3)">+7.2%</td></tr>
-            <tr><td>Communication</td><td><span class="signal-badge neutral">Neutral</span></td><td style="color:var(--main-m3)">+5.8%</td></tr>
-            <tr><td>Industrials</td><td><span class="signal-badge neutral">Neutral</span></td><td style="color:var(--main-m3)">+5.1%</td></tr>
-            <tr><td>Cons. Discretionary</td><td><span class="signal-badge neutral">Neutral</span></td><td style="color:var(--main-m3)">+4.3%</td></tr>
-            <tr><td>Materials</td><td><span class="signal-badge neutral">Neutral</span></td><td style="color:var(--main-m3)">+2.9%</td></tr>
-            <tr><td>Consumer Staples</td><td><span class="signal-badge underweight">Underweight</span></td><td style="color:var(--main-m3)">+1.2%</td></tr>
-            <tr><td>Energy</td><td><span class="signal-badge underweight">Underweight</span></td><td style="color:var(--main-m4)">-0.8%</td></tr>
-            <tr><td>Utilities</td><td><span class="signal-badge underweight">Underweight</span></td><td style="color:var(--main-m4)">-1.5%</td></tr>
-            <tr><td>Real Estate</td><td><span class="signal-badge underweight">Underweight</span></td><td style="color:var(--main-m4)">-3.6%</td></tr>
+            <tr><td>Technology (XLK)</td><td><span class="signal-badge overweight">Overweight</span></td><td style="color:var(--main-m3)">+11.4%</td></tr>
+            <tr><td>Financials (XLF)</td><td><span class="signal-badge overweight">Overweight</span></td><td style="color:var(--main-m3)">+8.7%</td></tr>
+            <tr><td>Healthcare (XLV)</td><td><span class="signal-badge overweight">Overweight</span></td><td style="color:var(--main-m3)">+7.2%</td></tr>
+            <tr><td>Communication (XLC)</td><td><span class="signal-badge neutral">Neutral</span></td><td style="color:var(--main-m3)">+5.8%</td></tr>
+            <tr><td>Industrials (XLI)</td><td><span class="signal-badge neutral">Neutral</span></td><td style="color:var(--main-m3)">+5.1%</td></tr>
+            <tr><td>Cons. Disc. (XLY)</td><td><span class="signal-badge neutral">Neutral</span></td><td style="color:var(--main-m3)">+4.3%</td></tr>
+            <tr><td>Materials (XLB)</td><td><span class="signal-badge neutral">Neutral</span></td><td style="color:var(--main-m3)">+2.9%</td></tr>
+            <tr><td>Consumer Staples (XLP)</td><td><span class="signal-badge underweight">Underweight</span></td><td style="color:var(--main-m3)">+1.2%</td></tr>
+            <tr><td>Energy (XLE)</td><td><span class="signal-badge underweight">Underweight</span></td><td style="color:var(--main-m4)">-0.8%</td></tr>
+            <tr><td>Utilities (XLU)</td><td><span class="signal-badge underweight">Underweight</span></td><td style="color:var(--main-m4)">-1.5%</td></tr>
+            <tr><td>Real Estate (XLRE)</td><td><span class="signal-badge underweight">Underweight</span></td><td style="color:var(--main-m4)">-3.6%</td></tr>
           </tbody>
         </table>
       </div>
@@ -305,9 +305,9 @@ body {
 <script>
 // --- Heatmap Data ---
 const sectors = [
-  'Real Estate', 'Utilities', 'Materials', 'Consumer Staples', 'Energy',
-  'Industrials', 'Communication', 'Cons. Discretionary', 'Financials',
-  'Healthcare', 'Technology'
+  'Real Estate (XLRE)', 'Utilities (XLU)', 'Materials (XLB)', 'Consumer Staples (XLP)', 'Energy (XLE)',
+  'Industrials (XLI)', 'Communication (XLC)', 'Cons. Disc. (XLY)', 'Financials (XLF)',
+  'Healthcare (XLV)', 'Technology (XLK)'
 ];
 
 const months = [
@@ -363,7 +363,7 @@ heatmapChart.setOption({
     }
   },
   grid: {
-    left: 150, right: 40, top: 20, bottom: 50
+    left: 180, right: 40, top: 20, bottom: 50
   },
   xAxis: {
     type: 'category',
@@ -445,9 +445,9 @@ heatmapChart.setOption({
 
 // --- Momentum Bar Chart ---
 const momentumSectors = [
-  'Technology', 'Financials', 'Healthcare', 'Communication',
-  'Industrials', 'Cons. Discretionary', 'Materials',
-  'Consumer Staples', 'Energy', 'Utilities', 'Real Estate'
+  'Technology (XLK)', 'Financials (XLF)', 'Healthcare (XLV)', 'Communication (XLC)',
+  'Industrials (XLI)', 'Cons. Disc. (XLY)', 'Materials (XLB)',
+  'Consumer Staples (XLP)', 'Energy (XLE)', 'Utilities (XLU)', 'Real Estate (XLRE)'
 ];
 const momentumValues = [11.4, 8.7, 7.2, 5.8, 5.1, 4.3, 2.9, 1.2, -0.8, -1.5, -3.6];
 
@@ -463,7 +463,7 @@ momentumChart.setOption({
     }
   },
   grid: {
-    left: 150, right: 50, top: 10, bottom: 20
+    left: 180, right: 50, top: 10, bottom: 20
   },
   xAxis: {
     type: 'value',
