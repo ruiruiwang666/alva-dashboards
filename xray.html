@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portfolio X-Ray Analyzer — OpenAlva</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>
+@font-face { font-family: 'Delight'; src: url('https://alva-ai-static.b-cdn.net/fonts/Delight-Regular.ttf') format('truetype'); font-weight: 400; }
+@font-face { font-family: 'Delight'; src: url('https://alva-ai-static.b-cdn.net/fonts/Delight-Medium.ttf') format('truetype'); font-weight: 500; }
+:root {
+  --main-m1: #49a3a6; --main-m3: #2a9b7d; --main-m4: #e05357;
+  --main-m5: #e6a91a; --main-m6: #ff9800;
+  --text-n9: rgba(0,0,0,0.9); --text-n7: rgba(0,0,0,0.7);
+  --text-n5: rgba(0,0,0,0.5); --text-n3: rgba(0,0,0,0.3);
+  --b0-page: #ffffff; --grey-g01: #fafafa; --grey-g02: #f5f5f5;
+  --line-l07: rgba(0,0,0,0.07); --line-l05: rgba(0,0,0,0.05);
+  --spacing-xs: 8px; --spacing-s: 12px; --spacing-m: 16px;
+  --spacing-l: 20px; --spacing-xl: 24px;
+  --radius-ct-s: 4px; --radius-ct-m: 6px; --radius-ct-l: 8px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; }
+body { font-family: 'Delight', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--b0-page); color: var(--text-n9); line-height: 1.5; }
+.page { max-width: 1120px; margin: 0 auto; padding: 40px var(--spacing-xl) 60px; }
+.header { margin-bottom: 32px; }
+.header h1 { font-size: 28px; font-weight: 400; color: var(--text-n9); margin-bottom: 6px; }
+.header p { font-size: 15px; color: var(--text-n5); font-weight: 400; }
+.section-title { font-size: 16px; font-weight: 500; color: var(--text-n9); margin-bottom: var(--spacing-m); }
+
+/* Portfolio bar */
+.portfolio-bar { background: var(--grey-g01); border-radius: var(--radius-ct-l); padding: var(--spacing-m) var(--spacing-l); margin-bottom: var(--spacing-xl); display: flex; align-items: center; gap: var(--spacing-s); flex-wrap: wrap; }
+.portfolio-bar-label { font-size: 14px; font-weight: 500; color: var(--text-n7); margin-right: var(--spacing-xs); white-space: nowrap; }
+.pill { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: var(--radius-ct-s); font-size: 13px; font-weight: 400; color: #fff; }
+.pill .pct { opacity: 0.85; font-size: 12px; }
+
+/* KPI row */
+.kpi-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--spacing-m); margin-bottom: 32px; }
+.kpi-card { background: var(--grey-g01); border-radius: var(--radius-ct-l); padding: var(--spacing-l); }
+.kpi-label { font-size: 13px; color: var(--text-n5); font-weight: 400; margin-bottom: 6px; }
+.kpi-value { font-size: 24px; font-weight: 500; color: var(--text-n9); }
+.kpi-value.negative { color: var(--main-m4); }
+.kpi-value.positive { color: var(--main-m3); }
+
+/* Chart cards */
+.chart-section { margin-bottom: 32px; }
+.chart-card { background: var(--grey-g01); border-radius: var(--radius-ct-l); padding: var(--spacing-xl); }
+.chart-container { width: 100%; }
+
+/* Grid layouts */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-m); margin-bottom: 32px; }
+
+/* Warning badge */
+.warning-badge { display: inline-flex; align-items: center; gap: 6px; background: #fff3e0; color: #e65100; font-size: 13px; font-weight: 500; padding: 6px 14px; border-radius: var(--radius-ct-s); margin-top: var(--spacing-s); }
+.warning-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--main-m6); }
+
+/* Stress table */
+.stress-table { width: 100%; border-collapse: collapse; }
+.stress-table th { text-align: left; font-size: 13px; font-weight: 500; color: var(--text-n5); padding: 10px 14px; border-bottom: 1px solid var(--line-l07); }
+.stress-table td { font-size: 14px; font-weight: 400; color: var(--text-n9); padding: 12px 14px; border-bottom: 1px solid var(--line-l05); }
+.stress-table tr:last-child td { border-bottom: none; }
+.stress-table .scenario-desc { color: var(--text-n7); font-size: 13px; }
+.stress-table .impact-neg { color: var(--main-m4); font-weight: 500; }
+.stress-table .impact-pos { color: var(--main-m3); font-weight: 500; }
+
+/* Insight card */
+.insight-card { background: var(--grey-g01); border-radius: var(--radius-ct-l); padding: var(--spacing-xl); margin-bottom: 32px; }
+.insight-card h3 { font-size: 16px; font-weight: 500; color: var(--text-n9); margin-bottom: var(--spacing-m); }
+.insight-item { display: flex; gap: var(--spacing-s); margin-bottom: var(--spacing-s); }
+.insight-item:last-child { margin-bottom: 0; }
+.insight-bullet { width: 6px; height: 6px; border-radius: 50%; background: var(--main-m1); margin-top: 8px; flex-shrink: 0; }
+.insight-text { font-size: 14px; color: var(--text-n7); font-weight: 400; line-height: 1.6; }
+
+/* Footer */
+.footer { text-align: center; padding: 32px 0 0; }
+.footer-disclaimer { font-size: 12px; color: var(--text-n3); margin-bottom: var(--spacing-xs); }
+.footer-links { font-size: 13px; color: var(--text-n5); }
+.footer-links a { color: var(--main-m1); text-decoration: none; font-weight: 500; }
+.footer-links a:hover { text-decoration: underline; }
+
+@media (max-width: 768px) {
+  .kpi-row { grid-template-columns: repeat(2, 1fr); }
+  .grid-2 { grid-template-columns: 1fr; }
+  .page { padding: 24px 16px 40px; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+  <!-- Header -->
+  <div class="header">
+    <h1>Portfolio X-Ray Analyzer</h1>
+    <p>Institutional-grade risk decomposition for any portfolio</p>
+  </div>
+
+  <!-- Portfolio Bar -->
+  <div class="portfolio-bar">
+    <span class="portfolio-bar-label">Sample Portfolio</span>
+    <span class="pill" style="background:#7474d8">AAPL <span class="pct">25%</span></span>
+    <span class="pill" style="background:#ff9800">MSFT <span class="pct">20%</span></span>
+    <span class="pill" style="background:#3d8bd1">NVDA <span class="pct">15%</span></span>
+    <span class="pill" style="background:#40a544">GOOGL <span class="pct">10%</span></span>
+    <span class="pill" style="background:#a878dc">AMZN <span class="pct">10%</span></span>
+    <span class="pill" style="background:#dc7aa5">SPY <span class="pct">10%</span></span>
+    <span class="pill" style="background:#5f75c9">BND <span class="pct">10%</span></span>
+  </div>
+
+  <!-- KPI Row -->
+  <div class="kpi-row">
+    <div class="kpi-card">
+      <div class="kpi-label">Portfolio Value</div>
+      <div class="kpi-value">$100,000</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Daily VaR (95%)</div>
+      <div class="kpi-value negative">-$2,340</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Expected Annual Return</div>
+      <div class="kpi-value positive">18.2%</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Annual Volatility</div>
+      <div class="kpi-value">22.4%</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Sharpe Ratio</div>
+      <div class="kpi-value">0.81</div>
+    </div>
+  </div>
+
+  <!-- Factor Exposure -->
+  <div class="chart-section">
+    <div class="section-title">Factor Exposure</div>
+    <div class="chart-card">
+      <div id="chart-factor" class="chart-container" style="height:280px"></div>
+    </div>
+  </div>
+
+  <!-- Sector Allocation + Correlation Matrix -->
+  <div class="grid-2">
+    <div>
+      <div class="section-title">Sector Allocation</div>
+      <div class="chart-card">
+        <div id="chart-sector" class="chart-container" style="height:320px"></div>
+        <div class="warning-badge"><span class="warning-dot"></span>Concentration Risk: Top 3 holdings = 60%</div>
+      </div>
+    </div>
+    <div>
+      <div class="section-title">Correlation Matrix</div>
+      <div class="chart-card">
+        <div id="chart-corr" class="chart-container" style="height:360px"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stress Test Scenarios -->
+  <div class="chart-section">
+    <div class="section-title">Stress Test Scenarios</div>
+    <div class="chart-card" style="padding: var(--spacing-m) 0;">
+      <table class="stress-table">
+        <thead>
+          <tr>
+            <th>Scenario</th>
+            <th>Description</th>
+            <th>Portfolio Impact</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Tech Crash (-30%)</td>
+            <td class="scenario-desc">Technology sector declines 30% over 3 months</td>
+            <td class="impact-neg">-26.1%</td>
+          </tr>
+          <tr>
+            <td>Rate Hike (+100bp)</td>
+            <td class="scenario-desc">Federal Reserve raises rates by 100 basis points</td>
+            <td class="impact-neg">-8.4%</td>
+          </tr>
+          <tr>
+            <td>Recession</td>
+            <td class="scenario-desc">GDP contracts 2%+, earnings decline 20%</td>
+            <td class="impact-neg">-22.8%</td>
+          </tr>
+          <tr>
+            <td>Inflation Spike</td>
+            <td class="scenario-desc">CPI rises to 7%+, real yields surge</td>
+            <td class="impact-neg">-12.3%</td>
+          </tr>
+          <tr>
+            <td>Market Rally (+20%)</td>
+            <td class="scenario-desc">Broad equity market rallies 20% over 6 months</td>
+            <td class="impact-pos">+17.5%</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Risk Assessment Insight -->
+  <div class="insight-card">
+    <h3>Risk Assessment</h3>
+    <div class="insight-item">
+      <span class="insight-bullet"></span>
+      <span class="insight-text"><strong style="font-weight:500">Concentration risk is elevated.</strong> 60% of the portfolio is concentrated in three mega-cap tech stocks (AAPL, MSFT, NVDA). A sector-specific downturn could cause outsized losses. Consider diversifying into healthcare, energy, or international equities.</span>
+    </div>
+    <div class="insight-item">
+      <span class="insight-bullet"></span>
+      <span class="insight-text"><strong style="font-weight:500">Strong growth/momentum tilt.</strong> Factor analysis shows high exposure to growth (+0.82) and momentum (+0.58) while being underweight value (-0.31). This has performed well in recent years but may underperform during factor rotations into value.</span>
+    </div>
+    <div class="insight-item">
+      <span class="insight-bullet"></span>
+      <span class="insight-text"><strong style="font-weight:500">Bond allocation provides limited hedge.</strong> The 10% BND position offers some diversification (negative correlation with tech), but is insufficient to offset tail risk in a severe downturn. Increasing to 20-25% fixed income or adding gold/commodities would improve the Sharpe ratio.</span>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <div class="footer-disclaimer">Simulated data for demonstration purposes.</div>
+    <div class="footer-links">
+      Powered by <a href="https://skills.sh/alva-ai/skills/open-alva" target="_blank">OpenAlva</a>
+      &nbsp;&middot;&nbsp;
+      <a href="https://github.com/alva-ai" target="_blank">GitHub</a>
+    </div>
+  </div>
+</div>
+
+<script>
+var chartColors = ['#7474d8','#ff9800','#3d8bd1','#40a544','#a878dc','#dc7aa5','#c76466','#5f75c9','#0d7498','#838383'];
+
+// ——— Factor Exposure Chart ———
+(function() {
+  var chart = echarts.init(document.getElementById('chart-factor'));
+  var factors = ['Value', 'Growth', 'Momentum', 'Quality', 'Size', 'Volatility'];
+  var values = [-0.31, 0.82, 0.58, 0.44, -0.24, 0.35];
+  chart.setOption({
+    backgroundColor: 'transparent',
+    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, textStyle: { fontFamily: 'Delight', fontWeight: 400 } },
+    grid: { left: 100, right: 50, top: 16, bottom: 16 },
+    xAxis: {
+      type: 'value',
+      min: -0.6, max: 1.0,
+      axisLine: { show: false },
+      axisTick: { show: false },
+      splitLine: { lineStyle: { color: 'rgba(0,0,0,0.05)', type: 'dashed' } },
+      axisLabel: { fontFamily: 'Delight', fontSize: 12, color: 'rgba(0,0,0,0.5)', fontWeight: 400 }
+    },
+    yAxis: {
+      type: 'category',
+      data: factors,
+      inverse: true,
+      axisLine: { show: false },
+      axisTick: { show: false },
+      axisLabel: { fontFamily: 'Delight', fontSize: 13, color: 'rgba(0,0,0,0.7)', fontWeight: 400 }
+    },
+    series: [{
+      type: 'bar',
+      data: values.map(function(v) {
+        return { value: v, itemStyle: { color: v >= 0 ? '#2a9b7d' : '#e05357', borderRadius: v >= 0 ? [0,3,3,0] : [3,0,0,3] } };
+      }),
+      barWidth: 24,
+      label: {
+        show: true,
+        position: 'right',
+        formatter: function(p) { return (p.value >= 0 ? '+' : '') + p.value.toFixed(2); },
+        fontFamily: 'Delight', fontSize: 13, fontWeight: 500, color: 'rgba(0,0,0,0.7)'
+      }
+    }]
+  });
+  window.addEventListener('resize', function() { chart.resize(); });
+})();
+
+// ——— Sector Allocation Chart ———
+(function() {
+  var chart = echarts.init(document.getElementById('chart-sector'));
+  chart.setOption({
+    backgroundColor: 'transparent',
+    tooltip: { trigger: 'item', formatter: '{b}: {d}%', textStyle: { fontFamily: 'Delight', fontWeight: 400 } },
+    legend: {
+      orient: 'vertical', right: 12, top: 'center',
+      textStyle: { fontFamily: 'Delight', fontSize: 13, color: 'rgba(0,0,0,0.7)', fontWeight: 400 },
+      itemWidth: 10, itemHeight: 10, itemGap: 12, icon: 'circle'
+    },
+    color: chartColors,
+    series: [{
+      type: 'pie',
+      radius: ['44%', '70%'],
+      center: ['38%', '50%'],
+      avoidLabelOverlap: true,
+      padAngle: 2,
+      itemStyle: { borderRadius: 4 },
+      label: { show: false },
+      emphasis: { label: { show: true, fontSize: 14, fontWeight: 500, fontFamily: 'Delight' } },
+      data: [
+        { value: 70, name: 'Technology' },
+        { value: 10, name: 'Communication' },
+        { value: 5, name: 'Consumer Disc.' },
+        { value: 10, name: 'Broad Market (SPY)' },
+        { value: 5, name: 'Bonds' }
+      ]
+    }]
+  });
+  window.addEventListener('resize', function() { chart.resize(); });
+})();
+
+// ——— Correlation Matrix Chart ———
+(function() {
+  var chart = echarts.init(document.getElementById('chart-corr'));
+  var tickers = ['AAPL', 'MSFT', 'NVDA', 'GOOGL', 'AMZN', 'SPY', 'BND'];
+  // Realistic correlation matrix
+  var matrix = [
+    [1.00, 0.78, 0.72, 0.68, 0.65, 0.82, -0.18],
+    [0.78, 1.00, 0.74, 0.71, 0.69, 0.85, -0.20],
+    [0.72, 0.74, 1.00, 0.66, 0.63, 0.78, -0.22],
+    [0.68, 0.71, 0.66, 1.00, 0.73, 0.80, -0.16],
+    [0.65, 0.69, 0.63, 0.73, 1.00, 0.79, -0.15],
+    [0.82, 0.85, 0.78, 0.80, 0.79, 1.00, 0.08],
+    [-0.18, -0.20, -0.22, -0.16, -0.15, 0.08, 1.00]
+  ];
+  var data = [];
+  for (var i = 0; i < tickers.length; i++) {
+    for (var j = 0; j < tickers.length; j++) {
+      data.push([j, i, matrix[i][j]]);
+    }
+  }
+  chart.setOption({
+    backgroundColor: 'transparent',
+    tooltip: {
+      formatter: function(p) { return tickers[p.value[1]] + ' / ' + tickers[p.value[0]] + ': ' + p.value[2].toFixed(2); },
+      textStyle: { fontFamily: 'Delight', fontWeight: 400 }
+    },
+    grid: { left: 56, right: 16, top: 40, bottom: 16 },
+    xAxis: {
+      type: 'category', data: tickers, position: 'top',
+      axisLine: { show: false }, axisTick: { show: false },
+      axisLabel: { fontFamily: 'Delight', fontSize: 12, color: 'rgba(0,0,0,0.7)', fontWeight: 500 }
+    },
+    yAxis: {
+      type: 'category', data: tickers, inverse: true,
+      axisLine: { show: false }, axisTick: { show: false },
+      axisLabel: { fontFamily: 'Delight', fontSize: 12, color: 'rgba(0,0,0,0.7)', fontWeight: 500 }
+    },
+    visualMap: {
+      min: -0.3, max: 1, calculable: false, orient: 'horizontal', left: 'center', bottom: -4, show: false,
+      inRange: { color: ['#e05357', '#f5f5f5', '#2a9b7d'] }
+    },
+    series: [{
+      type: 'heatmap',
+      data: data,
+      itemStyle: { borderRadius: 2 },
+      label: {
+        show: true,
+        formatter: function(p) { return p.value[2].toFixed(2); },
+        fontFamily: 'Delight', fontSize: 11, fontWeight: 400, color: 'rgba(0,0,0,0.7)'
+      },
+      emphasis: { itemStyle: { shadowBlur: 6, shadowColor: 'rgba(0,0,0,0.15)' } }
+    }]
+  });
+  window.addEventListener('resize', function() { chart.resize(); });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Options Strategy Visualizer</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>
+@font-face { font-family: 'Delight'; src: url('https://alva-ai-static.b-cdn.net/fonts/Delight-Regular.ttf') format('truetype'); font-weight: 400; }
+@font-face { font-family: 'Delight'; src: url('https://alva-ai-static.b-cdn.net/fonts/Delight-Medium.ttf') format('truetype'); font-weight: 500; }
+:root {
+  --main-m1: #49a3a6; --main-m3: #2a9b7d; --main-m4: #e05357;
+  --main-m5: #e6a91a; --main-m6: #ff9800;
+  --text-n9: rgba(0,0,0,0.9); --text-n7: rgba(0,0,0,0.7);
+  --text-n5: rgba(0,0,0,0.5); --text-n3: rgba(0,0,0,0.3);
+  --b0-page: #ffffff; --grey-g01: #fafafa; --grey-g02: #f5f5f5;
+  --line-l07: rgba(0,0,0,0.07); --line-l05: rgba(0,0,0,0.05);
+  --spacing-xs: 8px; --spacing-s: 12px; --spacing-m: 16px;
+  --spacing-l: 20px; --spacing-xl: 24px;
+  --radius-ct-s: 4px; --radius-ct-m: 6px; --radius-ct-l: 8px;
+}
+html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Delight', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--b0-page);
+  color: var(--text-n9);
+  line-height: 1.5;
+}
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px var(--spacing-xl);
+}
+.header {
+  margin-bottom: 32px;
+}
+.header h1 {
+  font-size: 28px;
+  font-weight: 400;
+  color: var(--text-n9);
+  margin-bottom: 6px;
+}
+.header .subtitle {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--text-n5);
+}
+.strategy-tabs {
+  display: flex;
+  gap: var(--spacing-xs);
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+}
+.strategy-tab {
+  padding: 10px 20px;
+  border-radius: var(--radius-ct-m);
+  background: var(--grey-g01);
+  color: var(--text-n7);
+  font-size: 14px;
+  font-weight: 400;
+  font-family: 'Delight', sans-serif;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+}
+.strategy-tab:hover {
+  background: var(--grey-g02);
+  color: var(--text-n9);
+}
+.strategy-tab.active {
+  background: var(--main-m1);
+  color: #fff;
+  font-weight: 500;
+}
+.section {
+  margin-bottom: 28px;
+}
+.section-title {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text-n9);
+  margin-bottom: var(--spacing-m);
+}
+.card {
+  background: var(--grey-g01);
+  border-radius: var(--radius-ct-l);
+  padding: var(--spacing-xl);
+}
+.setup-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--spacing-m);
+}
+.setup-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.setup-label {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text-n5);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.setup-value {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-n9);
+}
+.chart-container {
+  width: 100%;
+  height: 420px;
+}
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--spacing-m);
+  margin-bottom: 28px;
+}
+.kpi-card {
+  background: var(--grey-g01);
+  border-radius: var(--radius-ct-l);
+  padding: var(--spacing-l);
+}
+.kpi-card .kpi-label {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text-n5);
+  margin-bottom: 6px;
+}
+.kpi-card .kpi-value {
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--text-n9);
+}
+.kpi-card .kpi-value.profit { color: var(--main-m3); }
+.kpi-card .kpi-value.loss { color: var(--main-m4); }
+.greeks-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.greeks-table th {
+  text-align: left;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-n5);
+  padding: 10px 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.greeks-table td {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--text-n9);
+  padding: 10px 16px;
+  border-top: 1px solid var(--line-l05);
+}
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-m);
+}
+.insight-card {
+  background: var(--grey-g01);
+  border-radius: var(--radius-ct-l);
+  padding: var(--spacing-xl);
+}
+.insight-title {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-n9);
+  margin-bottom: var(--spacing-s);
+}
+.insight-body {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--text-n7);
+  line-height: 1.7;
+}
+.footer {
+  margin-top: 48px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line-l07);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.footer-left {
+  font-size: 12px;
+  color: var(--text-n3);
+}
+.footer-right {
+  display: flex;
+  gap: var(--spacing-m);
+  align-items: center;
+}
+.footer a {
+  font-size: 12px;
+  color: var(--text-n5);
+  text-decoration: none;
+}
+.footer a:hover {
+  color: var(--main-m1);
+}
+.disclaimer {
+  font-size: 11px;
+  color: var(--text-n3);
+  margin-top: var(--spacing-xs);
+}
+.leg-tag {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: var(--radius-ct-s);
+  font-size: 11px;
+  font-weight: 500;
+  margin-right: 4px;
+}
+.leg-tag.buy { background: rgba(42,155,125,0.12); color: var(--main-m3); }
+.leg-tag.sell { background: rgba(224,83,87,0.12); color: var(--main-m4); }
+@media (max-width: 768px) {
+  .kpi-row { grid-template-columns: repeat(2, 1fr); }
+  .two-col { grid-template-columns: 1fr; }
+  .container { padding: 24px 16px; }
+  .strategy-tabs { gap: 6px; }
+  .strategy-tab { padding: 8px 14px; font-size: 13px; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>Options Strategy Visualizer</h1>
+    <p class="subtitle">Build and visualize options strategies with real-time P&L curves</p>
+  </div>
+
+  <div class="strategy-tabs">
+    <button class="strategy-tab active" onclick="selectStrategy('coveredCall')">Covered Call</button>
+    <button class="strategy-tab" onclick="selectStrategy('bullCallSpread')">Bull Call Spread</button>
+    <button class="strategy-tab" onclick="selectStrategy('ironCondor')">Iron Condor</button>
+    <button class="strategy-tab" onclick="selectStrategy('straddle')">Straddle</button>
+    <button class="strategy-tab" onclick="selectStrategy('protectivePut')">Protective Put</button>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Strategy Setup</div>
+    <div class="card">
+      <div id="setupContent" class="setup-grid"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Payoff Diagram</div>
+    <div class="card">
+      <div id="payoffChart" class="chart-container"></div>
+    </div>
+  </div>
+
+  <div id="metricsSection" class="kpi-row"></div>
+
+  <div class="section two-col">
+    <div>
+      <div class="section-title">Greeks</div>
+      <div class="card" style="padding:0;overflow:hidden;">
+        <table class="greeks-table" id="greeksTable">
+          <thead>
+            <tr><th>Greek</th><th>Value</th><th>Interpretation</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+    <div>
+      <div class="section-title">When To Use This Strategy</div>
+      <div class="insight-card" id="insightCard" style="height:calc(100% - 36px);"></div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div>
+      <div class="footer-left">Powered by <a href="https://skills.sh/alva-ai/skills/open-alva" target="_blank">OpenAlva</a></div>
+      <div class="disclaimer">Simulated data for demonstration purposes.</div>
+    </div>
+    <div class="footer-right">
+      <a href="https://skills.sh/alva-ai/skills/open-alva" target="_blank">OpenAlva</a>
+      <a href="https://github.com/alva-ai" target="_blank">GitHub</a>
+    </div>
+  </div>
+</div>
+
+<script>
+const S = 232.50; // Underlying price
+
+const strategies = {
+  coveredCall: {
+    name: 'Covered Call',
+    setup: [
+      { label: 'Underlying', value: 'AAPL @ $232.50' },
+      { label: 'Position', value: '<span class="leg-tag buy">BUY</span> 100 shares' },
+      { label: 'Sell Call', value: '<span class="leg-tag sell">SELL</span> 1 Call @ $240 strike' },
+      { label: 'Premium', value: '$4.80 received' },
+      { label: 'Expiry', value: '30 days (Apr 12, 2026)' },
+      { label: 'Net Cost', value: '$22,770 (shares - premium)' }
+    ],
+    metrics: {
+      maxProfit: { value: '$1,230', note: 'At $240+', cls: 'profit' },
+      maxLoss: { value: '-$22,770', note: 'Stock to $0', cls: 'loss' },
+      breakeven: { value: '$227.70', note: 'Share cost - premium', cls: '' },
+      pop: { value: '62%', note: 'Prob. of profit', cls: '' }
+    },
+    greeks: [
+      { name: 'Delta', value: '+0.58', interp: 'Moderately bullish exposure' },
+      { name: 'Gamma', value: '-0.03', interp: 'Small negative gamma from short call' },
+      { name: 'Theta', value: '+$12.40/day', interp: 'Time decay works in your favor' },
+      { name: 'Vega', value: '-$8.20', interp: 'Benefits from falling volatility' }
+    ],
+    insight: {
+      title: 'Mildly Bullish to Neutral Outlook',
+      body: 'The covered call is ideal when you own shares and expect the stock to trade sideways or rise modestly. You collect premium income from the short call, which provides a small downside buffer and enhances yield. This strategy works best when implied volatility is elevated, maximizing the premium received. The trade-off is capping your upside at the strike price. Use this when you are comfortable selling shares at $240 and want to generate income while waiting.'
+    },
+    payoff: function(price) {
+      var stock_pnl = (price - S) * 100;
+      var call_pnl = -Math.max(price - 240, 0) * 100 + 4.80 * 100;
+      return stock_pnl + call_pnl;
+    },
+    breakevens: [227.70]
+  },
+  bullCallSpread: {
+    name: 'Bull Call Spread',
+    setup: [
+      { label: 'Underlying', value: 'AAPL @ $232.50' },
+      { label: 'Buy Call', value: '<span class="leg-tag buy">BUY</span> 1 Call @ $230 strike ($8.50)' },
+      { label: 'Sell Call', value: '<span class="leg-tag sell">SELL</span> 1 Call @ $245 strike ($3.20)' },
+      { label: 'Net Debit', value: '$5.30 per share ($530 total)' },
+      { label: 'Expiry', value: '30 days (Apr 12, 2026)' },
+      { label: 'Max Width', value: '$15.00 between strikes' }
+    ],
+    metrics: {
+      maxProfit: { value: '$970', note: 'At $245+', cls: 'profit' },
+      maxLoss: { value: '-$530', note: 'At $230 or below', cls: 'loss' },
+      breakeven: { value: '$235.30', note: 'Lower strike + debit', cls: '' },
+      pop: { value: '45%', note: 'Prob. of profit', cls: '' }
+    },
+    greeks: [
+      { name: 'Delta', value: '+0.35', interp: 'Bullish directional bias' },
+      { name: 'Gamma', value: '+0.01', interp: 'Small positive gamma near lower strike' },
+      { name: 'Theta', value: '-$3.60/day', interp: 'Time decay works against you' },
+      { name: 'Vega', value: '+$2.10', interp: 'Benefits from rising volatility' }
+    ],
+    insight: {
+      title: 'Bullish With Defined Risk',
+      body: 'The bull call spread is a directional bet that limits both your risk and reward. It is best used when you are moderately bullish on the stock and want to reduce the cost of buying a call outright. The short call at $245 offsets part of the premium paid for the $230 call. This strategy is most effective when you expect the stock to move above $235.30 within 30 days but want to keep risk tightly controlled. It also works well when volatility is low, as the spread cost is cheaper.'
+    },
+    payoff: function(price) {
+      var buy_call = Math.max(price - 230, 0) * 100 - 8.50 * 100;
+      var sell_call = -Math.max(price - 245, 0) * 100 + 3.20 * 100;
+      return buy_call + sell_call;
+    },
+    breakevens: [235.30]
+  },
+  ironCondor: {
+    name: 'Iron Condor',
+    setup: [
+      { label: 'Underlying', value: 'AAPL @ $232.50' },
+      { label: 'Sell Put', value: '<span class="leg-tag sell">SELL</span> 1 Put @ $220 ($2.40)' },
+      { label: 'Buy Put', value: '<span class="leg-tag buy">BUY</span> 1 Put @ $210 ($1.10)' },
+      { label: 'Sell Call', value: '<span class="leg-tag sell">SELL</span> 1 Call @ $245 ($3.20)' },
+      { label: 'Buy Call', value: '<span class="leg-tag buy">BUY</span> 1 Call @ $255 ($1.50)' },
+      { label: 'Net Credit', value: '$3.00 per share ($300 total)' }
+    ],
+    metrics: {
+      maxProfit: { value: '$300', note: '$220-$245 range', cls: 'profit' },
+      maxLoss: { value: '-$700', note: 'Beyond wings', cls: 'loss' },
+      breakeven: { value: '$217 / $248', note: 'Two breakeven points', cls: '' },
+      pop: { value: '58%', note: 'Prob. of profit', cls: '' }
+    },
+    greeks: [
+      { name: 'Delta', value: '+0.02', interp: 'Near-neutral directional exposure' },
+      { name: 'Gamma', value: '-0.02', interp: 'Negative gamma from short strikes' },
+      { name: 'Theta', value: '+$8.50/day', interp: 'Strong positive time decay' },
+      { name: 'Vega', value: '-$12.30', interp: 'Benefits from falling volatility' }
+    ],
+    insight: {
+      title: 'Range-Bound, High Volatility Environment',
+      body: 'The iron condor profits when the stock stays within a defined range. It is ideal when you expect low movement and want to collect premium from elevated implied volatility. The strategy has a high probability of profit but limited reward relative to risk. Best deployed 30-45 days before expiration when time decay accelerates. Avoid this strategy around earnings or major catalysts that could cause a large move beyond $217 or $248.'
+    },
+    payoff: function(price) {
+      var sell_put = -Math.max(220 - price, 0) * 100 + 2.40 * 100;
+      var buy_put = Math.max(210 - price, 0) * 100 - 1.10 * 100;
+      var sell_call = -Math.max(price - 245, 0) * 100 + 3.20 * 100;
+      var buy_call = Math.max(price - 255, 0) * 100 - 1.50 * 100;
+      return sell_put + buy_put + sell_call + buy_call;
+    },
+    breakevens: [217, 248]
+  },
+  straddle: {
+    name: 'Straddle',
+    setup: [
+      { label: 'Underlying', value: 'AAPL @ $232.50' },
+      { label: 'Buy Call', value: '<span class="leg-tag buy">BUY</span> 1 Call @ $232.50 ($6.80)' },
+      { label: 'Buy Put', value: '<span class="leg-tag buy">BUY</span> 1 Put @ $232.50 ($6.20)' },
+      { label: 'Net Debit', value: '$13.00 per share ($1,300 total)' },
+      { label: 'Expiry', value: '30 days (Apr 12, 2026)' },
+      { label: 'Implied Move', value: '~5.6% expected move' }
+    ],
+    metrics: {
+      maxProfit: { value: 'Unlimited', note: 'Large move either way', cls: 'profit' },
+      maxLoss: { value: '-$1,300', note: 'Stock stays at $232.50', cls: 'loss' },
+      breakeven: { value: '$219.50 / $245.50', note: 'Strike +/- premium', cls: '' },
+      pop: { value: '38%', note: 'Prob. of profit', cls: '' }
+    },
+    greeks: [
+      { name: 'Delta', value: '+0.04', interp: 'Nearly direction-neutral' },
+      { name: 'Gamma', value: '+0.06', interp: 'Accelerating gains on big moves' },
+      { name: 'Theta', value: '-$18.20/day', interp: 'Significant time decay cost' },
+      { name: 'Vega', value: '+$22.50', interp: 'Benefits strongly from rising vol' }
+    ],
+    insight: {
+      title: 'Expecting a Big Move, Direction Unknown',
+      body: 'The straddle is a pure volatility play. You profit when the stock makes a large move in either direction, breaking through $219.50 or $245.50. This strategy works best before earnings announcements, FDA decisions, or other binary events where the market underprices the expected move. The main risk is time decay: if the stock does not move significantly, the position loses value rapidly. Enter when implied volatility is relatively low compared to historical norms.'
+    },
+    payoff: function(price) {
+      var call_pnl = Math.max(price - 232.50, 0) * 100 - 6.80 * 100;
+      var put_pnl = Math.max(232.50 - price, 0) * 100 - 6.20 * 100;
+      return call_pnl + put_pnl;
+    },
+    breakevens: [219.50, 245.50]
+  },
+  protectivePut: {
+    name: 'Protective Put',
+    setup: [
+      { label: 'Underlying', value: 'AAPL @ $232.50' },
+      { label: 'Position', value: '<span class="leg-tag buy">BUY</span> 100 shares' },
+      { label: 'Buy Put', value: '<span class="leg-tag buy">BUY</span> 1 Put @ $225 strike ($3.50)' },
+      { label: 'Total Cost', value: '$23,600 (shares + premium)' },
+      { label: 'Expiry', value: '30 days (Apr 12, 2026)' },
+      { label: 'Protection', value: 'Floor at $225 per share' }
+    ],
+    metrics: {
+      maxProfit: { value: 'Unlimited', note: 'Stock rises', cls: 'profit' },
+      maxLoss: { value: '-$1,100', note: 'Below $225', cls: 'loss' },
+      breakeven: { value: '$236.00', note: 'Cost basis + premium', cls: '' },
+      pop: { value: '55%', note: 'Prob. of profit', cls: '' }
+    },
+    greeks: [
+      { name: 'Delta', value: '+0.72', interp: 'Bullish with downside hedge' },
+      { name: 'Gamma', value: '+0.03', interp: 'Slight positive gamma from put' },
+      { name: 'Theta', value: '-$6.80/day', interp: 'Insurance cost from time decay' },
+      { name: 'Vega', value: '+$5.40', interp: 'Put gains value if vol rises' }
+    ],
+    insight: {
+      title: 'Bullish But Seeking Downside Protection',
+      body: 'The protective put acts as portfolio insurance. You maintain full upside participation while limiting downside to $225 per share. This strategy is ideal when you are bullish long-term but worried about a near-term pullback, for example around earnings or a macro event. The cost of the put ($3.50) is the insurance premium you pay for peace of mind. Best used when implied volatility is low, making the put relatively cheap. Consider it the cost of staying invested during uncertain times.'
+    },
+    payoff: function(price) {
+      var stock_pnl = (price - S) * 100;
+      var put_pnl = Math.max(225 - price, 0) * 100 - 3.50 * 100;
+      return stock_pnl + put_pnl;
+    },
+    breakevens: [236.00]
+  }
+};
+
+let chart = null;
+let currentStrategy = 'coveredCall';
+
+function selectStrategy(key) {
+  currentStrategy = key;
+  // Update tabs
+  document.querySelectorAll('.strategy-tab').forEach(function(tab, i) {
+    var keys = Object.keys(strategies);
+    tab.classList.toggle('active', keys[i] === key);
+  });
+  renderAll();
+}
+
+function renderAll() {
+  var strat = strategies[currentStrategy];
+
+  // Setup
+  var setupHtml = '';
+  strat.setup.forEach(function(item) {
+    setupHtml += '<div class="setup-item"><div class="setup-label">' + item.label + '</div><div class="setup-value">' + item.value + '</div></div>';
+  });
+  document.getElementById('setupContent').innerHTML = setupHtml;
+
+  // Metrics
+  var m = strat.metrics;
+  var metricsHtml = '';
+  var metricItems = [
+    { label: 'Max Profit', data: m.maxProfit },
+    { label: 'Max Loss', data: m.maxLoss },
+    { label: 'Breakeven', data: m.breakeven },
+    { label: 'Prob. of Profit', data: m.pop }
+  ];
+  metricItems.forEach(function(item) {
+    metricsHtml += '<div class="kpi-card"><div class="kpi-label">' + item.label + '</div><div class="kpi-value ' + item.data.cls + '">' + item.data.value + '</div><div style="font-size:12px;color:rgba(0,0,0,0.5);margin-top:4px;">' + item.data.note + '</div></div>';
+  });
+  document.getElementById('metricsSection').innerHTML = metricsHtml;
+
+  // Greeks
+  var gHtml = '';
+  strat.greeks.forEach(function(g) {
+    gHtml += '<tr><td style="font-weight:500;">' + g.name + '</td><td>' + g.value + '</td><td style="color:rgba(0,0,0,0.5);">' + g.interp + '</td></tr>';
+  });
+  document.querySelector('#greeksTable tbody').innerHTML = gHtml;
+
+  // Insight
+  document.getElementById('insightCard').innerHTML =
+    '<div class="insight-title">' + strat.insight.title + '</div>' +
+    '<div class="insight-body">' + strat.insight.body + '</div>';
+
+  // Chart
+  renderChart(strat);
+}
+
+function renderChart(strat) {
+  if (!chart) {
+    chart = echarts.init(document.getElementById('payoffChart'));
+  }
+
+  var prices = [];
+  var pnl = [];
+  var pnlPos = [];
+  var pnlNeg = [];
+
+  for (var p = 200; p <= 270; p += 0.5) {
+    prices.push(p);
+    var val = strat.payoff(p);
+    pnl.push(val);
+    pnlPos.push(val >= 0 ? val : 0);
+    pnlNeg.push(val < 0 ? val : 0);
+  }
+
+  // Breakeven markup lines
+  var markLines = strat.breakevens.map(function(be) {
+    return {
+      xAxis: be,
+      lineStyle: { color: 'rgba(0,0,0,0.25)', type: 'dashed', width: 1 },
+      label: {
+        formatter: 'BE: $' + be.toFixed(2),
+        position: 'start',
+        color: 'rgba(0,0,0,0.5)',
+        fontSize: 11,
+        fontFamily: 'Delight, sans-serif'
+      }
+    };
+  });
+
+  // Current price line
+  markLines.push({
+    xAxis: S,
+    lineStyle: { color: '#7474d8', type: 'solid', width: 1.5 },
+    label: {
+      formatter: 'AAPL $' + S.toFixed(2),
+      position: 'end',
+      color: '#7474d8',
+      fontSize: 11,
+      fontFamily: 'Delight, sans-serif'
+    }
+  });
+
+  // Zero line
+  markLines.push({
+    yAxis: 0,
+    lineStyle: { color: 'rgba(0,0,0,0.12)', type: 'solid', width: 1 },
+    label: { show: false }
+  });
+
+  chart.setOption({
+    backgroundColor: 'transparent',
+    tooltip: {
+      trigger: 'axis',
+      formatter: function(params) {
+        var p = params[0];
+        var price = p.axisValue;
+        var val = pnl[Math.round((price - 200) * 2)];
+        if (val === undefined) return '';
+        var color = val >= 0 ? '#2a9b7d' : '#e05357';
+        return '<span style="font-family:Delight,sans-serif">' +
+          'Stock: $' + parseFloat(price).toFixed(2) + '<br>' +
+          'P&L: <span style="color:' + color + ';font-weight:500">' +
+          (val >= 0 ? '+' : '') + '$' + val.toFixed(0) + '</span></span>';
+      }
+    },
+    grid: {
+      left: 70, right: 30, top: 30, bottom: 40
+    },
+    xAxis: {
+      type: 'category',
+      data: prices.map(function(p) { return p.toFixed(2); }),
+      axisLine: { lineStyle: { color: 'rgba(0,0,0,0.1)' } },
+      axisTick: { show: false },
+      axisLabel: {
+        interval: function(index) {
+          return prices[index] % 10 === 0;
+        },
+        formatter: function(v) { return '$' + parseFloat(v).toFixed(0); },
+        color: 'rgba(0,0,0,0.5)',
+        fontSize: 12,
+        fontFamily: 'Delight, sans-serif'
+      },
+      splitLine: { show: false }
+    },
+    yAxis: {
+      type: 'value',
+      axisLine: { show: false },
+      axisTick: { show: false },
+      splitLine: {
+        lineStyle: { color: 'rgba(0,0,0,0.05)' }
+      },
+      axisLabel: {
+        formatter: function(v) {
+          if (v === 0) return '$0';
+          return (v > 0 ? '+' : '-') + '$' + Math.abs(v).toLocaleString();
+        },
+        color: 'rgba(0,0,0,0.5)',
+        fontSize: 12,
+        fontFamily: 'Delight, sans-serif'
+      }
+    },
+    series: [
+      {
+        name: 'Profit',
+        type: 'line',
+        data: pnlPos,
+        symbol: 'none',
+        lineStyle: { width: 0 },
+        areaStyle: {
+          color: 'rgba(42,155,125,0.18)'
+        },
+        z: 1
+      },
+      {
+        name: 'Loss',
+        type: 'line',
+        data: pnlNeg,
+        symbol: 'none',
+        lineStyle: { width: 0 },
+        areaStyle: {
+          color: 'rgba(224,83,87,0.18)'
+        },
+        z: 1
+      },
+      {
+        name: 'P&L',
+        type: 'line',
+        data: pnl,
+        symbol: 'none',
+        lineStyle: {
+          color: '#7474d8',
+          width: 2.5
+        },
+        markLine: {
+          symbol: 'none',
+          data: markLines,
+          animation: false
+        },
+        z: 2
+      }
+    ],
+    animation: true,
+    animationDuration: 600,
+    animationEasing: 'cubicOut'
+  }, true);
+}
+
+// Initial render
+renderAll();
+
+// Resize handler
+window.addEventListener('resize', function() {
+  if (chart) chart.resize();
+});
+</script>
+</body>
+</html>
