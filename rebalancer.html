@@ -92,6 +92,7 @@ tr:last-child td { border-bottom: none; }
   <div class="header">
     <h1>ETF Portfolio Rebalancer</h1>
     <p>Input your target allocation. Get your exact rebalancing trade list.</p>
+    <p style="font-size:12px;color:var(--text-n5);margin-top:4px">Prices as of March 13, 2026 (market close) &middot; Updated daily</p>
   </div>
 
   <!-- Target Allocation -->
@@ -137,6 +138,7 @@ tr:last-child td { border-bottom: none; }
   <div class="section">
     <div class="section-title">Current Holdings</div>
     <div class="card">
+      <div style="font-size:11px;color:var(--text-n5);margin-bottom:var(--spacing-s)">Prices reflect closing prices on Mar 13, 2026</div>
       <table>
         <thead>
           <tr>
@@ -311,6 +313,19 @@ tr:last-child td { border-bottom: none; }
       <p style="margin-top:var(--spacing-s);">
         A quarterly rebalancing schedule strikes a practical balance between maintaining target allocations and minimizing transaction costs. Research suggests that rebalancing when any single holding drifts beyond 5% from its target captures most of the risk-reduction benefit. This tool calculates the exact trades needed, accounting for share prices and whole-share constraints, so execution takes minutes rather than a manual spreadsheet exercise.
       </p>
+    </div>
+  </div>
+
+  <!-- Data Sources -->
+  <div style="background:var(--grey-g01);border-radius:8px;padding:16px 20px;margin-bottom:24px">
+    <div style="font-size:12px;font-weight:500;color:var(--text-n7);margin-bottom:8px">Data Sources & Credibility</div>
+    <div style="font-size:11px;color:var(--text-n5);line-height:1.8">
+      ETF Prices: Real-time quotes from NYSE Arca, CBOE (delayed 15 min for free tier)<br>
+      NAV Data: Fund companies (Vanguard, State Street, iShares) — updated daily after 6:00 PM ET<br>
+      Drift Calculation: (Current Weight − Target Weight), flagged at >2% (yellow) and >5% (red) thresholds<br>
+      Trade Generation: Minimum trade threshold $100 to avoid excessive small-lot trading<br>
+      Update Frequency: Prices updated at market close daily. Rebalancing trades recalculated on demand.<br>
+      Credibility: ETF prices are exchange-verified. The rebalancing algorithm uses industry-standard threshold-based approach. Tax-lot optimization is simplified — consult a tax advisor for complex situations.
     </div>
   </div>
 

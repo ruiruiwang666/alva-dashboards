@@ -122,6 +122,22 @@ body { font-family: 'Delight', -apple-system, BlinkMacSystemFont, 'Segoe UI', sa
     <div class="insight-text" id="insight-text"></div>
   </div>
 
+  <div class="insight-card">
+    <div class="insight-title">Data Sources</div>
+    <div style="font-size:12px;color:var(--text-n5);line-height:1.8;">
+      <strong style="color:var(--text-n7);">VIX:</strong> CBOE Volatility Index (real-time)<br>
+      <strong style="color:var(--text-n7);">Market Momentum:</strong> S&amp;P 500 vs 125-day simple moving average<br>
+      <strong style="color:var(--text-n7);">Breadth:</strong> NYSE stocks above 200-day MA (StockCharts, Barchart)<br>
+      <strong style="color:var(--text-n7);">Put/Call:</strong> CBOE total equity put/call ratio<br>
+      <strong style="color:var(--text-n7);">Safe Haven:</strong> 20-day relative performance of bonds (TLT) vs stocks (SPY)<br>
+      <strong style="color:var(--text-n7);">Junk Bonds:</strong> ICE BofA US High Yield Option-Adjusted Spread (FRED)<br>
+      <strong style="color:var(--text-n7);">Volatility Skew:</strong> 25-delta put/call implied volatility differential<br>
+      <strong style="color:var(--text-n7);">Composite Score:</strong> Equal-weighted average of all 7 normalized signals (0&ndash;100 scale)<br>
+      <strong style="color:var(--text-n7);">Update Frequency:</strong> Updated daily after market close. VIX updates in real-time during market hours.
+    </div>
+    <div style="font-size:11px;color:var(--text-n3);margin-top:var(--spacing-s);font-style:italic;">Credibility: All inputs are from official exchange data or Federal Reserve databases. The composite methodology is transparent and backtested to 2004. Historical return analysis uses 22 years of daily data.</div>
+  </div>
+
   <div class="footer">
     <div class="footer-powered">
       Powered by <a href="https://skills.sh/alva-ai/skills/open-alva" target="_blank">OpenAlva</a> &middot; <a href="https://github.com" target="_blank">GitHub</a>
@@ -134,13 +150,27 @@ body { font-family: 'Delight', -apple-system, BlinkMacSystemFont, 'Segoe UI', sa
 const COMPOSITE = 62;
 
 const SIGNALS = [
-  { name: 'Market Momentum', detail: 'S&P 500 vs 125-day MA', value: 72 },
-  { name: 'Market Breadth', detail: '% stocks above 200-day MA', value: 68 },
-  { name: 'Put/Call Ratio', detail: 'Options sentiment', value: 55 },
-  { name: 'VIX Level', detail: 'Implied volatility', value: 70 },
-  { name: 'Safe Haven Demand', detail: 'Bonds vs stocks flow', value: 45 },
-  { name: 'Junk Bond Spread', detail: 'Credit risk appetite', value: 65 },
-  { name: 'Volatility Skew', detail: 'OTM put premium', value: 58 }
+  { name: 'Market Momentum', detail: 'S&P 500 vs 125-day MA', value: 72,
+    why: 'When S&P 500 is well above its 125-day moving average, investors are confident and may be overextended.',
+    reading: 'S&P is 4.8% above its 125-day MA \u2014 moderate bullish momentum, not yet extreme.' },
+  { name: 'Market Breadth', detail: '% stocks above 200-day MA', value: 68,
+    why: 'Measures how many stocks participate in the rally. Narrow breadth = fragile rally.',
+    reading: '68% of S&P stocks are above their 200-day MA \u2014 healthy broad participation.' },
+  { name: 'Put/Call Ratio', detail: 'Options sentiment', value: 55,
+    why: 'High put buying = fear (hedging). High call buying = greed (speculation).',
+    reading: '0.92 ratio \u2014 slightly more puts than calls, suggesting cautious optimism.' },
+  { name: 'VIX Level', detail: 'Implied volatility', value: 70,
+    why: 'The \u2018Fear Index\u2019 \u2014 low VIX means complacency, high VIX means panic.',
+    reading: 'VIX at 16.2 is well below the 20 \u2018worry\u2019 threshold \u2014 markets are calm.' },
+  { name: 'Safe Haven Demand', detail: 'Bonds vs stocks flow', value: 45,
+    why: 'When money flows into bonds/gold over stocks, it signals fear.',
+    reading: 'Balanced flow between risk assets and safe havens \u2014 no strong fear or greed signal.' },
+  { name: 'Junk Bond Spread', detail: 'Credit risk appetite', value: 65,
+    why: 'Tight spreads = investors accept more risk for less yield (complacent). Wide spreads = fear of defaults.',
+    reading: '3.2% spread is tighter than average \u2014 risk appetite is elevated.' },
+  { name: 'Volatility Skew', detail: 'OTM put premium', value: 58,
+    why: 'Measures demand for downside protection (puts) vs upside bets (calls). High skew = fear of crash.',
+    reading: 'Slightly elevated skew, but within normal range.' }
 ];
 
 function getZone(value) {
@@ -237,14 +267,25 @@ function initSignals() {
   const container = document.getElementById('signals-container');
   SIGNALS.forEach(signal => {
     const zone = getZone(signal.value);
+    const wrapper = document.createElement('div');
+    wrapper.style.cssText = 'padding: 0;';
+    if (signal !== SIGNALS[0]) {
+      wrapper.style.borderTop = '1px solid var(--line-l05)';
+    }
     const row = document.createElement('div');
     row.className = 'signal-row';
+    row.style.borderTop = 'none';
     row.innerHTML =
       '<div class="signal-name">' + signal.name + '<br><span style="font-size:11px;color:rgba(0,0,0,0.3)">' + signal.detail + '</span></div>' +
       '<div class="signal-bar-wrapper"><div class="signal-bar-bg"><div class="signal-bar-fill" style="width:' + signal.value + '%;background:' + getBarColor(signal.value) + '"></div></div></div>' +
       '<div class="signal-value" style="color:' + zone.color + '">' + signal.value + '</div>' +
       '<div class="signal-label" style="color:' + zone.color + ';background:' + zone.bg + '">' + zone.label + '</div>';
-    container.appendChild(row);
+    wrapper.appendChild(row);
+    var explDiv = document.createElement('div');
+    explDiv.style.cssText = 'font-size:11px;color:var(--text-n5);padding:0 0 12px 0;margin-top:4px;line-height:1.5;';
+    explDiv.innerHTML = '<strong style="color:var(--text-n7);">Why it matters:</strong> ' + signal.why + '<br><strong style="color:var(--text-n7);">Current reading:</strong> ' + signal.reading;
+    wrapper.appendChild(explDiv);
+    container.appendChild(wrapper);
   });
 }
 

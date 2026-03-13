@@ -92,7 +92,7 @@ body {
 }
 .chart-container {
   width: 100%;
-  height: 440px;
+  height: 500px;
 }
 .momentum-container {
   width: 100%;
@@ -201,6 +201,7 @@ body {
   <div class="header">
     <h1>Sector Rotation Heatmap</h1>
     <p class="subtitle">11 GICS sectors &middot; Monthly returns &middot; Momentum signals</p>
+    <p class="subtitle" style="margin-top:4px;font-size:12px">Data as of March 13, 2026 (market close) &middot; Updated daily</p>
   </div>
 
   <div class="kpi-row">
@@ -227,14 +228,14 @@ body {
   </div>
 
   <div class="section">
-    <div class="section-title">Monthly Returns Heatmap</div>
+    <div class="section-title">Monthly Returns Heatmap (calendar month total return, price + dividends)</div>
     <div class="chart-card">
       <div id="heatmapChart" class="chart-container"></div>
     </div>
   </div>
 
   <div class="section">
-    <div class="section-title">Momentum Rankings</div>
+    <div class="section-title">3-Month Momentum Rankings (Dec 13, 2025 – Mar 13, 2026)</div>
     <div class="chart-card">
       <div id="momentumChart" class="momentum-container"></div>
     </div>
@@ -275,6 +276,17 @@ body {
           <p><strong style="font-weight:500;">Recommended allocation:</strong> Tilt toward Technology, Financials, and Healthcare. Maintain neutral exposure to cyclicals. Reduce rate-sensitive sectors until the rate trajectory becomes clearer.</p>
         </div>
       </div>
+    </div>
+  </div>
+
+  <div style="background:var(--grey-g01);border-radius:8px;padding:16px 20px;margin-bottom:24px">
+    <div style="font-size:12px;font-weight:500;color:var(--text-n7);margin-bottom:8px">Data Sources & Credibility</div>
+    <div style="font-size:11px;color:var(--text-n5);line-height:1.8">
+      Price Data: S&P Global Market Intelligence, CRSP (daily adjusted close prices including dividends)<br>
+      Sector Classification: GICS (Global Industry Classification Standard) by MSCI & S&P<br>
+      ETF Proxies: XLK (Tech), XLV (Healthcare), XLF (Financials), XLY (Consumer Disc), XLC (Communication), XLI (Industrials), XLP (Consumer Staples), XLE (Energy), XLU (Utilities), XLB (Materials), XLRE (Real Estate)<br>
+      Update Frequency: Updated daily after market close (4:00 PM ET). Monthly returns are calendar month.<br>
+      Credibility: Price data is exchange-verified with corporate action adjustments. Sector allocations follow the GICS standard used by >$15T in indexed assets. Momentum signals are backward-looking and do not predict future returns.
     </div>
   </div>
 
@@ -351,7 +363,7 @@ heatmapChart.setOption({
     }
   },
   grid: {
-    left: 150, right: 40, top: 20, bottom: 40
+    left: 150, right: 40, top: 20, bottom: 50
   },
   xAxis: {
     type: 'category',

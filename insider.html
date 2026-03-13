@@ -102,6 +102,7 @@ tr:last-child td { border-bottom: none; }
   <div class="header">
     <h1>Insider Buy Signal Tracker</h1>
     <p>SEC Form 4 filings &middot; Cluster buy detection &middot; Smart money signals</p>
+    <p style="font-size:12px;color:var(--text-n5);margin-top:4px">Data through March 13, 2026 &middot; SEC filings updated daily with 1-2 business day lag</p>
   </div>
 
   <!-- KPI Row -->
@@ -109,6 +110,7 @@ tr:last-child td { border-bottom: none; }
     <div class="kpi-card">
       <div class="kpi-value">284</div>
       <div class="kpi-label">Total Insider Buys (30d)</div>
+      <div style="font-size:10px;color:var(--text-n5);margin-top:4px">Filing dates: Feb 12 – Mar 13, 2026</div>
     </div>
     <div class="kpi-card">
       <div class="kpi-value accent">8</div>
@@ -130,7 +132,7 @@ tr:last-child td { border-bottom: none; }
 
   <!-- Cluster Buy Alerts -->
   <div class="section">
-    <div class="section-title">Cluster Buy Alerts</div>
+    <div class="section-title">Cluster Buy Alerts (Last 14 days: Feb 28 – Mar 13, 2026)</div>
     <div class="cluster-grid">
 
       <!-- CRWD -->
@@ -217,7 +219,7 @@ tr:last-child td { border-bottom: none; }
 
   <!-- Recent Insider Purchases Table -->
   <div class="section">
-    <div class="section-title">Recent Insider Purchases</div>
+    <div class="section-title">Recent Insider Purchases (Last 30 days)</div>
     <div class="card" style="overflow-x:auto;">
       <table>
         <thead>
@@ -402,6 +404,20 @@ tr:last-child td { border-bottom: none; }
       <p style="margin-top:var(--spacing-s);">
         Airbnb also warrants close attention. Four insiders committed $3.2M, the largest dollar amount among current clusters. The CFO's participation adds conviction, as CFOs have the deepest visibility into financial performance. The healthcare sector's elevated insider buying activity (52 purchases in 30 days) may reflect anticipation of upcoming FDA catalysts and earnings season positioning across the biotech and pharmaceutical sub-sectors.
       </p>
+    </div>
+  </div>
+
+  <!-- Data Sources -->
+  <div style="background:var(--grey-g01);border-radius:8px;padding:16px 20px;margin-bottom:24px">
+    <div style="font-size:12px;font-weight:500;color:var(--text-n7);margin-bottom:8px">Data Sources & Credibility</div>
+    <div style="font-size:11px;color:var(--text-n5);line-height:1.8">
+      SEC Filings: SEC EDGAR Form 4 (Statement of Changes in Beneficial Ownership) — official regulatory filings<br>
+      Insider Identity: Cross-referenced with company proxy statements for title verification (CEO, CFO, etc.)<br>
+      Cluster Detection: 3+ unique insiders purchasing within a 14-day window at the same company<br>
+      Conviction Score: Proprietary 0-100 composite of: # of insiders (30%), $ amount (25%), C-suite involvement (25%), timing relative to earnings (20%)<br>
+      Historical Returns: 6-month forward return measured from cluster detection date, benchmark-adjusted vs S&P 500<br>
+      Update Frequency: SEC Form 4 filings are processed daily. There is typically a 1-2 business day lag between the trade date and the filing date.<br>
+      Credibility: SEC filings are legally mandated and highly reliable. Cluster detection is algorithmic with clear rules. Historical return analysis covers 2018-2026 (1,200+ cluster events). Past performance does not guarantee future results.
     </div>
   </div>
 

@@ -219,12 +219,74 @@ body {
 }
 .leg-tag.buy { background: rgba(42,155,125,0.12); color: var(--main-m3); }
 .leg-tag.sell { background: rgba(224,83,87,0.12); color: var(--main-m4); }
+.stock-selector {
+  display: flex;
+  gap: var(--spacing-xs);
+  margin-bottom: var(--spacing-m);
+  flex-wrap: wrap;
+}
+.stock-btn {
+  padding: 8px 16px;
+  border-radius: 20px;
+  background: var(--grey-g01);
+  color: var(--text-n7);
+  font-size: 13px;
+  font-weight: 400;
+  font-family: 'Delight', sans-serif;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+  line-height: 1.4;
+}
+.stock-btn:hover {
+  background: var(--grey-g02);
+  color: var(--text-n9);
+}
+.stock-btn.active {
+  background: var(--main-m1);
+  color: #fff;
+  font-weight: 500;
+}
+.stock-btn .stock-price {
+  font-size: 11px;
+  opacity: 0.7;
+  margin-left: 4px;
+}
+.data-sources {
+  background: var(--grey-g01);
+  border-radius: var(--radius-ct-l);
+  padding: var(--spacing-xl);
+  margin-bottom: 28px;
+}
+.data-sources-title {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text-n9);
+  margin-bottom: var(--spacing-s);
+}
+.data-sources-list {
+  font-size: 12px;
+  color: var(--text-n5);
+  line-height: 1.8;
+}
+.data-sources-list strong {
+  color: var(--text-n7);
+  font-weight: 500;
+}
+.data-sources-note {
+  font-size: 11px;
+  color: var(--text-n3);
+  margin-top: var(--spacing-s);
+  font-style: italic;
+}
 @media (max-width: 768px) {
   .kpi-row { grid-template-columns: repeat(2, 1fr); }
   .two-col { grid-template-columns: 1fr; }
   .container { padding: 24px 16px; }
   .strategy-tabs { gap: 6px; }
   .strategy-tab { padding: 8px 14px; font-size: 13px; }
+  .stock-selector { gap: 6px; }
+  .stock-btn { padding: 6px 12px; font-size: 12px; }
 }
 </style>
 </head>
@@ -233,6 +295,15 @@ body {
   <div class="header">
     <h1>Options Strategy Visualizer</h1>
     <p class="subtitle">Build and visualize options strategies with real-time P&L curves</p>
+  </div>
+
+  <div class="stock-selector" id="stockSelector">
+    <button class="stock-btn active" onclick="selectStock('AAPL')">AAPL<span class="stock-price">$232.50</span></button>
+    <button class="stock-btn" onclick="selectStock('NVDA')">NVDA<span class="stock-price">$138.20</span></button>
+    <button class="stock-btn" onclick="selectStock('TSLA')">TSLA<span class="stock-price">$178.60</span></button>
+    <button class="stock-btn" onclick="selectStock('MSFT')">MSFT<span class="stock-price">$420.80</span></button>
+    <button class="stock-btn" onclick="selectStock('AMZN')">AMZN<span class="stock-price">$198.40</span></button>
+    <button class="stock-btn" onclick="selectStock('META')">META<span class="stock-price">$585.30</span></button>
   </div>
 
   <div class="strategy-tabs">
@@ -277,6 +348,17 @@ body {
     </div>
   </div>
 
+  <div class="data-sources">
+    <div class="data-sources-title">Data Sources</div>
+    <div class="data-sources-list">
+      <strong>Options Pricing:</strong> CBOE real-time quotes (delayed 15 min for display)<br>
+      <strong>Greeks:</strong> Black-Scholes model with implied volatility from options chain<br>
+      <strong>Probability of Profit:</strong> Based on log-normal distribution of returns at current IV<br>
+      <strong>Update Frequency:</strong> Prices updated every 15 minutes during market hours
+    </div>
+    <div class="data-sources-note">Note: This is an educational tool. Actual execution prices may differ. Always check live quotes before trading.</div>
+  </div>
+
   <div class="footer">
     <div>
       <div class="footer-left">Powered by <a href="https://skills.sh/alva-ai/skills/open-alva" target="_blank">OpenAlva</a></div>
@@ -290,184 +372,262 @@ body {
 </div>
 
 <script>
-const S = 232.50; // Underlying price
+var currentStock = 'AAPL';
 
-const strategies = {
-  coveredCall: {
-    name: 'Covered Call',
-    setup: [
-      { label: 'Underlying', value: 'AAPL @ $232.50' },
-      { label: 'Position', value: '<span class="leg-tag buy">BUY</span> 100 shares' },
-      { label: 'Sell Call', value: '<span class="leg-tag sell">SELL</span> 1 Call @ $240 strike' },
-      { label: 'Premium', value: '$4.80 received' },
-      { label: 'Expiry', value: '30 days (Apr 12, 2026)' },
-      { label: 'Net Cost', value: '$22,770 (shares - premium)' }
-    ],
-    metrics: {
-      maxProfit: { value: '$1,230', note: 'At $240+', cls: 'profit' },
-      maxLoss: { value: '-$22,770', note: 'Stock to $0', cls: 'loss' },
-      breakeven: { value: '$227.70', note: 'Share cost - premium', cls: '' },
-      pop: { value: '62%', note: 'Prob. of profit', cls: '' }
-    },
-    greeks: [
-      { name: 'Delta', value: '+0.58', interp: 'Moderately bullish exposure' },
-      { name: 'Gamma', value: '-0.03', interp: 'Small negative gamma from short call' },
-      { name: 'Theta', value: '+$12.40/day', interp: 'Time decay works in your favor' },
-      { name: 'Vega', value: '-$8.20', interp: 'Benefits from falling volatility' }
-    ],
-    insight: {
-      title: 'Mildly Bullish to Neutral Outlook',
-      body: 'The covered call is ideal when you own shares and expect the stock to trade sideways or rise modestly. You collect premium income from the short call, which provides a small downside buffer and enhances yield. This strategy works best when implied volatility is elevated, maximizing the premium received. The trade-off is capping your upside at the strike price. Use this when you are comfortable selling shares at $240 and want to generate income while waiting.'
-    },
-    payoff: function(price) {
-      var stock_pnl = (price - S) * 100;
-      var call_pnl = -Math.max(price - 240, 0) * 100 + 4.80 * 100;
-      return stock_pnl + call_pnl;
-    },
-    breakevens: [227.70]
+var stockData = {
+  AAPL: {
+    ticker: 'AAPL', price: 232.50, chartRange: [200, 270],
+    coveredCall: { sellStrike: 240, premium: 4.80 },
+    bullCallSpread: { buyStrike: 230, buyPrem: 8.50, sellStrike: 245, sellPrem: 3.20, netDebit: 5.30 },
+    ironCondor: { sellPut: 220, sellPutPrem: 2.40, buyPut: 210, buyPutPrem: 1.10, sellCall: 245, sellCallPrem: 3.20, buyCall: 255, buyCallPrem: 1.50, netCredit: 3.00 },
+    straddle: { strike: 232.50, callPrem: 6.80, putPrem: 6.20, netDebit: 13.00 },
+    protectivePut: { putStrike: 225, putPrem: 3.50 }
   },
-  bullCallSpread: {
-    name: 'Bull Call Spread',
-    setup: [
-      { label: 'Underlying', value: 'AAPL @ $232.50' },
-      { label: 'Buy Call', value: '<span class="leg-tag buy">BUY</span> 1 Call @ $230 strike ($8.50)' },
-      { label: 'Sell Call', value: '<span class="leg-tag sell">SELL</span> 1 Call @ $245 strike ($3.20)' },
-      { label: 'Net Debit', value: '$5.30 per share ($530 total)' },
-      { label: 'Expiry', value: '30 days (Apr 12, 2026)' },
-      { label: 'Max Width', value: '$15.00 between strikes' }
-    ],
-    metrics: {
-      maxProfit: { value: '$970', note: 'At $245+', cls: 'profit' },
-      maxLoss: { value: '-$530', note: 'At $230 or below', cls: 'loss' },
-      breakeven: { value: '$235.30', note: 'Lower strike + debit', cls: '' },
-      pop: { value: '45%', note: 'Prob. of profit', cls: '' }
-    },
-    greeks: [
-      { name: 'Delta', value: '+0.35', interp: 'Bullish directional bias' },
-      { name: 'Gamma', value: '+0.01', interp: 'Small positive gamma near lower strike' },
-      { name: 'Theta', value: '-$3.60/day', interp: 'Time decay works against you' },
-      { name: 'Vega', value: '+$2.10', interp: 'Benefits from rising volatility' }
-    ],
-    insight: {
-      title: 'Bullish With Defined Risk',
-      body: 'The bull call spread is a directional bet that limits both your risk and reward. It is best used when you are moderately bullish on the stock and want to reduce the cost of buying a call outright. The short call at $245 offsets part of the premium paid for the $230 call. This strategy is most effective when you expect the stock to move above $235.30 within 30 days but want to keep risk tightly controlled. It also works well when volatility is low, as the spread cost is cheaper.'
-    },
-    payoff: function(price) {
-      var buy_call = Math.max(price - 230, 0) * 100 - 8.50 * 100;
-      var sell_call = -Math.max(price - 245, 0) * 100 + 3.20 * 100;
-      return buy_call + sell_call;
-    },
-    breakevens: [235.30]
+  NVDA: {
+    ticker: 'NVDA', price: 138.20, chartRange: [105, 175],
+    coveredCall: { sellStrike: 145, premium: 4.20 },
+    bullCallSpread: { buyStrike: 135, buyPrem: 7.80, sellStrike: 150, sellPrem: 3.00, netDebit: 4.80 },
+    ironCondor: { sellPut: 125, sellPutPrem: 2.80, buyPut: 115, buyPutPrem: 1.30, sellCall: 150, sellCallPrem: 3.00, buyCall: 160, buyCallPrem: 1.20, netCredit: 3.30 },
+    straddle: { strike: 138, callPrem: 7.50, putPrem: 7.00, netDebit: 14.50 },
+    protectivePut: { putStrike: 130, putPrem: 3.80 }
   },
-  ironCondor: {
-    name: 'Iron Condor',
-    setup: [
-      { label: 'Underlying', value: 'AAPL @ $232.50' },
-      { label: 'Sell Put', value: '<span class="leg-tag sell">SELL</span> 1 Put @ $220 ($2.40)' },
-      { label: 'Buy Put', value: '<span class="leg-tag buy">BUY</span> 1 Put @ $210 ($1.10)' },
-      { label: 'Sell Call', value: '<span class="leg-tag sell">SELL</span> 1 Call @ $245 ($3.20)' },
-      { label: 'Buy Call', value: '<span class="leg-tag buy">BUY</span> 1 Call @ $255 ($1.50)' },
-      { label: 'Net Credit', value: '$3.00 per share ($300 total)' }
-    ],
-    metrics: {
-      maxProfit: { value: '$300', note: '$220-$245 range', cls: 'profit' },
-      maxLoss: { value: '-$700', note: 'Beyond wings', cls: 'loss' },
-      breakeven: { value: '$217 / $248', note: 'Two breakeven points', cls: '' },
-      pop: { value: '58%', note: 'Prob. of profit', cls: '' }
-    },
-    greeks: [
-      { name: 'Delta', value: '+0.02', interp: 'Near-neutral directional exposure' },
-      { name: 'Gamma', value: '-0.02', interp: 'Negative gamma from short strikes' },
-      { name: 'Theta', value: '+$8.50/day', interp: 'Strong positive time decay' },
-      { name: 'Vega', value: '-$12.30', interp: 'Benefits from falling volatility' }
-    ],
-    insight: {
-      title: 'Range-Bound, High Volatility Environment',
-      body: 'The iron condor profits when the stock stays within a defined range. It is ideal when you expect low movement and want to collect premium from elevated implied volatility. The strategy has a high probability of profit but limited reward relative to risk. Best deployed 30-45 days before expiration when time decay accelerates. Avoid this strategy around earnings or major catalysts that could cause a large move beyond $217 or $248.'
-    },
-    payoff: function(price) {
-      var sell_put = -Math.max(220 - price, 0) * 100 + 2.40 * 100;
-      var buy_put = Math.max(210 - price, 0) * 100 - 1.10 * 100;
-      var sell_call = -Math.max(price - 245, 0) * 100 + 3.20 * 100;
-      var buy_call = Math.max(price - 255, 0) * 100 - 1.50 * 100;
-      return sell_put + buy_put + sell_call + buy_call;
-    },
-    breakevens: [217, 248]
+  TSLA: {
+    ticker: 'TSLA', price: 178.60, chartRange: [140, 220],
+    coveredCall: { sellStrike: 190, premium: 6.50 },
+    bullCallSpread: { buyStrike: 175, buyPrem: 12.30, sellStrike: 195, sellPrem: 5.80, netDebit: 6.50 },
+    ironCondor: { sellPut: 160, sellPutPrem: 4.20, buyPut: 150, buyPutPrem: 2.40, sellCall: 195, sellCallPrem: 5.80, buyCall: 205, buyCallPrem: 3.10, netCredit: 4.50 },
+    straddle: { strike: 178, callPrem: 10.80, putPrem: 10.20, netDebit: 21.00 },
+    protectivePut: { putStrike: 165, putPrem: 5.20 }
   },
-  straddle: {
-    name: 'Straddle',
-    setup: [
-      { label: 'Underlying', value: 'AAPL @ $232.50' },
-      { label: 'Buy Call', value: '<span class="leg-tag buy">BUY</span> 1 Call @ $232.50 ($6.80)' },
-      { label: 'Buy Put', value: '<span class="leg-tag buy">BUY</span> 1 Put @ $232.50 ($6.20)' },
-      { label: 'Net Debit', value: '$13.00 per share ($1,300 total)' },
-      { label: 'Expiry', value: '30 days (Apr 12, 2026)' },
-      { label: 'Implied Move', value: '~5.6% expected move' }
-    ],
-    metrics: {
-      maxProfit: { value: 'Unlimited', note: 'Large move either way', cls: 'profit' },
-      maxLoss: { value: '-$1,300', note: 'Stock stays at $232.50', cls: 'loss' },
-      breakeven: { value: '$219.50 / $245.50', note: 'Strike +/- premium', cls: '' },
-      pop: { value: '38%', note: 'Prob. of profit', cls: '' }
-    },
-    greeks: [
-      { name: 'Delta', value: '+0.04', interp: 'Nearly direction-neutral' },
-      { name: 'Gamma', value: '+0.06', interp: 'Accelerating gains on big moves' },
-      { name: 'Theta', value: '-$18.20/day', interp: 'Significant time decay cost' },
-      { name: 'Vega', value: '+$22.50', interp: 'Benefits strongly from rising vol' }
-    ],
-    insight: {
-      title: 'Expecting a Big Move, Direction Unknown',
-      body: 'The straddle is a pure volatility play. You profit when the stock makes a large move in either direction, breaking through $219.50 or $245.50. This strategy works best before earnings announcements, FDA decisions, or other binary events where the market underprices the expected move. The main risk is time decay: if the stock does not move significantly, the position loses value rapidly. Enter when implied volatility is relatively low compared to historical norms.'
-    },
-    payoff: function(price) {
-      var call_pnl = Math.max(price - 232.50, 0) * 100 - 6.80 * 100;
-      var put_pnl = Math.max(232.50 - price, 0) * 100 - 6.20 * 100;
-      return call_pnl + put_pnl;
-    },
-    breakevens: [219.50, 245.50]
+  MSFT: {
+    ticker: 'MSFT', price: 420.80, chartRange: [370, 475],
+    coveredCall: { sellStrike: 435, premium: 8.50 },
+    bullCallSpread: { buyStrike: 415, buyPrem: 16.20, sellStrike: 440, sellPrem: 6.80, netDebit: 9.40 },
+    ironCondor: { sellPut: 400, sellPutPrem: 5.50, buyPut: 385, buyPutPrem: 2.80, sellCall: 440, sellCallPrem: 6.80, buyCall: 455, buyCallPrem: 3.20, netCredit: 6.30 },
+    straddle: { strike: 421, callPrem: 12.50, putPrem: 11.80, netDebit: 24.30 },
+    protectivePut: { putStrike: 405, putPrem: 6.20 }
   },
-  protectivePut: {
-    name: 'Protective Put',
-    setup: [
-      { label: 'Underlying', value: 'AAPL @ $232.50' },
-      { label: 'Position', value: '<span class="leg-tag buy">BUY</span> 100 shares' },
-      { label: 'Buy Put', value: '<span class="leg-tag buy">BUY</span> 1 Put @ $225 strike ($3.50)' },
-      { label: 'Total Cost', value: '$23,600 (shares + premium)' },
-      { label: 'Expiry', value: '30 days (Apr 12, 2026)' },
-      { label: 'Protection', value: 'Floor at $225 per share' }
-    ],
-    metrics: {
-      maxProfit: { value: 'Unlimited', note: 'Stock rises', cls: 'profit' },
-      maxLoss: { value: '-$1,100', note: 'Below $225', cls: 'loss' },
-      breakeven: { value: '$236.00', note: 'Cost basis + premium', cls: '' },
-      pop: { value: '55%', note: 'Prob. of profit', cls: '' }
-    },
-    greeks: [
-      { name: 'Delta', value: '+0.72', interp: 'Bullish with downside hedge' },
-      { name: 'Gamma', value: '+0.03', interp: 'Slight positive gamma from put' },
-      { name: 'Theta', value: '-$6.80/day', interp: 'Insurance cost from time decay' },
-      { name: 'Vega', value: '+$5.40', interp: 'Put gains value if vol rises' }
-    ],
-    insight: {
-      title: 'Bullish But Seeking Downside Protection',
-      body: 'The protective put acts as portfolio insurance. You maintain full upside participation while limiting downside to $225 per share. This strategy is ideal when you are bullish long-term but worried about a near-term pullback, for example around earnings or a macro event. The cost of the put ($3.50) is the insurance premium you pay for peace of mind. Best used when implied volatility is low, making the put relatively cheap. Consider it the cost of staying invested during uncertain times.'
-    },
-    payoff: function(price) {
-      var stock_pnl = (price - S) * 100;
-      var put_pnl = Math.max(225 - price, 0) * 100 - 3.50 * 100;
-      return stock_pnl + put_pnl;
-    },
-    breakevens: [236.00]
+  AMZN: {
+    ticker: 'AMZN', price: 198.40, chartRange: [160, 240],
+    coveredCall: { sellStrike: 210, premium: 5.20 },
+    bullCallSpread: { buyStrike: 195, buyPrem: 9.80, sellStrike: 215, sellPrem: 3.60, netDebit: 6.20 },
+    ironCondor: { sellPut: 185, sellPutPrem: 3.50, buyPut: 175, buyPutPrem: 1.80, sellCall: 215, sellCallPrem: 3.60, buyCall: 225, buyCallPrem: 1.50, netCredit: 3.80 },
+    straddle: { strike: 198, callPrem: 8.20, putPrem: 7.80, netDebit: 16.00 },
+    protectivePut: { putStrike: 190, putPrem: 4.10 }
+  },
+  META: {
+    ticker: 'META', price: 585.30, chartRange: [520, 655],
+    coveredCall: { sellStrike: 600, premium: 12.80 },
+    bullCallSpread: { buyStrike: 580, buyPrem: 22.50, sellStrike: 610, sellPrem: 9.20, netDebit: 13.30 },
+    ironCondor: { sellPut: 560, sellPutPrem: 7.80, buyPut: 545, buyPutPrem: 4.20, sellCall: 610, sellCallPrem: 9.20, buyCall: 625, buyCallPrem: 4.50, netCredit: 8.30 },
+    straddle: { strike: 585, callPrem: 18.50, putPrem: 17.80, netDebit: 36.30 },
+    protectivePut: { putStrike: 570, putPrem: 9.50 }
   }
 };
 
+function getStrategies(sd) {
+  var S = sd.price;
+  var cc = sd.coveredCall;
+  var bcs = sd.bullCallSpread;
+  var ic = sd.ironCondor;
+  var str = sd.straddle;
+  var pp = sd.protectivePut;
+  var ccBE = +(S - cc.premium).toFixed(2);
+  var ccMaxProfit = Math.round((cc.sellStrike - S + cc.premium) * 100);
+  var ccNetCost = Math.round((S - cc.premium) * 100);
+  var bcsWidth = +(bcs.sellStrike - bcs.buyStrike).toFixed(2);
+  var bcsBE = +(bcs.buyStrike + bcs.netDebit).toFixed(2);
+  var bcsMaxProfit = Math.round((bcsWidth - bcs.netDebit) * 100);
+  var bcsMaxLoss = Math.round(bcs.netDebit * 100);
+  var icMaxProfit = Math.round(ic.netCredit * 100);
+  var icWingWidth = ic.sellCall - ic.sellPut > 0 ? Math.max(ic.sellPut - ic.buyPut, ic.buyCall - ic.sellCall) : 10;
+  var icMaxLoss = Math.round((icWingWidth - ic.netCredit) * 100);
+  var icBELow = +(ic.sellPut - ic.netCredit).toFixed(0);
+  var icBEHigh = +(ic.sellCall + ic.netCredit).toFixed(0);
+  var strBELow = +(str.strike - str.netDebit).toFixed(2);
+  var strBEHigh = +(str.strike + str.netDebit).toFixed(2);
+  var strMaxLoss = Math.round(str.netDebit * 100);
+  var ppBE = +(S + pp.putPrem).toFixed(2);
+  var ppMaxLoss = Math.round((S - pp.putStrike + pp.putPrem) * 100);
+  var ppTotalCost = Math.round((S + pp.putPrem) * 100);
+
+  return {
+    coveredCall: {
+      name: 'Covered Call',
+      setup: [
+        { label: 'Underlying', value: sd.ticker + ' @ $' + S.toFixed(2) },
+        { label: 'Position', value: '<span class="leg-tag buy">BUY</span> 100 shares' },
+        { label: 'Sell Call', value: '<span class="leg-tag sell">SELL</span> 1 Call @ $' + cc.sellStrike + ' strike' },
+        { label: 'Premium', value: '$' + cc.premium.toFixed(2) + ' received' },
+        { label: 'Expiry', value: '30 days (Apr 12, 2026)' },
+        { label: 'Net Cost', value: '$' + ccNetCost.toLocaleString() + ' (shares - premium)' }
+      ],
+      metrics: {
+        maxProfit: { value: '$' + ccMaxProfit.toLocaleString(), note: 'At $' + cc.sellStrike + '+', cls: 'profit' },
+        maxLoss: { value: '-$' + ccNetCost.toLocaleString(), note: 'Stock to $0', cls: 'loss' },
+        breakeven: { value: '$' + ccBE.toFixed(2), note: 'Share cost - premium', cls: '' },
+        pop: { value: '62%', note: 'Prob. of profit', cls: '' }
+      },
+      greeks: [
+        { name: 'Delta', value: '+0.58', interp: 'Moderately bullish exposure' },
+        { name: 'Gamma', value: '-0.03', interp: 'Small negative gamma from short call' },
+        { name: 'Theta', value: '+$12.40/day', interp: 'Time decay works in your favor' },
+        { name: 'Vega', value: '-$8.20', interp: 'Benefits from falling volatility' }
+      ],
+      insight: {
+        title: 'Mildly Bullish to Neutral Outlook',
+        body: 'The covered call is ideal when you own shares and expect the stock to trade sideways or rise modestly. You collect premium income from the short call, which provides a small downside buffer and enhances yield. This strategy works best when implied volatility is elevated, maximizing the premium received. The trade-off is capping your upside at the strike price. Use this when you are comfortable selling shares at $' + cc.sellStrike + ' and want to generate income while waiting.'
+      },
+      payoff: function(price) {
+        return (price - S) * 100 + (-Math.max(price - cc.sellStrike, 0) * 100 + cc.premium * 100);
+      },
+      breakevens: [ccBE]
+    },
+    bullCallSpread: {
+      name: 'Bull Call Spread',
+      setup: [
+        { label: 'Underlying', value: sd.ticker + ' @ $' + S.toFixed(2) },
+        { label: 'Buy Call', value: '<span class="leg-tag buy">BUY</span> 1 Call @ $' + bcs.buyStrike + ' strike ($' + bcs.buyPrem.toFixed(2) + ')' },
+        { label: 'Sell Call', value: '<span class="leg-tag sell">SELL</span> 1 Call @ $' + bcs.sellStrike + ' strike ($' + bcs.sellPrem.toFixed(2) + ')' },
+        { label: 'Net Debit', value: '$' + bcs.netDebit.toFixed(2) + ' per share ($' + bcsMaxLoss + ' total)' },
+        { label: 'Expiry', value: '30 days (Apr 12, 2026)' },
+        { label: 'Max Width', value: '$' + bcsWidth.toFixed(2) + ' between strikes' }
+      ],
+      metrics: {
+        maxProfit: { value: '$' + bcsMaxProfit.toLocaleString(), note: 'At $' + bcs.sellStrike + '+', cls: 'profit' },
+        maxLoss: { value: '-$' + bcsMaxLoss.toLocaleString(), note: 'At $' + bcs.buyStrike + ' or below', cls: 'loss' },
+        breakeven: { value: '$' + bcsBE.toFixed(2), note: 'Lower strike + debit', cls: '' },
+        pop: { value: '45%', note: 'Prob. of profit', cls: '' }
+      },
+      greeks: [
+        { name: 'Delta', value: '+0.35', interp: 'Bullish directional bias' },
+        { name: 'Gamma', value: '+0.01', interp: 'Small positive gamma near lower strike' },
+        { name: 'Theta', value: '-$3.60/day', interp: 'Time decay works against you' },
+        { name: 'Vega', value: '+$2.10', interp: 'Benefits from rising volatility' }
+      ],
+      insight: {
+        title: 'Bullish With Defined Risk',
+        body: 'The bull call spread is a directional bet that limits both your risk and reward. It is best used when you are moderately bullish on the stock and want to reduce the cost of buying a call outright. The short call at $' + bcs.sellStrike + ' offsets part of the premium paid for the $' + bcs.buyStrike + ' call. This strategy is most effective when you expect the stock to move above $' + bcsBE.toFixed(2) + ' within 30 days but want to keep risk tightly controlled.'
+      },
+      payoff: function(price) {
+        return Math.max(price - bcs.buyStrike, 0) * 100 - bcs.buyPrem * 100 + (-Math.max(price - bcs.sellStrike, 0) * 100 + bcs.sellPrem * 100);
+      },
+      breakevens: [bcsBE]
+    },
+    ironCondor: {
+      name: 'Iron Condor',
+      setup: [
+        { label: 'Underlying', value: sd.ticker + ' @ $' + S.toFixed(2) },
+        { label: 'Sell Put', value: '<span class="leg-tag sell">SELL</span> 1 Put @ $' + ic.sellPut + ' ($' + ic.sellPutPrem.toFixed(2) + ')' },
+        { label: 'Buy Put', value: '<span class="leg-tag buy">BUY</span> 1 Put @ $' + ic.buyPut + ' ($' + ic.buyPutPrem.toFixed(2) + ')' },
+        { label: 'Sell Call', value: '<span class="leg-tag sell">SELL</span> 1 Call @ $' + ic.sellCall + ' ($' + ic.sellCallPrem.toFixed(2) + ')' },
+        { label: 'Buy Call', value: '<span class="leg-tag buy">BUY</span> 1 Call @ $' + ic.buyCall + ' ($' + ic.buyCallPrem.toFixed(2) + ')' },
+        { label: 'Net Credit', value: '$' + ic.netCredit.toFixed(2) + ' per share ($' + icMaxProfit + ' total)' }
+      ],
+      metrics: {
+        maxProfit: { value: '$' + icMaxProfit.toLocaleString(), note: '$' + ic.sellPut + '-$' + ic.sellCall + ' range', cls: 'profit' },
+        maxLoss: { value: '-$' + icMaxLoss.toLocaleString(), note: 'Beyond wings', cls: 'loss' },
+        breakeven: { value: '$' + icBELow + ' / $' + icBEHigh, note: 'Two breakeven points', cls: '' },
+        pop: { value: '58%', note: 'Prob. of profit', cls: '' }
+      },
+      greeks: [
+        { name: 'Delta', value: '+0.02', interp: 'Near-neutral directional exposure' },
+        { name: 'Gamma', value: '-0.02', interp: 'Negative gamma from short strikes' },
+        { name: 'Theta', value: '+$8.50/day', interp: 'Strong positive time decay' },
+        { name: 'Vega', value: '-$12.30', interp: 'Benefits from falling volatility' }
+      ],
+      insight: {
+        title: 'Range-Bound, High Volatility Environment',
+        body: 'The iron condor profits when the stock stays within a defined range. It is ideal when you expect low movement and want to collect premium from elevated implied volatility. Best deployed 30-45 days before expiration when time decay accelerates. Avoid this strategy around earnings or major catalysts that could cause a large move beyond $' + icBELow + ' or $' + icBEHigh + '.'
+      },
+      payoff: function(price) {
+        return (-Math.max(ic.sellPut - price, 0) * 100 + ic.sellPutPrem * 100) +
+               (Math.max(ic.buyPut - price, 0) * 100 - ic.buyPutPrem * 100) +
+               (-Math.max(price - ic.sellCall, 0) * 100 + ic.sellCallPrem * 100) +
+               (Math.max(price - ic.buyCall, 0) * 100 - ic.buyCallPrem * 100);
+      },
+      breakevens: [icBELow, icBEHigh]
+    },
+    straddle: {
+      name: 'Straddle',
+      setup: [
+        { label: 'Underlying', value: sd.ticker + ' @ $' + S.toFixed(2) },
+        { label: 'Buy Call', value: '<span class="leg-tag buy">BUY</span> 1 Call @ $' + str.strike.toFixed(2) + ' ($' + str.callPrem.toFixed(2) + ')' },
+        { label: 'Buy Put', value: '<span class="leg-tag buy">BUY</span> 1 Put @ $' + str.strike.toFixed(2) + ' ($' + str.putPrem.toFixed(2) + ')' },
+        { label: 'Net Debit', value: '$' + str.netDebit.toFixed(2) + ' per share ($' + strMaxLoss.toLocaleString() + ' total)' },
+        { label: 'Expiry', value: '30 days (Apr 12, 2026)' },
+        { label: 'Implied Move', value: '~' + (str.netDebit / S * 100).toFixed(1) + '% expected move' }
+      ],
+      metrics: {
+        maxProfit: { value: 'Unlimited', note: 'Large move either way', cls: 'profit' },
+        maxLoss: { value: '-$' + strMaxLoss.toLocaleString(), note: 'Stock stays at $' + str.strike.toFixed(2), cls: 'loss' },
+        breakeven: { value: '$' + strBELow.toFixed(2) + ' / $' + strBEHigh.toFixed(2), note: 'Strike +/- premium', cls: '' },
+        pop: { value: '38%', note: 'Prob. of profit', cls: '' }
+      },
+      greeks: [
+        { name: 'Delta', value: '+0.04', interp: 'Nearly direction-neutral' },
+        { name: 'Gamma', value: '+0.06', interp: 'Accelerating gains on big moves' },
+        { name: 'Theta', value: '-$18.20/day', interp: 'Significant time decay cost' },
+        { name: 'Vega', value: '+$22.50', interp: 'Benefits strongly from rising vol' }
+      ],
+      insight: {
+        title: 'Expecting a Big Move, Direction Unknown',
+        body: 'The straddle is a pure volatility play. You profit when the stock makes a large move in either direction, breaking through $' + strBELow.toFixed(2) + ' or $' + strBEHigh.toFixed(2) + '. This strategy works best before earnings announcements, FDA decisions, or other binary events where the market underprices the expected move. The main risk is time decay: if the stock does not move significantly, the position loses value rapidly.'
+      },
+      payoff: function(price) {
+        return Math.max(price - str.strike, 0) * 100 - str.callPrem * 100 + Math.max(str.strike - price, 0) * 100 - str.putPrem * 100;
+      },
+      breakevens: [strBELow, strBEHigh]
+    },
+    protectivePut: {
+      name: 'Protective Put',
+      setup: [
+        { label: 'Underlying', value: sd.ticker + ' @ $' + S.toFixed(2) },
+        { label: 'Position', value: '<span class="leg-tag buy">BUY</span> 100 shares' },
+        { label: 'Buy Put', value: '<span class="leg-tag buy">BUY</span> 1 Put @ $' + pp.putStrike + ' strike ($' + pp.putPrem.toFixed(2) + ')' },
+        { label: 'Total Cost', value: '$' + ppTotalCost.toLocaleString() + ' (shares + premium)' },
+        { label: 'Expiry', value: '30 days (Apr 12, 2026)' },
+        { label: 'Protection', value: 'Floor at $' + pp.putStrike + ' per share' }
+      ],
+      metrics: {
+        maxProfit: { value: 'Unlimited', note: 'Stock rises', cls: 'profit' },
+        maxLoss: { value: '-$' + ppMaxLoss.toLocaleString(), note: 'Below $' + pp.putStrike, cls: 'loss' },
+        breakeven: { value: '$' + ppBE.toFixed(2), note: 'Cost basis + premium', cls: '' },
+        pop: { value: '55%', note: 'Prob. of profit', cls: '' }
+      },
+      greeks: [
+        { name: 'Delta', value: '+0.72', interp: 'Bullish with downside hedge' },
+        { name: 'Gamma', value: '+0.03', interp: 'Slight positive gamma from put' },
+        { name: 'Theta', value: '-$6.80/day', interp: 'Insurance cost from time decay' },
+        { name: 'Vega', value: '+$5.40', interp: 'Put gains value if vol rises' }
+      ],
+      insight: {
+        title: 'Bullish But Seeking Downside Protection',
+        body: 'The protective put acts as portfolio insurance. You maintain full upside participation while limiting downside to $' + pp.putStrike + ' per share. This strategy is ideal when you are bullish long-term but worried about a near-term pullback. The cost of the put ($' + pp.putPrem.toFixed(2) + ') is the insurance premium you pay for peace of mind. Best used when implied volatility is low, making the put relatively cheap.'
+      },
+      payoff: function(price) {
+        return (price - S) * 100 + Math.max(pp.putStrike - price, 0) * 100 - pp.putPrem * 100;
+      },
+      breakevens: [ppBE]
+    }
+  };
+}
+
+var strategies = getStrategies(stockData[currentStock]);
 let chart = null;
 let currentStrategy = 'coveredCall';
 
+function selectStock(ticker) {
+  currentStock = ticker;
+  strategies = getStrategies(stockData[ticker]);
+  document.querySelectorAll('.stock-btn').forEach(function(btn) {
+    btn.classList.toggle('active', btn.textContent.indexOf(ticker) === 0);
+  });
+  renderAll();
+}
+
 function selectStrategy(key) {
   currentStrategy = key;
-  // Update tabs
   document.querySelectorAll('.strategy-tab').forEach(function(tab, i) {
     var keys = Object.keys(strategies);
     tab.classList.toggle('active', keys[i] === key);
@@ -520,12 +680,17 @@ function renderChart(strat) {
     chart = echarts.init(document.getElementById('payoffChart'));
   }
 
+  var sd = stockData[currentStock];
+  var S = sd.price;
+  var rangeMin = sd.chartRange[0];
+  var rangeMax = sd.chartRange[1];
+
   var prices = [];
   var pnl = [];
   var pnlPos = [];
   var pnlNeg = [];
 
-  for (var p = 200; p <= 270; p += 0.5) {
+  for (var p = rangeMin; p <= rangeMax; p += 0.5) {
     prices.push(p);
     var val = strat.payoff(p);
     pnl.push(val);
@@ -553,7 +718,7 @@ function renderChart(strat) {
     xAxis: S,
     lineStyle: { color: '#7474d8', type: 'solid', width: 1.5 },
     label: {
-      formatter: 'AAPL $' + S.toFixed(2),
+      formatter: sd.ticker + ' $' + S.toFixed(2),
       position: 'end',
       color: '#7474d8',
       fontSize: 11,
@@ -575,7 +740,8 @@ function renderChart(strat) {
       formatter: function(params) {
         var p = params[0];
         var price = p.axisValue;
-        var val = pnl[Math.round((price - 200) * 2)];
+        var idx = Math.round((parseFloat(price) - rangeMin) * 2);
+        var val = pnl[idx];
         if (val === undefined) return '';
         var color = val >= 0 ? '#2a9b7d' : '#e05357';
         return '<span style="font-family:Delight,sans-serif">' +
