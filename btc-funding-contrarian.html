@@ -1,0 +1,1608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BTC Funding Rate Contrarian - Alva Playbook</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>
+@font-face {
+  font-family: 'Delight';
+  src: url('https://alva-ai-static.b-cdn.net/fonts/Delight-Regular.ttf') format('truetype');
+  font-weight: 400;
+}
+@font-face {
+  font-family: 'Delight';
+  src: url('https://alva-ai-static.b-cdn.net/fonts/Delight-Medium.ttf') format('truetype');
+  font-weight: 500;
+}
+
+:root {
+  --main-m1: #49a3a6;
+  --main-m3: #2a9b7d;
+  --main-m4: #e05357;
+  --b0-page: #ffffff;
+  --grey-g01: #fafafa;
+  --text-n9: rgba(0,0,0,0.9);
+  --text-n7: rgba(0,0,0,0.7);
+  --text-n5: rgba(0,0,0,0.5);
+  --chart-palette-0: #7474d8;
+  --chart-palette-1: #ff9800;
+  --chart-palette-2: #3d8bd1;
+  --chart-palette-3: #40a544;
+  --chart-palette-4: #a878dc;
+  --chart-palette-5: #dc7aa5;
+  --chart-palette-6: #c76466;
+  --chart-palette-7: #5f75c9;
+  --chart-palette-8: #0d7498;
+  --chart-palette-9: #838383;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  font-family: 'Delight', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-weight: 400;
+  background: var(--b0-page);
+  color: var(--text-n9);
+  line-height: 1.5;
+}
+
+.playbook-container {
+  max-width: 2048px;
+  margin: 0 auto;
+  padding: 28px;
+}
+
+@media (max-width: 768px) {
+  .playbook-container {
+    padding: 16px;
+  }
+}
+
+/* Header */
+.playbook-header {
+  margin-bottom: 8px;
+}
+
+.playbook-title {
+  font-size: 24px;
+  font-weight: 500;
+  color: var(--text-n9);
+  margin-bottom: 4px;
+}
+
+.playbook-subtitle {
+  font-size: 14px;
+  color: var(--text-n5);
+  line-height: 1.6;
+  max-width: 720px;
+}
+
+.playbook-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-n7);
+  background: var(--grey-g01);
+}
+
+.badge.theme {
+  background: rgba(73,163,166,0.10);
+  color: var(--main-m1);
+}
+
+/* Tab bar */
+.tab-bar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--b0-page);
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+  margin-top: 16px;
+  margin-bottom: 24px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.tab-bar::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(0,0,0,0.08);
+}
+
+.tab-item {
+  position: relative;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--text-n5);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.2s;
+  user-select: none;
+  background: none;
+  border: none;
+  font-family: inherit;
+}
+
+.tab-item:hover {
+  color: var(--text-n7);
+}
+
+.tab-item.active {
+  color: var(--text-n9);
+  font-weight: 500;
+}
+
+.tab-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 20px;
+  right: 20px;
+  height: 2px;
+  background: var(--main-m1);
+  border-radius: 1px;
+  z-index: 1;
+}
+
+/* Tab panels */
+.tab-panel {
+  display: none;
+}
+
+.tab-panel.active {
+  display: block;
+}
+
+/* Meta info bar */
+.meta-bar {
+  display: flex;
+  gap: 24px;
+  padding: 14px 20px;
+  background: var(--grey-g01);
+  border-radius: 8px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.meta-label {
+  font-size: 11px;
+  color: var(--text-n5);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.meta-value {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-n9);
+}
+
+/* KPI Cards */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 1024px) {
+  .kpi-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.kpi-card {
+  background: var(--grey-g01);
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.kpi-label {
+  font-size: 12px;
+  color: var(--text-n5);
+}
+
+.kpi-value {
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--text-n9);
+}
+
+.kpi-value.positive { color: var(--main-m3); }
+.kpi-value.negative { color: var(--main-m4); }
+
+.kpi-sparkline {
+  height: 32px;
+  margin-top: 4px;
+}
+
+/* Chart widgets */
+.chart-widget {
+  background: var(--grey-g01);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.chart-widget-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-n9);
+  margin-bottom: 12px;
+}
+
+.chart-container {
+  width: 100%;
+  height: 340px;
+}
+
+.chart-container.small {
+  height: 200px;
+}
+
+/* Analytics grid */
+.analytics-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 768px) {
+  .analytics-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Strategy tab */
+.strategy-content {
+  max-width: 800px;
+}
+
+.strategy-section {
+  margin-bottom: 28px;
+}
+
+.strategy-section-title {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text-n9);
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+}
+
+.strategy-text {
+  font-size: 14px;
+  color: var(--text-n7);
+  line-height: 1.7;
+}
+
+.strategy-rule {
+  display: flex;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--grey-g01);
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+.strategy-rule-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--main-m1);
+  min-width: 80px;
+  flex-shrink: 0;
+}
+
+.strategy-rule-text {
+  font-size: 13px;
+  color: var(--text-n7);
+}
+
+.strategy-param-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+@media (max-width: 600px) {
+  .strategy-param-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.strategy-param {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: var(--grey-g01);
+  border-radius: 8px;
+}
+
+.strategy-param-label {
+  font-size: 13px;
+  color: var(--text-n5);
+}
+
+.strategy-param-value {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-n9);
+}
+
+/* Feed tab */
+.feed-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 800px;
+}
+
+.feed-card {
+  display: flex;
+  gap: 14px;
+  padding: 16px;
+  background: var(--grey-g01);
+  border-radius: 8px;
+  align-items: flex-start;
+}
+
+.feed-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 500;
+  flex-shrink: 0;
+  color: #fff;
+}
+
+.feed-icon.long {
+  background: var(--main-m3);
+}
+
+.feed-icon.exit {
+  background: var(--main-m4);
+}
+
+.feed-icon.flat {
+  background: var(--text-n5);
+}
+
+.feed-body {
+  flex: 1;
+}
+
+.feed-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-n9);
+  margin-bottom: 2px;
+}
+
+.feed-reason {
+  font-size: 13px;
+  color: var(--text-n7);
+  margin-bottom: 4px;
+}
+
+.feed-meta {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.feed-meta-item {
+  font-size: 12px;
+  color: var(--text-n5);
+}
+
+.feed-meta-item span {
+  color: var(--text-n7);
+  font-weight: 500;
+}
+
+/* Loading state */
+.loading-overlay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: var(--text-n5);
+  font-size: 14px;
+}
+
+.loading-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(0,0,0,0.08);
+  border-top-color: var(--main-m1);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-right: 10px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.12);
+  border-radius: 3px;
+}
+
+.playbook-footer {
+  text-align: center;
+  padding: 40px 0 24px;
+  font-size: 12px;
+  color: var(--text-n5);
+  letter-spacing: 0.12px;
+  line-height: 20px;
+}
+</style>
+</head>
+<body>
+
+<div class="playbook-container">
+  <!-- Header -->
+  <div class="playbook-header">
+    <div class="playbook-title">BTC Funding Rate Contrarian</div>
+    <div class="playbook-subtitle">Trades BTC spot based on perpetual futures funding rate and long/short ratio signals. Goes long when market sentiment is over-bearish and exits when sentiment flips over-bullish or after a 21-day max hold period.</div>
+    <div class="playbook-badge-row">
+      <span class="badge theme">BTC</span>
+      <span class="badge">Crypto</span>
+      <span class="badge">Contrarian</span>
+      <span class="badge">Daily</span>
+    </div>
+  </div>
+
+  <!-- Tab bar -->
+  <div class="tab-bar" id="tabBar">
+    <button class="tab-item active" data-tab="overview">Overview</button>
+    <button class="tab-item" data-tab="analytics">Analytics</button>
+    <button class="tab-item" data-tab="strategy">Strategy</button>
+    <button class="tab-item" data-tab="feed">Feed</button>
+  </div>
+
+  <!-- Overview Tab -->
+  <div class="tab-panel active" id="panel-overview">
+    <div class="meta-bar" id="metaBar">
+      <div class="meta-item">
+        <span class="meta-label">Last Updated</span>
+        <span class="meta-value" id="metaLastUpdated">--</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Interval</span>
+        <span class="meta-value">1d</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Period</span>
+        <span class="meta-value">Jun 2024 - Mar 2026</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Initial Capital</span>
+        <span class="meta-value">$1,000,000 USDT</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Symbol</span>
+        <span class="meta-value">BTC/USDT</span>
+      </div>
+    </div>
+
+    <div class="kpi-grid" id="kpiGrid">
+      <div class="kpi-card">
+        <span class="kpi-label">Total Return</span>
+        <span class="kpi-value" id="kpiReturn">--</span>
+        <div class="kpi-sparkline" id="sparkReturn"></div>
+      </div>
+      <div class="kpi-card">
+        <span class="kpi-label">Annualized Return</span>
+        <span class="kpi-value" id="kpiCagr">--</span>
+        <div class="kpi-sparkline" id="sparkCagr"></div>
+      </div>
+      <div class="kpi-card">
+        <span class="kpi-label">Volatility</span>
+        <span class="kpi-value" id="kpiVol">--</span>
+        <div class="kpi-sparkline" id="sparkVol"></div>
+      </div>
+      <div class="kpi-card">
+        <span class="kpi-label">Sharpe Ratio</span>
+        <span class="kpi-value" id="kpiSharpe">--</span>
+        <div class="kpi-sparkline" id="sparkSharpe"></div>
+      </div>
+      <div class="kpi-card">
+        <span class="kpi-label">Sortino Ratio</span>
+        <span class="kpi-value" id="kpiSortino">--</span>
+        <div class="kpi-sparkline" id="sparkSortino"></div>
+      </div>
+      <div class="kpi-card">
+        <span class="kpi-label">Max Drawdown</span>
+        <span class="kpi-value" id="kpiMDD">--</span>
+        <div class="kpi-sparkline" id="sparkMDD"></div>
+      </div>
+    </div>
+
+    <div class="chart-widget">
+      <div class="chart-widget-title">Equity Curve</div>
+      <div class="chart-container" id="chartEquity"></div>
+    </div>
+
+    <div class="chart-widget">
+      <div class="chart-widget-title">Daily P&L</div>
+      <div class="chart-container small" id="chartPnL"></div>
+    </div>
+
+    <div class="chart-widget">
+      <div class="chart-widget-title">Drawdown</div>
+      <div class="chart-container small" id="chartDrawdown"></div>
+    </div>
+  </div>
+
+  <!-- Analytics Tab -->
+  <div class="tab-panel" id="panel-analytics">
+    <div class="analytics-grid">
+      <div class="chart-widget">
+        <div class="chart-widget-title">Trade Timeline</div>
+        <div class="chart-container" id="chartTradeTimeline"></div>
+      </div>
+      <div class="chart-widget">
+        <div class="chart-widget-title">Trade Distribution by Entry Reason</div>
+        <div class="chart-container" id="chartTradeDistribution"></div>
+      </div>
+      <div class="chart-widget">
+        <div class="chart-widget-title">Monthly Returns</div>
+        <div class="chart-container" id="chartMonthlyReturns"></div>
+      </div>
+      <div class="chart-widget">
+        <div class="chart-widget-title">Win / Loss Analysis</div>
+        <div class="chart-container" id="chartWinLoss"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Strategy Tab -->
+  <div class="tab-panel" id="panel-strategy">
+    <div class="strategy-content">
+      <div class="strategy-section">
+        <div class="strategy-section-title">Objective</div>
+        <div class="strategy-text">
+          The BTC Funding Rate Contrarian strategy exploits mean-reversion opportunities in Bitcoin by monitoring the perpetual futures funding rate and long/short ratio. When the crowd is excessively bearish (negative funding, low L/S ratio), the strategy enters a long spot position, betting that sentiment will revert. It exits when bullish sentiment returns or after a 21-day maximum holding period. The approach is designed to capture mispricings driven by herding behavior in the crypto derivatives market.
+        </div>
+      </div>
+
+      <div class="strategy-section">
+        <div class="strategy-section-title">Signal Generation</div>
+        <div class="strategy-text" style="margin-bottom: 10px;">
+          The strategy computes a 7-day rolling average of daily BTC perpetual futures funding rates. This smoothed signal filters out single-day noise and captures the underlying sentiment trend. The long/short ratio from Binance futures is used as a confirmation indicator.
+        </div>
+        <div class="strategy-rule">
+          <span class="strategy-rule-label">Input</span>
+          <span class="strategy-rule-text">7-day simple moving average of daily BTC perpetual funding rates (BINANCE_PERP_BTC_USDT)</span>
+        </div>
+        <div class="strategy-rule">
+          <span class="strategy-rule-label">Confirm</span>
+          <span class="strategy-rule-text">Binance BTC futures long/short account ratio (top traders)</span>
+        </div>
+      </div>
+
+      <div class="strategy-section">
+        <div class="strategy-section-title">Entry Rule</div>
+        <div class="strategy-rule">
+          <span class="strategy-rule-label">Condition</span>
+          <span class="strategy-rule-text">Go Long 100% when: 7d avgFundingRate &lt; 0% AND Long/Short Ratio &lt; 1.0</span>
+        </div>
+        <div class="strategy-text" style="margin-top: 8px;">
+          A negative average funding rate means short-sellers are paying longs, indicating the market is net-short and over-bearish. A L/S ratio below 1.0 confirms that short positions outnumber longs among top traders. Together, these signals identify a contrarian long opportunity.
+        </div>
+      </div>
+
+      <div class="strategy-section">
+        <div class="strategy-section-title">Exit Rule</div>
+        <div class="strategy-rule">
+          <span class="strategy-rule-label">Signal Exit</span>
+          <span class="strategy-rule-text">Close position when: 7d avgFundingRate &gt; 0.05% AND Long/Short Ratio &gt; 1.2</span>
+        </div>
+        <div class="strategy-rule">
+          <span class="strategy-rule-label">Time Exit</span>
+          <span class="strategy-rule-text">Close position after 21 calendar days regardless of signal state</span>
+        </div>
+        <div class="strategy-text" style="margin-top: 8px;">
+          The signal exit triggers when sentiment has flipped from bearish to bullish. The 21-day time stop ensures capital is not locked in a position indefinitely if conditions remain ambiguous.
+        </div>
+      </div>
+
+      <div class="strategy-section">
+        <div class="strategy-section-title">Risk Management</div>
+        <div class="strategy-param-grid">
+          <div class="strategy-param">
+            <span class="strategy-param-label">Max Allocation</span>
+            <span class="strategy-param-value">100%</span>
+          </div>
+          <div class="strategy-param">
+            <span class="strategy-param-label">Max Hold Period</span>
+            <span class="strategy-param-value">21 days</span>
+          </div>
+          <div class="strategy-param">
+            <span class="strategy-param-label">Position Sizing</span>
+            <span class="strategy-param-value">All-in / All-out</span>
+          </div>
+          <div class="strategy-param">
+            <span class="strategy-param-label">Fee Model</span>
+            <span class="strategy-param-value">0.1% per trade</span>
+          </div>
+          <div class="strategy-param">
+            <span class="strategy-param-label">Instrument</span>
+            <span class="strategy-param-value">BTC/USDT Spot</span>
+          </div>
+          <div class="strategy-param">
+            <span class="strategy-param-label">Exchange</span>
+            <span class="strategy-param-value">Binance</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="strategy-section">
+        <div class="strategy-section-title">Backtest Summary</div>
+        <div class="strategy-param-grid">
+          <div class="strategy-param">
+            <span class="strategy-param-label">Period</span>
+            <span class="strategy-param-value">Jun 2024 - Mar 2026</span>
+          </div>
+          <div class="strategy-param">
+            <span class="strategy-param-label">Total Return</span>
+            <span class="strategy-param-value" style="color:var(--main-m3)">+4.12%</span>
+          </div>
+          <div class="strategy-param">
+            <span class="strategy-param-label">Sharpe Ratio</span>
+            <span class="strategy-param-value">0.257</span>
+          </div>
+          <div class="strategy-param">
+            <span class="strategy-param-label">Max Drawdown</span>
+            <span class="strategy-param-value" style="color:var(--main-m4)">-14.32%</span>
+          </div>
+          <div class="strategy-param">
+            <span class="strategy-param-label">End Equity</span>
+            <span class="strategy-param-value">$1,041,227</span>
+          </div>
+          <div class="strategy-param">
+            <span class="strategy-param-label">Trades</span>
+            <span class="strategy-param-value">5 round trips</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Feed Tab -->
+  <div class="tab-panel" id="panel-feed">
+    <div class="feed-list" id="feedList">
+      <div class="loading-overlay">
+        <div class="loading-spinner"></div>
+        Loading signal feed...
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="playbook-footer">
+    <span>Powered by Alva</span>
+  </div>
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  // --- Config ---
+  const BASE = 'https://api-llm.prd.alva.ai/api/v1/fs/read?path=/alva/home/stock-king/feeds/btc-funding-contrarian/v1/data';
+  const ENDPOINTS = {
+    equity:    BASE + '/perf/equity/@last/500',
+    metrics:   BASE + '/perf/metrics/@last/1',
+    targets:   BASE + '/signal/targets/@last/50',
+    orders:    BASE + '/sim/orders/@last/50',
+    portfolio: BASE + '/sim/portfolio/@last/1',
+  };
+
+  const CHART_PALETTE = ['#7474d8','#ff9800','#3d8bd1','#40a544','#a878dc','#dc7aa5','#c76466','#5f75c9','#0d7498','#838383'];
+  const COLOR_BULL = '#2a9b7d';
+  const COLOR_BEAR = '#e05357';
+  const COLOR_THEME = '#49a3a6';
+
+  // --- State ---
+  let DATA = { equity: [], metrics: null, targets: [], orders: [], portfolio: null };
+  let chartsInitialized = false;
+  let echartsInstances = [];
+
+  // --- Utility ---
+  function fmtDate(ts) {
+    const d = new Date(ts);
+    return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+  }
+
+  function fmtDateShort(ts) {
+    const d = new Date(ts);
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' });
+  }
+
+  function fmtDateISO(ts) {
+    return new Date(ts).toISOString().slice(0, 10);
+  }
+
+  function fmtPct(v, decimals = 2) {
+    return (v * 100).toFixed(decimals) + '%';
+  }
+
+  function fmtMoney(v) {
+    return '$' + Math.round(v).toLocaleString('en-US');
+  }
+
+  function fmtNum(v, d = 3) {
+    return Number(v).toFixed(d);
+  }
+
+  // --- Data fetching ---
+  async function fetchAll() {
+    const keys = Object.keys(ENDPOINTS);
+    const results = await Promise.allSettled(keys.map(k => fetch(ENDPOINTS[k]).then(r => r.json())));
+    results.forEach((r, i) => {
+      if (r.status === 'fulfilled') {
+        const key = keys[i];
+        if (key === 'metrics') DATA.metrics = r.value[0] || null;
+        else if (key === 'portfolio') DATA.portfolio = r.value[0] || null;
+        else DATA[key] = r.value || [];
+      }
+    });
+  }
+
+  // --- Tab routing ---
+  function initTabs() {
+    const tabs = document.querySelectorAll('.tab-item');
+    tabs.forEach(t => {
+      t.addEventListener('click', () => {
+        const target = t.dataset.tab;
+        setActiveTab(target);
+        window.location.hash = target;
+      });
+    });
+
+    // Listen for hash change
+    window.addEventListener('hashchange', () => {
+      const hash = window.location.hash.replace('#', '') || 'overview';
+      setActiveTab(hash);
+    });
+
+    // Initial
+    const hash = window.location.hash.replace('#', '') || 'overview';
+    setActiveTab(hash);
+  }
+
+  function setActiveTab(tab) {
+    document.querySelectorAll('.tab-item').forEach(t => {
+      t.classList.toggle('active', t.dataset.tab === tab);
+    });
+    document.querySelectorAll('.tab-panel').forEach(p => {
+      p.classList.toggle('active', p.id === 'panel-' + tab);
+    });
+    // Resize charts on tab switch
+    setTimeout(() => {
+      echartsInstances.forEach(c => c && c.resize());
+    }, 50);
+  }
+
+  // --- KPI rendering ---
+  function renderKPIs() {
+    const m = DATA.metrics;
+    if (!m) return;
+
+    document.getElementById('metaLastUpdated').textContent = fmtDate(m.date);
+
+    const ret = m.equityReturn;
+    const retEl = document.getElementById('kpiReturn');
+    retEl.textContent = (ret >= 0 ? '+' : '') + fmtPct(ret);
+    retEl.className = 'kpi-value ' + (ret >= 0 ? 'positive' : 'negative');
+
+    const cagrEl = document.getElementById('kpiCagr');
+    cagrEl.textContent = fmtPct(m.cagr);
+    cagrEl.className = 'kpi-value ' + (m.cagr >= 0 ? 'positive' : 'negative');
+
+    document.getElementById('kpiVol').textContent = fmtPct(m.histVolAnn);
+    document.getElementById('kpiSharpe').textContent = fmtNum(m.sharpe);
+    document.getElementById('kpiSortino').textContent = fmtNum(m.sortino);
+
+    const mddEl = document.getElementById('kpiMDD');
+    mddEl.textContent = '-' + fmtPct(m.maxDrawdown);
+    mddEl.className = 'kpi-value negative';
+  }
+
+  // --- Sparkline helper ---
+  function createSparkline(domId, data, color) {
+    const el = document.getElementById(domId);
+    if (!el || !data || data.length === 0) return;
+    const chart = echarts.init(el);
+    echartsInstances.push(chart);
+    chart.setOption({
+      backgroundColor: 'transparent',
+      grid: { top: 2, bottom: 2, left: 0, right: 0 },
+      xAxis: { show: false, type: 'category', data: data.map((_, i) => i) },
+      yAxis: { show: false, type: 'value', min: 'dataMin', max: 'dataMax' },
+      series: [{
+        type: 'line',
+        data: data,
+        smooth: true,
+        showSymbol: false,
+        lineStyle: { width: 1.5, color: color },
+        areaStyle: {
+          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+            { offset: 0, color: color + '30' },
+            { offset: 1, color: color + '05' }
+          ])
+        }
+      }],
+      animation: false
+    });
+  }
+
+  function renderSparklines() {
+    const eq = DATA.equity;
+    if (!eq || eq.length === 0) return;
+
+    // Equity sparkline
+    const eqVals = eq.map(e => e.equity);
+    createSparkline('sparkReturn', eqVals, COLOR_THEME);
+
+    // CAGR - just use equity return curve
+    const returnVals = eq.map(e => (e.equity / 1000000 - 1));
+    createSparkline('sparkCagr', returnVals, COLOR_BULL);
+
+    // Volatility - rolling 20d std dev proxy
+    const dailyReturns = [];
+    for (let i = 1; i < eq.length; i++) {
+      dailyReturns.push((eq[i].equity - eq[i-1].equity) / eq[i-1].equity);
+    }
+    const volSeries = [];
+    for (let i = 19; i < dailyReturns.length; i++) {
+      const slice = dailyReturns.slice(i - 19, i + 1);
+      const mean = slice.reduce((a, b) => a + b, 0) / slice.length;
+      const variance = slice.reduce((a, b) => a + (b - mean) ** 2, 0) / slice.length;
+      volSeries.push(Math.sqrt(variance * 252));
+    }
+    createSparkline('sparkVol', volSeries, '#ff9800');
+
+    // Sharpe - cumulative return / vol proxy
+    const sharpeSeries = [];
+    for (let i = 0; i < volSeries.length; i++) {
+      const cumRet = returnVals[i + 20] || 0;
+      sharpeSeries.push(volSeries[i] > 0 ? cumRet / volSeries[i] : 0);
+    }
+    createSparkline('sparkSharpe', sharpeSeries, CHART_PALETTE[0]);
+
+    // Sortino proxy (similar shape)
+    createSparkline('sparkSortino', sharpeSeries.map(v => v * 1.5), CHART_PALETTE[4]);
+
+    // Drawdown sparkline
+    const ddSeries = computeDrawdown(eq);
+    createSparkline('sparkMDD', ddSeries.map(d => d.dd), COLOR_BEAR);
+  }
+
+  // --- Compute drawdown ---
+  function computeDrawdown(equity) {
+    let peak = -Infinity;
+    return equity.map(e => {
+      if (e.equity > peak) peak = e.equity;
+      const dd = (e.equity - peak) / peak;
+      return { date: e.date, dd: dd };
+    });
+  }
+
+  // --- Compute daily P&L ---
+  function computeDailyPnL(equity) {
+    const pnl = [];
+    for (let i = 1; i < equity.length; i++) {
+      const diff = equity[i].equity - equity[i-1].equity;
+      if (Math.abs(diff) > 0.01) {
+        pnl.push({ date: equity[i].date, pnl: diff });
+      }
+    }
+    return pnl;
+  }
+
+  // --- Overview charts ---
+  function renderOverviewCharts() {
+    const eq = DATA.equity;
+    if (!eq || eq.length === 0) return;
+
+    // 1. Equity Curve
+    const equityChart = echarts.init(document.getElementById('chartEquity'));
+    echartsInstances.push(equityChart);
+    equityChart.setOption({
+      backgroundColor: 'transparent',
+      tooltip: {
+        trigger: 'axis',
+        backgroundColor: '#fff',
+        borderColor: 'rgba(0,0,0,0.08)',
+        borderWidth: 1,
+        textStyle: { fontFamily: 'Delight', fontSize: 12, color: 'rgba(0,0,0,0.7)' },
+        formatter: function(params) {
+          let html = '<div style="font-size:12px;color:rgba(0,0,0,0.5);margin-bottom:4px">' + fmtDate(params[0].axisValue) + '</div>';
+          params.forEach(p => {
+            html += '<div style="display:flex;align-items:center;gap:6px;margin-top:2px">'
+              + '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:' + p.color + '"></span>'
+              + '<span style="font-size:12px;color:rgba(0,0,0,0.7)">' + p.seriesName + '</span>'
+              + '<span style="font-size:12px;font-weight:500;color:rgba(0,0,0,0.9);margin-left:auto">' + fmtMoney(p.value) + '</span>'
+              + '</div>';
+          });
+          return html;
+        }
+      },
+      legend: {
+        top: 0,
+        right: 0,
+        textStyle: { fontFamily: 'Delight', fontSize: 12, color: 'rgba(0,0,0,0.5)' },
+        icon: 'circle',
+        itemWidth: 8,
+        itemHeight: 8
+      },
+      grid: { top: 30, bottom: 30, left: 60, right: 20 },
+      xAxis: {
+        type: 'category',
+        data: eq.map(e => e.date),
+        axisLabel: {
+          formatter: v => fmtDateShort(Number(v)),
+          fontFamily: 'Delight',
+          fontSize: 11,
+          color: 'rgba(0,0,0,0.4)'
+        },
+        axisLine: { lineStyle: { color: 'rgba(0,0,0,0.06)' } },
+        axisTick: { show: false },
+        boundaryGap: false
+      },
+      yAxis: {
+        type: 'value',
+        axisLabel: {
+          formatter: v => fmtMoney(v),
+          fontFamily: 'Delight',
+          fontSize: 11,
+          color: 'rgba(0,0,0,0.4)'
+        },
+        splitLine: { lineStyle: { color: 'rgba(0,0,0,0.04)' } },
+        axisLine: { show: false },
+        axisTick: { show: false }
+      },
+      series: [
+        {
+          name: 'Equity',
+          type: 'line',
+          data: eq.map(e => e.equity),
+          smooth: false,
+          showSymbol: false,
+          lineStyle: { width: 2, color: COLOR_THEME },
+          areaStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              { offset: 0, color: COLOR_THEME + '20' },
+              { offset: 1, color: COLOR_THEME + '02' }
+            ])
+          }
+        },
+        {
+          name: 'Baseline ($1M)',
+          type: 'line',
+          data: eq.map(() => 1000000),
+          smooth: false,
+          showSymbol: false,
+          lineStyle: { width: 1, color: 'rgba(0,0,0,0.15)', type: 'dashed' },
+          areaStyle: null
+        }
+      ],
+      dataZoom: [{
+        type: 'inside',
+        start: 0,
+        end: 100
+      }]
+    });
+
+    // 2. Daily P&L
+    const dailyPnl = computeDailyPnL(eq);
+    const pnlChart = echarts.init(document.getElementById('chartPnL'));
+    echartsInstances.push(pnlChart);
+    pnlChart.setOption({
+      backgroundColor: 'transparent',
+      tooltip: {
+        trigger: 'axis',
+        backgroundColor: '#fff',
+        borderColor: 'rgba(0,0,0,0.08)',
+        borderWidth: 1,
+        textStyle: { fontFamily: 'Delight', fontSize: 12, color: 'rgba(0,0,0,0.7)' },
+        formatter: function(params) {
+          const p = params[0];
+          const val = p.value;
+          const color = val >= 0 ? COLOR_BULL : COLOR_BEAR;
+          return '<div style="font-size:12px;color:rgba(0,0,0,0.5);margin-bottom:4px">' + fmtDate(p.axisValue) + '</div>'
+            + '<div style="font-size:13px;font-weight:500;color:' + color + '">' + (val >= 0 ? '+' : '') + fmtMoney(val) + '</div>';
+        }
+      },
+      grid: { top: 10, bottom: 30, left: 60, right: 20 },
+      xAxis: {
+        type: 'category',
+        data: dailyPnl.map(d => d.date),
+        axisLabel: {
+          formatter: v => fmtDateShort(Number(v)),
+          fontFamily: 'Delight',
+          fontSize: 11,
+          color: 'rgba(0,0,0,0.4)'
+        },
+        axisLine: { lineStyle: { color: 'rgba(0,0,0,0.06)' } },
+        axisTick: { show: false }
+      },
+      yAxis: {
+        type: 'value',
+        axisLabel: {
+          formatter: v => (v >= 0 ? '+' : '') + '$' + Math.round(v / 1000) + 'k',
+          fontFamily: 'Delight',
+          fontSize: 11,
+          color: 'rgba(0,0,0,0.4)'
+        },
+        splitLine: { lineStyle: { color: 'rgba(0,0,0,0.04)' } },
+        axisLine: { show: false },
+        axisTick: { show: false }
+      },
+      series: [{
+        type: 'bar',
+        data: dailyPnl.map(d => ({
+          value: d.pnl,
+          itemStyle: { color: d.pnl >= 0 ? COLOR_BULL : COLOR_BEAR }
+        })),
+        barMaxWidth: 4
+      }],
+      dataZoom: [{ type: 'inside', start: 0, end: 100 }]
+    });
+
+    // 3. Drawdown
+    const ddData = computeDrawdown(eq);
+    const ddChart = echarts.init(document.getElementById('chartDrawdown'));
+    echartsInstances.push(ddChart);
+    ddChart.setOption({
+      backgroundColor: 'transparent',
+      tooltip: {
+        trigger: 'axis',
+        backgroundColor: '#fff',
+        borderColor: 'rgba(0,0,0,0.08)',
+        borderWidth: 1,
+        textStyle: { fontFamily: 'Delight', fontSize: 12, color: 'rgba(0,0,0,0.7)' },
+        formatter: function(params) {
+          const p = params[0];
+          return '<div style="font-size:12px;color:rgba(0,0,0,0.5);margin-bottom:4px">' + fmtDate(p.axisValue) + '</div>'
+            + '<div style="font-size:13px;font-weight:500;color:' + COLOR_BEAR + '">' + (p.value * 100).toFixed(2) + '%</div>';
+        }
+      },
+      grid: { top: 10, bottom: 30, left: 60, right: 20 },
+      xAxis: {
+        type: 'category',
+        data: ddData.map(d => d.date),
+        axisLabel: {
+          formatter: v => fmtDateShort(Number(v)),
+          fontFamily: 'Delight',
+          fontSize: 11,
+          color: 'rgba(0,0,0,0.4)'
+        },
+        axisLine: { lineStyle: { color: 'rgba(0,0,0,0.06)' } },
+        axisTick: { show: false },
+        boundaryGap: false
+      },
+      yAxis: {
+        type: 'value',
+        max: 0,
+        axisLabel: {
+          formatter: v => (v * 100).toFixed(0) + '%',
+          fontFamily: 'Delight',
+          fontSize: 11,
+          color: 'rgba(0,0,0,0.4)'
+        },
+        splitLine: { lineStyle: { color: 'rgba(0,0,0,0.04)' } },
+        axisLine: { show: false },
+        axisTick: { show: false }
+      },
+      series: [{
+        type: 'line',
+        data: ddData.map(d => d.dd),
+        smooth: false,
+        showSymbol: false,
+        lineStyle: { width: 1, color: COLOR_BEAR },
+        areaStyle: {
+          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+            { offset: 0, color: COLOR_BEAR + '30' },
+            { offset: 1, color: COLOR_BEAR + '05' }
+          ])
+        }
+      }],
+      dataZoom: [{ type: 'inside', start: 0, end: 100 }]
+    });
+  }
+
+  // --- Analytics charts ---
+  function renderAnalyticsCharts() {
+    const targets = DATA.targets;
+    const orders = DATA.orders;
+    const eq = DATA.equity;
+    if (!targets || targets.length === 0) return;
+
+    // 1. Trade Timeline - Equity with entry/exit markers
+    const tradeTimelineChart = echarts.init(document.getElementById('chartTradeTimeline'));
+    echartsInstances.push(tradeTimelineChart);
+
+    const entryMarkers = [];
+    const exitMarkers = [];
+    targets.forEach(t => {
+      const w = t.weights && t.weights[0] ? t.weights[0].weight : 0;
+      const dateStr = fmtDateISO(t.date);
+      if (w > 0) {
+        entryMarkers.push({ coord: [t.date, null], name: 'Entry', reason: t.meta?.reason || '' });
+      } else {
+        exitMarkers.push({ coord: [t.date, null], name: 'Exit', reason: t.meta?.reason || '' });
+      }
+    });
+
+    // Map entries/exits to equity values
+    entryMarkers.forEach(m => {
+      const match = eq.find(e => e.date === m.coord[0]);
+      m.coord[1] = match ? match.equity : 1000000;
+    });
+    exitMarkers.forEach(m => {
+      const match = eq.find(e => e.date === m.coord[0]);
+      m.coord[1] = match ? match.equity : 1000000;
+    });
+
+    tradeTimelineChart.setOption({
+      backgroundColor: 'transparent',
+      tooltip: {
+        trigger: 'axis',
+        backgroundColor: '#fff',
+        borderColor: 'rgba(0,0,0,0.08)',
+        borderWidth: 1,
+        textStyle: { fontFamily: 'Delight', fontSize: 12, color: 'rgba(0,0,0,0.7)' },
+        formatter: function(params) {
+          let html = '<div style="font-size:12px;color:rgba(0,0,0,0.5);margin-bottom:4px">' + fmtDate(params[0].axisValue) + '</div>';
+          params.forEach(p => {
+            if (p.value !== undefined && p.value !== null) {
+              html += '<div style="font-size:12px;color:rgba(0,0,0,0.7)">' + p.seriesName + ': ' + fmtMoney(p.value) + '</div>';
+            }
+          });
+          return html;
+        }
+      },
+      grid: { top: 30, bottom: 30, left: 60, right: 20 },
+      xAxis: {
+        type: 'category',
+        data: eq.map(e => e.date),
+        axisLabel: {
+          formatter: v => fmtDateShort(Number(v)),
+          fontFamily: 'Delight', fontSize: 11, color: 'rgba(0,0,0,0.4)'
+        },
+        axisLine: { lineStyle: { color: 'rgba(0,0,0,0.06)' } },
+        axisTick: { show: false },
+        boundaryGap: false
+      },
+      yAxis: {
+        type: 'value',
+        axisLabel: {
+          formatter: v => fmtMoney(v),
+          fontFamily: 'Delight', fontSize: 11, color: 'rgba(0,0,0,0.4)'
+        },
+        splitLine: { lineStyle: { color: 'rgba(0,0,0,0.04)' } },
+        axisLine: { show: false }, axisTick: { show: false }
+      },
+      series: [{
+        name: 'Equity',
+        type: 'line',
+        data: eq.map(e => e.equity),
+        smooth: false,
+        showSymbol: false,
+        lineStyle: { width: 2, color: COLOR_THEME },
+        areaStyle: {
+          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+            { offset: 0, color: COLOR_THEME + '12' },
+            { offset: 1, color: COLOR_THEME + '02' }
+          ])
+        },
+        markPoint: {
+          symbol: 'triangle',
+          symbolSize: 12,
+          data: entryMarkers.map(m => ({
+            coord: m.coord,
+            itemStyle: { color: COLOR_BULL },
+            symbolRotate: 0
+          })).concat(exitMarkers.map(m => ({
+            coord: m.coord,
+            itemStyle: { color: COLOR_BEAR },
+            symbol: 'triangle',
+            symbolRotate: 180
+          })))
+        }
+      }],
+      dataZoom: [{ type: 'inside', start: 0, end: 100 }]
+    });
+
+    // 2. Trade Distribution by Entry Reason
+    const distChart = echarts.init(document.getElementById('chartTradeDistribution'));
+    echartsInstances.push(distChart);
+
+    const reasonCount = {};
+    targets.forEach(t => {
+      const reason = t.meta?.reason || 'Unknown';
+      let category;
+      if (reason.startsWith('Contrarian Long')) category = 'Contrarian Long Entry';
+      else if (reason.startsWith('Exit: avgFR')) category = 'Signal Exit';
+      else if (reason.startsWith('Time exit')) category = 'Time Exit (21d)';
+      else category = reason;
+      reasonCount[category] = (reasonCount[category] || 0) + 1;
+    });
+
+    const distCategories = Object.keys(reasonCount);
+    const distValues = Object.values(reasonCount);
+    const distColors = [COLOR_BULL, CHART_PALETTE[0], CHART_PALETTE[1], CHART_PALETTE[2]];
+
+    distChart.setOption({
+      backgroundColor: 'transparent',
+      tooltip: {
+        trigger: 'axis',
+        backgroundColor: '#fff',
+        borderColor: 'rgba(0,0,0,0.08)',
+        borderWidth: 1,
+        textStyle: { fontFamily: 'Delight', fontSize: 12, color: 'rgba(0,0,0,0.7)' }
+      },
+      grid: { top: 10, bottom: 40, left: 20, right: 20 },
+      xAxis: {
+        type: 'category',
+        data: distCategories,
+        axisLabel: {
+          fontFamily: 'Delight', fontSize: 11, color: 'rgba(0,0,0,0.5)',
+          interval: 0,
+          rotate: 0,
+          width: 120,
+          overflow: 'truncate'
+        },
+        axisLine: { lineStyle: { color: 'rgba(0,0,0,0.06)' } },
+        axisTick: { show: false }
+      },
+      yAxis: {
+        type: 'value',
+        minInterval: 1,
+        axisLabel: { fontFamily: 'Delight', fontSize: 11, color: 'rgba(0,0,0,0.4)' },
+        splitLine: { lineStyle: { color: 'rgba(0,0,0,0.04)' } },
+        axisLine: { show: false }, axisTick: { show: false }
+      },
+      series: [{
+        type: 'bar',
+        data: distValues.map((v, i) => ({
+          value: v,
+          itemStyle: { color: distColors[i % distColors.length], borderRadius: [4, 4, 0, 0] }
+        })),
+        barMaxWidth: 60,
+        label: {
+          show: true,
+          position: 'top',
+          fontFamily: 'Delight',
+          fontSize: 13,
+          fontWeight: 500,
+          color: 'rgba(0,0,0,0.7)'
+        }
+      }]
+    });
+
+    // 3. Monthly Returns
+    const monthlyChart = echarts.init(document.getElementById('chartMonthlyReturns'));
+    echartsInstances.push(monthlyChart);
+
+    // Compute monthly returns from equity
+    const monthlyReturns = {};
+    let prevEq = null;
+    let prevMonth = null;
+    eq.forEach(e => {
+      const d = new Date(e.date);
+      const monthKey = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+      if (!monthlyReturns[monthKey]) {
+        monthlyReturns[monthKey] = { start: e.equity, end: e.equity };
+      }
+      monthlyReturns[monthKey].end = e.equity;
+    });
+
+    // Compute returns
+    const monthKeys = Object.keys(monthlyReturns).sort();
+    const monthLabels = monthKeys.map(k => {
+      const [y, m] = k.split('-');
+      return new Date(Number(y), Number(m) - 1).toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+    });
+
+    // Calculate month-over-month returns
+    const monthReturnValues = [];
+    for (let i = 0; i < monthKeys.length; i++) {
+      const mr = monthlyReturns[monthKeys[i]];
+      const ret = (mr.end - mr.start) / mr.start;
+      monthReturnValues.push(ret);
+    }
+
+    monthlyChart.setOption({
+      backgroundColor: 'transparent',
+      tooltip: {
+        trigger: 'axis',
+        backgroundColor: '#fff',
+        borderColor: 'rgba(0,0,0,0.08)',
+        borderWidth: 1,
+        textStyle: { fontFamily: 'Delight', fontSize: 12, color: 'rgba(0,0,0,0.7)' },
+        formatter: function(params) {
+          const p = params[0];
+          const val = (p.value * 100).toFixed(2);
+          const color = p.value >= 0 ? COLOR_BULL : COLOR_BEAR;
+          return '<div style="font-size:12px;color:rgba(0,0,0,0.5)">' + p.name + '</div>'
+            + '<div style="font-size:13px;font-weight:500;color:' + color + '">' + (p.value >= 0 ? '+' : '') + val + '%</div>';
+        }
+      },
+      grid: { top: 10, bottom: 40, left: 50, right: 20 },
+      xAxis: {
+        type: 'category',
+        data: monthLabels,
+        axisLabel: {
+          fontFamily: 'Delight', fontSize: 10, color: 'rgba(0,0,0,0.4)',
+          interval: 0, rotate: 45
+        },
+        axisLine: { lineStyle: { color: 'rgba(0,0,0,0.06)' } },
+        axisTick: { show: false }
+      },
+      yAxis: {
+        type: 'value',
+        axisLabel: {
+          formatter: v => (v * 100).toFixed(1) + '%',
+          fontFamily: 'Delight', fontSize: 11, color: 'rgba(0,0,0,0.4)'
+        },
+        splitLine: { lineStyle: { color: 'rgba(0,0,0,0.04)' } },
+        axisLine: { show: false }, axisTick: { show: false }
+      },
+      series: [{
+        type: 'bar',
+        data: monthReturnValues.map(v => ({
+          value: v,
+          itemStyle: { color: v >= 0 ? COLOR_BULL : COLOR_BEAR, borderRadius: v >= 0 ? [3, 3, 0, 0] : [0, 0, 3, 3] }
+        })),
+        barMaxWidth: 28
+      }]
+    });
+
+    // 4. Win/Loss Analysis
+    const winLossChart = echarts.init(document.getElementById('chartWinLoss'));
+    echartsInstances.push(winLossChart);
+
+    // Pair trades from orders
+    const trades = [];
+    for (let i = 0; i < orders.length; i += 2) {
+      if (i + 1 < orders.length) {
+        const entry = orders[i].fills[0];
+        const exit = orders[i + 1].fills[0];
+        const pnl = (exit.price - entry.price) * Math.abs(entry.qty) - entry.fee - exit.fee;
+        const pnlPct = (exit.price - entry.price) / entry.price;
+        trades.push({
+          entryDate: orders[i].date,
+          exitDate: orders[i + 1].date,
+          entryPrice: entry.price,
+          exitPrice: exit.price,
+          qty: Math.abs(entry.qty),
+          pnl: pnl,
+          pnlPct: pnlPct,
+          fees: entry.fee + exit.fee,
+          holdDays: Math.round((orders[i + 1].date - orders[i].date) / 86400000)
+        });
+      }
+    }
+
+    const wins = trades.filter(t => t.pnl > 0);
+    const losses = trades.filter(t => t.pnl <= 0);
+    const avgWin = wins.length > 0 ? wins.reduce((a, t) => a + t.pnlPct, 0) / wins.length : 0;
+    const avgLoss = losses.length > 0 ? losses.reduce((a, t) => a + t.pnlPct, 0) / losses.length : 0;
+
+    winLossChart.setOption({
+      backgroundColor: 'transparent',
+      tooltip: {
+        trigger: 'item',
+        backgroundColor: '#fff',
+        borderColor: 'rgba(0,0,0,0.08)',
+        borderWidth: 1,
+        textStyle: { fontFamily: 'Delight', fontSize: 12, color: 'rgba(0,0,0,0.7)' }
+      },
+      grid: { top: 40, bottom: 30, left: 50, right: 20 },
+      graphic: [
+        {
+          type: 'text',
+          left: 'center',
+          top: 10,
+          style: {
+            text: wins.length + ' Wins / ' + losses.length + ' Losses  |  Avg Win: ' + (avgWin * 100).toFixed(2) + '%  |  Avg Loss: ' + (avgLoss * 100).toFixed(2) + '%',
+            fontFamily: 'Delight',
+            fontSize: 12,
+            fill: 'rgba(0,0,0,0.5)'
+          }
+        }
+      ],
+      xAxis: {
+        type: 'category',
+        data: trades.map((t, i) => 'Trade ' + (i + 1)),
+        axisLabel: { fontFamily: 'Delight', fontSize: 11, color: 'rgba(0,0,0,0.5)' },
+        axisLine: { lineStyle: { color: 'rgba(0,0,0,0.06)' } },
+        axisTick: { show: false }
+      },
+      yAxis: {
+        type: 'value',
+        axisLabel: {
+          formatter: v => fmtMoney(v),
+          fontFamily: 'Delight', fontSize: 11, color: 'rgba(0,0,0,0.4)'
+        },
+        splitLine: { lineStyle: { color: 'rgba(0,0,0,0.04)' } },
+        axisLine: { show: false }, axisTick: { show: false }
+      },
+      series: [{
+        type: 'bar',
+        data: trades.map(t => ({
+          value: t.pnl,
+          itemStyle: {
+            color: t.pnl >= 0 ? COLOR_BULL : COLOR_BEAR,
+            borderRadius: t.pnl >= 0 ? [4, 4, 0, 0] : [0, 0, 4, 4]
+          }
+        })),
+        barMaxWidth: 60,
+        label: {
+          show: true,
+          position: function(params) { return params.value >= 0 ? 'top' : 'bottom'; },
+          fontFamily: 'Delight',
+          fontSize: 11,
+          color: 'rgba(0,0,0,0.5)',
+          formatter: function(params) {
+            return (params.value >= 0 ? '+' : '') + fmtMoney(params.value);
+          }
+        }
+      }]
+    });
+  }
+
+  // --- Feed rendering ---
+  function renderFeed() {
+    const targets = DATA.targets;
+    const orders = DATA.orders;
+    if (!targets || targets.length === 0) return;
+
+    const feedEl = document.getElementById('feedList');
+
+    // Pair targets with matching orders to build feed entries
+    const feedItems = [];
+    targets.forEach(t => {
+      const w = t.weights && t.weights[0] ? t.weights[0].weight : 0;
+      const reason = t.meta?.reason || '';
+      const isEntry = w > 0;
+
+      // Find matching order
+      const matchedOrder = orders.find(o => o.date === t.date);
+      const fill = matchedOrder ? matchedOrder.fills[0] : null;
+
+      feedItems.push({
+        date: t.date,
+        isEntry: isEntry,
+        weight: w,
+        reason: reason,
+        symbol: 'BTC/USDT',
+        price: fill ? fill.price : null,
+        qty: fill ? Math.abs(fill.qty) : null,
+        fee: fill ? fill.fee : null,
+        status: fill ? fill.status : null
+      });
+    });
+
+    // Sort by date descending (newest first)
+    feedItems.sort((a, b) => b.date - a.date);
+
+    let html = '';
+    feedItems.forEach(item => {
+      const iconClass = item.isEntry ? 'long' : 'exit';
+      const iconText = item.isEntry ? 'BUY' : 'SELL';
+      const title = item.isEntry ? 'Enter Long - BTC/USDT' : 'Exit Position - BTC/USDT';
+
+      let metaHtml = '<div class="feed-meta">';
+      metaHtml += '<span class="feed-meta-item">Date: <span>' + fmtDate(item.date) + '</span></span>';
+      if (item.price) metaHtml += '<span class="feed-meta-item">Price: <span>$' + item.price.toLocaleString('en-US', { maximumFractionDigits: 2 }) + '</span></span>';
+      if (item.qty) metaHtml += '<span class="feed-meta-item">Qty: <span>' + item.qty.toFixed(4) + ' BTC</span></span>';
+      if (item.fee) metaHtml += '<span class="feed-meta-item">Fee: <span>$' + item.fee.toFixed(2) + '</span></span>';
+      metaHtml += '</div>';
+
+      html += '<div class="feed-card">'
+        + '<div class="feed-icon ' + iconClass + '">' + iconText + '</div>'
+        + '<div class="feed-body">'
+        + '<div class="feed-title">' + title + '</div>'
+        + '<div class="feed-reason">' + item.reason + '</div>'
+        + metaHtml
+        + '</div>'
+        + '</div>';
+    });
+
+    feedEl.innerHTML = html;
+  }
+
+  // --- Resize handler ---
+  function handleResize() {
+    echartsInstances.forEach(c => {
+      if (c && !c.isDisposed()) c.resize();
+    });
+  }
+
+  // --- Initialize ---
+  async function init() {
+    initTabs();
+    await fetchAll();
+    renderKPIs();
+    renderSparklines();
+    renderOverviewCharts();
+    renderAnalyticsCharts();
+    renderFeed();
+
+    window.addEventListener('resize', handleResize);
+  }
+
+  // Start
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+</body>
+</html>

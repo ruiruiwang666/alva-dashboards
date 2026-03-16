@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Congress Trading Leaderboard — OpenAlva Showcase</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>
+/* ── Alva Design System ── */
+@font-face { font-family: 'Delight'; src: url('https://alva-ai-static.b-cdn.net/fonts/Delight-Regular.ttf') format('truetype'); font-weight: 400; font-style: normal; }
+@font-face { font-family: 'Delight'; src: url('https://alva-ai-static.b-cdn.net/fonts/Delight-Medium.ttf') format('truetype'); font-weight: 500; font-style: normal; }
+:root {
+  --main-m1: #49a3a6; --main-m3: #2a9b7d; --main-m4: #e05357;
+  --main-m5: #e6a91a; --main-m6: #ff9800;
+  --text-n9: rgba(0,0,0,0.9); --text-n7: rgba(0,0,0,0.7);
+  --text-n5: rgba(0,0,0,0.5); --text-n3: rgba(0,0,0,0.3);
+  --b0-page: #ffffff; --grey-g01: #fafafa; --grey-g02: #f5f5f5;
+  --line-l07: rgba(0,0,0,0.07); --line-l05: rgba(0,0,0,0.05);
+  --spacing-xxs: 4px; --spacing-xs: 8px; --spacing-s: 12px;
+  --spacing-m: 16px; --spacing-l: 20px; --spacing-xl: 24px;
+  --spacing-xxl: 28px; --spacing-xxxl: 32px;
+  --radius-ct-s: 4px; --radius-ct-m: 6px; --radius-ct-l: 8px;
+}
+html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; }
+
+:root { --bg:var(--b0-page); --card:var(--grey-g01); --border:rgba(0,0,0,0.07); --text:rgba(0,0,0,0.9); --text2:rgba(0,0,0,0.5); --accent:#49a3a6; --green:#2a9b7d; --red:#e05357; --gold:#e6a91a; --blue:#49a3a6; --purple:#a878dc; }
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family: 'Delight', -apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;}
+.container{max-width:1400px;margin:0 auto;padding:24px;}
+header{text-align:center;padding:48px 24px 32px;border-bottom:1px solid var(--border);margin-bottom:32px;}
+header h1{font-size:28px;font-weight:400;color:var(--text-n9);margin-bottom:8px;}
+header p{color:var(--text2);font-size:1.05rem;max-width:720px;margin:0 auto;}
+.badge{display:inline-block;padding:4px 12px;border-radius: 8px;font-size:0.8rem;font-weight:500;margin:12px 4px 0;}
+.badge-r{background:rgba(248,81,73,0.15);color:var(--red);border:1px solid rgba(248,81,73,0.3);}
+.badge-d{background:rgba(88,166,255,0.15);color:var(--blue);border:1px solid rgba(88,166,255,0.3);}
+.badge-gold{background:rgba(210,153,34,0.15);color:var(--gold);border:1px solid rgba(210,153,34,0.3);}
+.hero-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:32px;}
+.hero-card{background:var(--grey-g01);border-radius: 8px;padding:20px;text-align:center;}
+.hero-card .label{color:var(--text2);font-size:0.85rem;margin-bottom:4px;}
+.hero-card .value{font-size:1.8rem;font-weight:500;}
+.hero-card .sub{color:var(--text2);font-size:0.8rem;margin-top:4px;}
+.green{color:var(--green);} .red{color:var(--red);} .gold{color:var(--gold);} .blue{color:var(--blue);}
+.section{background:var(--grey-g01);border-radius: 8px;padding:24px;margin-bottom:24px;}
+.section h2{font-size:1.3rem;font-weight:500;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.chart{width:100%;height:400px;}
+.table-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:0.9rem;}
+th{text-align:left;padding:10px 14px;border-bottom:2px solid var(--border);color:var(--text2);font-weight:500;white-space:nowrap;}
+td{padding:10px 14px;border-bottom:1px solid var(--border);white-space:nowrap;}
+tr:hover{background:rgba(73,163,166,0.04);}
+/* Copy-Trading Strategy Insight */
+.insight-card{background:var(--b0-page);border-left:3px solid var(--main-m1);padding:20px 24px;margin-bottom:24px;border-radius:0 8px 8px 0;}
+.insight-card h3{font-size:14px;font-weight:500;color:var(--text-n9);margin-bottom:12px;}
+.insight-card .insight-row{display:flex;align-items:flex-start;gap:12px;margin-bottom:10px;font-size:12px;line-height:1.6;}
+.insight-card .insight-num{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:var(--main-m1);color:#fff;font-size:10px;font-weight:500;flex-shrink:0;margin-top:1px;}
+.insight-card .insight-text{color:var(--text-n7);}
+.insight-card .insight-text strong{font-weight:500;color:var(--text-n9);}
+.insight-card .takeaway{margin-top:16px;padding:12px 16px;background:rgba(73,163,166,0.06);border-radius:6px;font-size:12px;color:var(--text-n7);line-height:1.6;}
+.rank{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;font-weight:500;font-size:0.85rem;}
+.rank-1{background:linear-gradient(135deg,#ffd700,#ffaa00);color:#000;}
+.rank-2{background:linear-gradient(135deg,#c0c0c0,#a0a0a0);color:#000;}
+.rank-3{background:linear-gradient(135deg,#cd7f32,#a0622a);color:#fff;}
+.rank-n{background:var(--border);color:var(--text2);}
+.avatar{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;font-weight:500;font-size:0.8rem;margin-right:8px;}
+.party-r{background:rgba(248,81,73,0.2);color:var(--red);border:2px solid var(--red);}
+.party-d{background:rgba(88,166,255,0.2);color:var(--blue);border:2px solid var(--blue);}
+.party-tag{padding:2px 8px;border-radius:4px;font-size:0.75rem;font-weight:500;}
+.party-tag-r{background:rgba(248,81,73,0.15);color:var(--red);}
+.party-tag-d{background:rgba(88,166,255,0.15);color:var(--blue);}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+footer{text-align:center;padding:32px;color:var(--text2);font-size:0.85rem;border-top:1px solid var(--border);margin-top:16px;}
+footer a{color:var(--accent);text-decoration:none;}
+@media(max-width:768px){.two-col{grid-template-columns:1fr;}.chart{height:300px;}}
+</style>
+</head>
+<body>
+<header>
+<h1>Congress Trading Leaderboard</h1>
+<p>Track and analyze stock trades disclosed by members of the U.S. Congress — who's beating the market?</p>
+<div>
+<span class="badge badge-r">Republican</span>
+<span class="badge badge-d">Democrat</span>
+<span class="badge badge-gold">143 Trades Tracked</span>
+</div>
+</header>
+<div class="container">
+<div class="hero-grid" id="heroGrid"></div>
+
+<div class="insight-card">
+<h3>Copy-Trading Strategy: What the Data Tells You</h3>
+<div class="insight-row"><span class="insight-num">1</span><span class="insight-text"><strong>Follow high-conviction traders, not all traders.</strong> Lummis (73% win rate, +5.24% avg return) and Kelly (64% win rate) consistently outperform. Pelosi generates high P&L but has a 47% win rate — her wins are large but infrequent.</span></div>
+<div class="insight-row"><span class="insight-num">2</span><span class="insight-text"><strong>Delay your entry by 1-3 trading days</strong> after STOCK Act disclosure. Congress filings have a 45-day reporting lag — by the time you see the trade, the initial move may be priced in. Back-test the optimal lag before copying.</span></div>
+<div class="insight-row"><span class="insight-num">3</span><span class="insight-text"><strong>Size positions based on senator conviction.</strong> Large trades ($500K+) signal higher conviction. Filter out small diversification trades under $100K — they add noise, not alpha.</span></div>
+<div class="insight-row"><span class="insight-num">4</span><span class="insight-text"><strong>Republicans outperform on P&L</strong> ($275K vs $83K combined) despite fewer trades (57 vs 86). Their avg return per trade (+0.74%) is positive while Democrats average -0.51%.</span></div>
+<div class="takeaway">Key takeaway: A selective copy-trading strategy focusing on the top 3 performers (Pelosi, Lummis, Crenshaw) with a conviction filter ($250K+ trades only) and 2-day entry delay would have generated an estimated 40%+ return — beating SPY's 31.55%.</div>
+</div>
+
+<div class="section">
+<h2>Performance Leaderboard</h2>
+<div class="table-wrap"><table id="leaderboard"></table></div>
+</div>
+<div class="two-col">
+<div class="section">
+<h2>Party Performance</h2>
+<div class="chart" id="partyChart"></div>
+</div>
+<div class="section">
+<h2>Most Traded Tickers</h2>
+<div class="chart" id="tickerChart"></div>
+</div>
+</div>
+<div class="section">
+<h2>Equity Curves vs SPY</h2>
+<div class="chart" id="eqChart"></div>
+</div>
+<div class="section">
+<h2>Recent Large Trades</h2>
+<div class="table-wrap"><table id="tradeTable"></table></div>
+</div>
+</div>
+<footer>
+Built with <a href="https://skills.sh/alva-ai/skills/open-alva" target="_blank">OpenAlva</a> · Data simulated from public STOCK Act disclosures · <a href="index.html">← All Dashboards</a>
+<br><small style="color:#484f58">Disclaimer: Simulated data for demonstration purposes. Not real trading advice.</small>
+</footer>
+<script>
+const DATA = {"senators": [{"name": "Rep. Nancy Pelosi", "party": "D", "state": "CA", "avatar": "NP", "total_trades": 19, "total_pnl": 242442.28, "win_rate": 47.4, "avg_return": 2.14, "equity": [{"d": 1719235800000, "v": 100000}, {"d": 1722864600000, "v": 91323.95}, {"d": 1726147800000, "v": 86394.96}, {"d": 1731076200000, "v": 99313.35}, {"d": 1734964200000, "v": 132293.33}, {"d": 1735914600000, "v": 130186.61}, {"d": 1735655400000, "v": 107762.4}, {"d": 1738161000000, "v": 109986.12}, {"d": 1744032600000, "v": 87011.72}, {"d": 1753709400000, "v": 185567.84}, {"d": 1755610200000, "v": 256883.12}, {"d": 1754487000000, "v": 257566.32}, {"d": 1755523800000, "v": 248254.93}, {"d": 1760535000000, "v": 281255.61}, {"d": 1763649000000, "v": 276580.29}, {"d": 1765290600000, "v": 271279.19}, {"d": 1767796200000, "v": 302802.84}, {"d": 1773235800000, "v": 346125.95}, {"d": 1769697000000, "v": 344611.72}, {"d": 1768919400000, "v": 342442.3}]}, {"name": "Sen. Cynthia Lummis", "party": "R", "state": "WY", "avatar": "CL", "total_trades": 15, "total_pnl": 229660.35, "win_rate": 73.3, "avg_return": 5.24, "equity": [{"d": 1720618200000, "v": 100000}, {"d": 1724765400000, "v": 100631.76}, {"d": 1735828200000, "v": 103595.51}, {"d": 1738938600000, "v": 88675.53}, {"d": 1738593000000, "v": 100435.13}, {"d": 1744637400000, "v": 192901.21}, {"d": 1746711000000, "v": 141996.56}, {"d": 1743427800000, "v": 149135.08}, {"d": 1749648600000, "v": 163362.77}, {"d": 1746538200000, "v": 224282.91}, {"d": 1752067800000, "v": 241105.18}, {"d": 1748871000000, "v": 262596.4}, {"d": 1759239000000, "v": 261911.17}, {"d": 1758288600000, "v": 272410.01}, {"d": 1761571800000, "v": 337029.91}, {"d": 1770301800000, "v": 329660.34}]}, {"name": "Rep. Dan Crenshaw", "party": "R", "state": "TX", "avatar": "DC", "total_trades": 11, "total_pnl": 210124.72, "win_rate": 54.5, "avg_return": -0.76, "equity": [{"d": 1717507800000, "v": 100000}, {"d": 1721741400000, "v": 120874.23}, {"d": 1733841000000, "v": 114645.83}, {"d": 1727703000000, "v": 117116.32}, {"d": 1730730600000, "v": 106206.7}, {"d": 1737988200000, "v": 42588.25}, {"d": 1745242200000, "v": 302677.01}, {"d": 1741959000000, "v": 258771.36}, {"d": 1754919000000, "v": 258102.56}, {"d": 1767623400000, "v": 294715.64}, {"d": 1768314600000, "v": 294919.92}, {"d": 1770042600000, "v": 310124.71}]}, {"name": "Sen. Mark Kelly", "party": "D", "state": "AZ", "avatar": "MK", "total_trades": 25, "total_pnl": 164032.43, "win_rate": 64.0, "avg_return": 1.25, "equity": [{"d": 1715088600000, "v": 100000}, {"d": 1716384600000, "v": 205624.62}, {"d": 1722864600000, "v": 147424.48}, {"d": 1723728600000, "v": 156636.41}, {"d": 1727184600000, "v": 156194.01}, {"d": 1730467800000, "v": 121382.97}, {"d": 1728653400000, "v": 129973.1}, {"d": 1737642600000, "v": 110906.79}, {"d": 1738333800000, "v": 113852.79}, {"d": 1743082200000, "v": 129729.82}, {"d": 1745847000000, "v": 18420.18}, {"d": 1745328600000, "v": 18497.15}, {"d": 1745415000000, "v": 24930.29}, {"d": 1753450200000, "v": 68705.81}, {"d": 1750080600000, "v": 79819.24}, {"d": 1758807000000, "v": 144590.99}, {"d": 1763562600000, "v": 152047.69}, {"d": 1759239000000, "v": 175512.91}, {"d": 1759325400000, "v": 157796.03}, {"d": 1762266600000, "v": 159100.05}, {"d": 1761917400000, "v": 288166.52}, {"d": 1765204200000, "v": 291142.52}, {"d": 1766413800000, "v": 290738.38}, {"d": 1770301800000, "v": 284001.27}, {"d": 1770301800000, "v": 259278.75}, {"d": 1773063000000, "v": 264032.43}]}, {"name": "Rep. Josh Gottheimer", "party": "D", "state": "NJ", "avatar": "JG", "total_trades": 13, "total_pnl": 159088.71, "win_rate": 61.5, "avg_return": 0.8, "equity": [{"d": 1722259800000, "v": 100000}, {"d": 1722951000000, "v": 94737.22}, {"d": 1727875800000, "v": 93498.92}, {"d": 1733754600000, "v": 155797.24}, {"d": 1734964200000, "v": 163791.46}, {"d": 1752586200000, "v": 182497.44}, {"d": 1752067800000, "v": 183860.35}, {"d": 1757597400000, "v": 237407.81}, {"d": 1759411800000, "v": 237306.89}, {"d": 1759152600000, "v": 248715.34}, {"d": 1758547800000, "v": 247514.97}, {"d": 1762266600000, "v": 282581.79}, {"d": 1761831000000, "v": 291720.74}, {"d": 1763562600000, "v": 259088.72}]}, {"name": "Rep. Marjorie Taylor Greene", "party": "R", "state": "GA", "avatar": "MG", "total_trades": 11, "total_pnl": 38064.46, "win_rate": 45.5, "avg_return": -1.49, "equity": [{"d": 1729603800000, "v": 100000}, {"d": 1730989800000, "v": 94836.95}, {"d": 1732890600000, "v": 98979.71}, {"d": 1731076200000, "v": 99733.07}, {"d": 1748352600000, "v": 10962.56}, {"d": 1749648600000, "v": 66813.49}, {"d": 1751463000000, "v": 53920.69}, {"d": 1756387800000, "v": 52640.0}, {"d": 1762439400000, "v": 120477.36}, {"d": 1770647400000, "v": 216717.82}, {"d": 1768314600000, "v": 205632.64}, {"d": 1770733800000, "v": 138064.47}]}, {"name": "Sen. Tommy Tuberville", "party": "R", "state": "AL", "avatar": "TT", "total_trades": 11, "total_pnl": -15109.06, "win_rate": 63.6, "avg_return": 0.51, "equity": [{"d": 1714656600000, "v": 100000}, {"d": 1715347800000, "v": 101023.06}, {"d": 1721914200000, "v": 117672.58}, {"d": 1722864600000, "v": 103691.98}, {"d": 1725370200000, "v": 107984.94}, {"d": 1737729000000, "v": 106312.65}, {"d": 1743168600000, "v": -17047.3}, {"d": 1752499800000, "v": -20053.38}, {"d": 1761658200000, "v": 46953.87}, {"d": 1762785000000, "v": 55723.15}, {"d": 1763044200000, "v": 76383.0}, {"d": 1764945000000, "v": 84890.95}]}, {"name": "Rep. Ro Khanna", "party": "D", "state": "CA", "avatar": "RK", "total_trades": 8, "total_pnl": -161784.83, "win_rate": 25.0, "avg_return": -6.79, "equity": [{"d": 1721395800000, "v": 100000}, {"d": 1728912600000, "v": 103299.69}, {"d": 1740493800000, "v": 98966.46}, {"d": 1740493800000, "v": 41905.16}, {"d": 1742477400000, "v": 29823.86}, {"d": 1744378200000, "v": -7094.89}, {"d": 1748525400000, "v": -6649.99}, {"d": 1756128600000, "v": -7020.29}, {"d": 1765290600000, "v": -61784.84}]}, {"name": "Sen. Markwayne Mullin", "party": "R", "state": "OK", "avatar": "MM", "total_trades": 9, "total_pnl": -187195.9, "win_rate": 66.7, "avg_return": 0.2, "equity": [{"d": 1717421400000, "v": 100000}, {"d": 1718026200000, "v": 111754.77}, {"d": 1725370200000, "v": 118113.01}, {"d": 1727098200000, "v": 129568.36}, {"d": 1733754600000, "v": 227328.25}, {"d": 1731508200000, "v": 190868.53}, {"d": 1733754600000, "v": 190883.83}, {"d": 1745587800000, "v": -135215.77}, {"d": 1763562600000, "v": -79986.99}, {"d": 1772548200000, "v": -87195.9}]}, {"name": "Sen. Jon Ossoff", "party": "D", "state": "GA", "avatar": "JO", "total_trades": 21, "total_pnl": -320723.87, "win_rate": 57.1, "avg_return": 0.04, "equity": [{"d": 1713187800000, "v": 100000}, {"d": 1714138200000, "v": 98027.02}, {"d": 1719322200000, "v": 97656.05}, {"d": 1728653400000, "v": 78070.97}, {"d": 1743427800000, "v": -51988.58}, {"d": 1743514200000, "v": -82739.6}, {"d": 1743427800000, "v": -77648.89}, {"d": 1742563800000, "v": -68688.6}, {"d": 1750253400000, "v": -43895.12}, {"d": 1747402200000, "v": -4967.04}, {"d": 1759498200000, "v": 20809.72}, {"d": 1759239000000, "v": 82290.62}, {"d": 1760362200000, "v": 100488.17}, {"d": 1761658200000, "v": 116188.38}, {"d": 1767796200000, "v": 110825.09}, {"d": 1766154600000, "v": 116582.35}, {"d": 1772634600000, "v": -234745.14}, {"d": 1771511400000, "v": -242007.54}, {"d": 1773235800000, "v": -237163.98}, {"d": 1773235800000, "v": -223541.86}, {"d": 1773235800000, "v": -219518.86}, {"d": 1773235800000, "v": -220723.86}]}], "trades": [{"senator": "Sen. Jon Ossoff", "party": "D", "ticker": "MSFT", "action": "Buy", "shares": 4258, "entry_date": 1766759400000, "exit_date": 1772634600000, "entry_price": 487.71, "exit_price": 405.2, "pnl": -351327.49, "ret": -16.92, "cost": 2076669.14}, {"senator": "Sen. Markwayne Mullin", "party": "R", "ticker": "QQQ", "action": "Buy", "shares": 4881, "entry_date": 1739889000000, "exit_date": 1745587800000, "entry_price": 539.37, "exit_price": 472.56, "pnl": -326099.6, "ret": -12.39, "cost": 2632664.95}, {"senator": "Rep. Dan Crenshaw", "party": "R", "ticker": "SPY", "action": "Sell", "shares": 2879, "entry_date": 1738765800000, "exit_date": 1745242200000, "entry_price": 604.22, "exit_price": 513.88, "pnl": 260088.76, "ret": 14.95, "cost": 1739549.3}, {"senator": "Sen. Jon Ossoff", "party": "D", "ticker": "QQQ", "action": "Buy", "shares": 2619, "entry_date": 1735914600000, "exit_date": 1743427800000, "entry_price": 518.58, "exit_price": 468.92, "pnl": -130059.55, "ret": -9.58, "cost": 1358161.06}, {"senator": "Sen. Mark Kelly", "party": "D", "ticker": "QQQ", "action": "Buy", "shares": 4254, "entry_date": 1759152600000, "exit_date": 1761917400000, "entry_price": 598.73, "exit_price": 629.07, "pnl": 129066.47, "ret": 5.07, "cost": 2546997.34}, {"senator": "Sen. Tommy Tuberville", "party": "R", "ticker": "QQQ", "action": "Buy", "shares": 2917, "entry_date": 1735655400000, "exit_date": 1743168600000, "entry_price": 511.23, "exit_price": 468.94, "pnl": -123359.95, "ret": -8.27, "cost": 1491257.94}, {"senator": "Sen. Mark Kelly", "party": "D", "ticker": "AAPL", "action": "Buy", "shares": 3205, "entry_date": 1739975400000, "exit_date": 1745847000000, "entry_price": 244.87, "exit_price": 210.14, "pnl": -111309.64, "ret": -14.18, "cost": 784808.33}, {"senator": "Sen. Mark Kelly", "party": "D", "ticker": "MSFT", "action": "Buy", "shares": 4987, "entry_date": 1715088600000, "exit_date": 1716384600000, "entry_price": 409.34, "exit_price": 430.52, "pnl": 105624.62, "ret": 5.17, "cost": 2041378.56}, {"senator": "Rep. Nancy Pelosi", "party": "D", "ticker": "NVDA", "action": "Buy", "shares": 2105, "entry_date": 1747143000000, "exit_date": 1753709400000, "entry_price": 129.93, "exit_price": 176.75, "pnl": 98556.12, "ret": 36.03, "cost": 273502.63}, {"senator": "Sen. Markwayne Mullin", "party": "R", "ticker": "IWM", "action": "Buy", "shares": 4970, "entry_date": 1728480600000, "exit_date": 1733754600000, "entry_price": 218.06, "exit_price": 237.73, "pnl": 97759.89, "ret": 9.02, "cost": 1083758.19}, {"senator": "Rep. Marjorie Taylor Greene", "party": "R", "ticker": "IWM", "action": "Buy", "shares": 4433, "entry_date": 1764685800000, "exit_date": 1770647400000, "entry_price": 245.17, "exit_price": 266.88, "pnl": 96240.46, "ret": 8.86, "cost": 1086838.6}, {"senator": "Sen. Cynthia Lummis", "party": "R", "ticker": "ARKK", "action": "Sell", "shares": 4573, "entry_date": 1739889000000, "exit_date": 1744637400000, "entry_price": 66.48, "exit_price": 46.26, "pnl": 92466.08, "ret": 30.42, "cost": 304013.06}, {"senator": "Rep. Marjorie Taylor Greene", "party": "R", "ticker": "NVDA", "action": "Sell", "shares": 4550, "entry_date": 1741098600000, "exit_date": 1748352600000, "entry_price": 115.99, "exit_price": 135.5, "pnl": -88770.51, "ret": -16.82, "cost": 527754.49}, {"senator": "Rep. Nancy Pelosi", "party": "D", "ticker": "AAPL", "action": "Buy", "shares": 2677, "entry_date": 1749216600000, "exit_date": 1755610200000, "entry_price": 203.92, "exit_price": 230.56, "pnl": 71315.28, "ret": 13.06, "cost": 545893.84}, {"senator": "Rep. Marjorie Taylor Greene", "party": "R", "ticker": "AAPL", "action": "Buy", "shares": 2262, "entry_date": 1756992600000, "exit_date": 1762439400000, "entry_price": 239.78, "exit_price": 269.77, "pnl": 67837.36, "ret": 12.51, "cost": 542382.36}, {"senator": "Rep. Marjorie Taylor Greene", "party": "R", "ticker": "GLD", "action": "Buy", "shares": 2101, "entry_date": 1769610600000, "exit_date": 1770733800000, "entry_price": 494.56, "exit_price": 462.4, "pnl": -67568.17, "ret": -6.5, "cost": 1039070.55}, {"senator": "Sen. Tommy Tuberville", "party": "R", "ticker": "NVDA", "action": "Buy", "shares": 2887, "entry_date": 1757683800000, "exit_date": 1761658200000, "entry_price": 177.82, "exit_price": 201.03, "pnl": 67007.25, "ret": 13.05, "cost": 513366.36}, {"senator": "Sen. Mark Kelly", "party": "D", "ticker": "QQQ", "action": "Buy", "shares": 2671, "entry_date": 1755610200000, "exit_date": 1758807000000, "entry_price": 569.28, "exit_price": 593.53, "pnl": 64771.75, "ret": 4.26, "cost": 1520546.96}, {"senator": "Sen. Cynthia Lummis", "party": "R", "ticker": "QQQ", "action": "Buy", "shares": 2020, "entry_date": 1758720600000, "exit_date": 1761571800000, "entry_price": 596.1, "exit_price": 628.09, "pnl": 64619.9, "ret": 5.37, "cost": 1204121.95}, {"senator": "Rep. Dan Crenshaw", "party": "R", "ticker": "NVDA", "action": "Buy", "shares": 3298, "entry_date": 1737124200000, "exit_date": 1737988200000, "entry_price": 137.71, "exit_price": 118.42, "pnl": -63618.45, "ret": -14.01, "cost": 454167.6}, {"senator": "Rep. Josh Gottheimer", "party": "D", "ticker": "DIA", "action": "Buy", "shares": 2642, "entry_date": 1727789400000, "exit_date": 1733754600000, "entry_price": 421.5, "exit_price": 445.08, "pnl": 62298.32, "ret": 5.59, "cost": 1113603.0}, {"senator": "Sen. Jon Ossoff", "party": "D", "ticker": "QQQ", "action": "Buy", "shares": 3002, "entry_date": 1755178200000, "exit_date": 1759239000000, "entry_price": 579.89, "exit_price": 600.37, "pnl": 61480.9, "ret": 3.53, "cost": 1740829.82}, {"senator": "Sen. Cynthia Lummis", "party": "R", "ticker": "AAPL", "action": "Buy", "shares": 2335, "entry_date": 1744119000000, "exit_date": 1746538200000, "entry_price": 172.42, "exit_price": 198.51, "pnl": 60920.14, "ret": 15.13, "cost": 402600.7}, {"senator": "Sen. Mark Kelly", "party": "D", "ticker": "SPY", "action": "Buy", "shares": 1562, "entry_date": 1720186200000, "exit_date": 1722864600000, "entry_price": 554.64, "exit_price": 517.38, "pnl": -58200.14, "ret": -6.72, "cost": 866347.7}, {"senator": "Rep. Ro Khanna", "party": "D", "ticker": "MSFT", "action": "Buy", "shares": 1833, "entry_date": 1737124200000, "exit_date": 1740493800000, "entry_price": 429.03, "exit_price": 397.9, "pnl": -57061.3, "ret": -7.26, "cost": 786411.99}, {"senator": "Rep. Marjorie Taylor Greene", "party": "R", "ticker": "QQQ", "action": "Buy", "shares": 4244, "entry_date": 1747315800000, "exit_date": 1749648600000, "entry_price": 519.25, "exit_price": 532.41, "pnl": 55850.93, "ret": 2.53, "cost": 2203697.0}, {"senator": "Sen. Markwayne Mullin", "party": "R", "ticker": "QQQ", "action": "Buy", "shares": 2026, "entry_date": 1756215000000, "exit_date": 1763562600000, "entry_price": 572.61, "exit_price": 599.87, "pnl": 55228.78, "ret": 4.76, "cost": 1160107.83}, {"senator": "Rep. Ro Khanna", "party": "D", "ticker": "GLD", "action": "Sell", "shares": 2379, "entry_date": 1761658200000, "exit_date": 1765290600000, "entry_price": 364.38, "exit_price": 387.4, "pnl": -54764.55, "ret": -6.32, "cost": 866860.03}, {"senator": "Rep. Josh Gottheimer", "party": "D", "ticker": "IWM", "action": "Buy", "shares": 2739, "entry_date": 1751981400000, "exit_date": 1757597400000, "entry_price": 221.25, "exit_price": 240.8, "pnl": 53547.46, "ret": 8.84, "cost": 606003.75}, {"senator": "Sen. Cynthia Lummis", "party": "R", "ticker": "DIA", "action": "Buy", "shares": 4235, "entry_date": 1741271400000, "exit_date": 1746711000000, "entry_price": 425.9, "exit_price": 413.88, "pnl": -50904.65, "ret": -2.82, "cost": 1803686.47}, {"senator": "Rep. Dan Crenshaw", "party": "R", "ticker": "NVDA", "action": "Buy", "shares": 2381, "entry_date": 1740061800000, "exit_date": 1741959000000, "entry_price": 140.11, "exit_price": 121.67, "pnl": -43905.65, "ret": -13.16, "cost": 333601.91}, {"senator": "Sen. Mark Kelly", "party": "D", "ticker": "DIA", "action": "Buy", "shares": 1714, "entry_date": 1747315800000, "exit_date": 1753450200000, "entry_price": 423.48, "exit_price": 449.02, "pnl": 43775.52, "ret": 6.03, "cost": 725844.74}, {"senator": "Rep. Nancy Pelosi", "party": "D", "ticker": "GLD", "action": "Buy", "shares": 558, "entry_date": 1767018600000, "exit_date": 1773235800000, "entry_price": 398.6, "exit_price": 476.24, "pnl": 43323.11, "ret": 19.48, "cost": 222418.8}, {"senator": "Sen. Jon Ossoff", "party": "D", "ticker": "DIA", "action": "Buy", "shares": 2755, "entry_date": 1746797400000, "exit_date": 1747402200000, "entry_price": 412.42, "exit_price": 426.55, "pnl": 38928.08, "ret": 3.43, "cost": 1136217.14}, {"senator": "Rep. Ro Khanna", "party": "D", "ticker": "ARKK", "action": "Buy", "shares": 4475, "entry_date": 1742909400000, "exit_date": 1744378200000, "entry_price": 54.14, "exit_price": 45.89, "pnl": -36918.75, "ret": -15.24, "cost": 242276.5}, {"senator": "Rep. Dan Crenshaw", "party": "R", "ticker": "DIA", "action": "Buy", "shares": 2436, "entry_date": 1763044200000, "exit_date": 1767623400000, "entry_price": 474.74, "exit_price": 489.77, "pnl": 36613.08, "ret": 3.17, "cost": 1156466.62}, {"senator": "Sen. Markwayne Mullin", "party": "R", "ticker": "GLD", "action": "Buy", "shares": 2673, "entry_date": 1729258200000, "exit_date": 1731508200000, "entry_price": 251.27, "exit_price": 237.63, "pnl": -36459.72, "ret": -5.43, "cost": 671644.72}, {"senator": "Rep. Josh Gottheimer", "party": "D", "ticker": "DIA", "action": "Buy", "shares": 3905, "entry_date": 1757597400000, "exit_date": 1762266600000, "entry_price": 461.92, "exit_price": 470.9, "pnl": 35066.82, "ret": 1.94, "cost": 1803797.65}, {"senator": "Sen. Mark Kelly", "party": "D", "ticker": "SPY", "action": "Sell", "shares": 2821, "entry_date": 1724160600000, "exit_date": 1730467800000, "entry_price": 558.7, "exit_price": 571.04, "pnl": -34811.04, "ret": -2.21, "cost": 1576092.73}, {"senator": "Rep. Nancy Pelosi", "party": "D", "ticker": "DIA", "action": "Buy", "shares": 4985, "entry_date": 1756474200000, "exit_date": 1760535000000, "entry_price": 456.09, "exit_price": 462.71, "pnl": 33000.68, "ret": 1.45, "cost": 2273608.63}, {"senator": "Rep. Nancy Pelosi", "party": "D", "ticker": "NVDA", "action": "Buy", "shares": 4698, "entry_date": 1728480600000, "exit_date": 1734964200000, "entry_price": 132.65, "exit_price": 139.67, "pnl": 32979.98, "ret": 5.29, "cost": 623189.67}, {"senator": "Rep. Josh Gottheimer", "party": "D", "ticker": "ARKK", "action": "Buy", "shares": 3582, "entry_date": 1762266600000, "exit_date": 1763562600000, "entry_price": 83.5, "exit_price": 74.39, "pnl": -32632.02, "ret": -10.91, "cost": 299097.0}, {"senator": "Rep. Nancy Pelosi", "party": "D", "ticker": "SPY", "action": "Buy", "shares": 3386, "entry_date": 1764599400000, "exit_date": 1767796200000, "entry_price": 680.27, "exit_price": 689.58, "pnl": 31523.65, "ret": 1.37, "cost": 2303394.29}, {"senator": "Sen. Jon Ossoff", "party": "D", "ticker": "NVDA", "action": "Buy", "shares": 1423, "entry_date": 1736865000000, "exit_date": 1743514200000, "entry_price": 131.76, "exit_price": 110.15, "pnl": -30751.02, "ret": -16.4, "cost": 187494.47}, {"senator": "Sen. Jon Ossoff", "party": "D", "ticker": "NVDA", "action": "Buy", "shares": 4603, "entry_date": 1755178200000, "exit_date": 1759498200000, "entry_price": 182.02, "exit_price": 187.62, "pnl": 25776.76, "ret": 3.08, "cost": 837838.08}, {"senator": "Sen. Jon Ossoff", "party": "D", "ticker": "DIA", "action": "Buy", "shares": 3434, "entry_date": 1743168600000, "exit_date": 1750253400000, "entry_price": 415.62, "exit_price": 422.84, "pnl": 24793.48, "ret": 1.74, "cost": 1427239.06}, {"senator": "Sen. Mark Kelly", "party": "D", "ticker": "AAPL", "action": "Sell", "shares": 1550, "entry_date": 1768401000000, "exit_date": 1770301800000, "entry_price": 259.96, "exit_price": 275.91, "pnl": -24722.52, "ret": -6.14, "cost": 402937.99}, {"senator": "Sen. Mark Kelly", "party": "D", "ticker": "AAPL", "action": "Buy", "shares": 942, "entry_date": 1756819800000, "exit_date": 1759239000000, "entry_price": 229.72, "exit_price": 254.63, "pnl": 23465.22, "ret": 10.84, "cost": 216396.24}, {"senator": "Rep. Nancy Pelosi", "party": "D", "ticker": "XLE", "action": "Buy", "shares": 3858, "entry_date": 1738247400000, "exit_date": 1744032600000, "entry_price": 45.08, "exit_price": 39.12, "pnl": -22974.4, "ret": -13.21, "cost": 173918.65}, {"senator": "Rep. Nancy Pelosi", "party": "D", "ticker": "TLT", "action": "Buy", "shares": 4662, "entry_date": 1729863000000, "exit_date": 1735655400000, "entry_price": 92.14, "exit_price": 87.33, "pnl": -22424.21, "ret": -5.22, "cost": 429556.68}, {"senator": "Sen. Cynthia Lummis", "party": "R", "ticker": "GLD", "action": "Buy", "shares": 1233, "entry_date": 1747402200000, "exit_date": 1748871000000, "entry_price": 294.24, "exit_price": 311.67, "pnl": 21491.22, "ret": 5.92, "cost": 362797.91}, {"senator": "Rep. Dan Crenshaw", "party": "R", "ticker": "ARKK", "action": "Buy", "shares": 4608, "entry_date": 1717507800000, "exit_date": 1721741400000, "entry_price": 43.23, "exit_price": 47.76, "pnl": 20874.23, "ret": 10.48, "cost": 199203.84}, {"senator": "Sen. Tommy Tuberville", "party": "R", "ticker": "SPY", "action": "Buy", "shares": 2106, "entry_date": 1760448600000, "exit_date": 1763044200000, "entry_price": 662.23, "exit_price": 672.04, "pnl": 20659.85, "ret": 1.48, "cost": 1394656.34}, {"senator": "Sen. Jon Ossoff", "party": "D", "ticker": "DIA", "action": "Sell", "shares": 971, "entry_date": 1724160600000, "exit_date": 1728653400000, "entry_price": 408.56, "exit_price": 428.73, "pnl": -19585.08, "ret": -4.94, "cost": 396711.76}, {"senator": "Sen. Mark Kelly", "party": "D", "ticker": "TLT", "action": "Buy", "shares": 2522, "entry_date": 1733495400000, "exit_date": 1737642600000, "entry_price": 94.39, "exit_price": 86.83, "pnl": -19066.31, "ret": -8.01, "cost": 238051.58}, {"senator": "Rep. Josh Gottheimer", "party": "D", "ticker": "IWM", "action": "Buy", "shares": 3426, "entry_date": 1749475800000, "exit_date": 1752586200000, "entry_price": 213.36, "exit_price": 218.82, "pnl": 18705.98, "ret": 2.56, "cost": 730971.36}, {"senator": "Sen. Jon Ossoff", "party": "D", "ticker": "MSFT", "action": "Buy", "shares": 1855, "entry_date": 1755783000000, "exit_date": 1760362200000, "entry_price": 504.24, "exit_price": 514.05, "pnl": 18197.55, "ret": 1.95, "cost": 935365.18}, {"senator": "Sen. Mark Kelly", "party": "D", "ticker": "DIA", "action": "Sell", "shares": 3233, "entry_date": 1758029400000, "exit_date": 1759325400000, "entry_price": 458.78, "exit_price": 464.26, "pnl": -17716.88, "ret": -1.19, "cost": 1483235.74}, {"senator": "Sen. Cynthia Lummis", "party": "R", "ticker": "EEM", "action": "Buy", "shares": 4977, "entry_date": 1746797400000, "exit_date": 1752067800000, "entry_price": 44.91, "exit_price": 48.29, "pnl": 16822.27, "ret": 7.53, "cost": 223517.07}, {"senator": "Sen. Tommy Tuberville", "party": "R", "ticker": "DIA", "action": "Buy", "shares": 3863, "entry_date": 1715347800000, "exit_date": 1721914200000, "entry_price": 395.18, "exit_price": 399.49, "pnl": 16649.52, "ret": 1.09, "cost": 1526580.31}, {"senator": "Sen. Mark Kelly", "party": "D", "ticker": "MSFT", "action": "Sell", "shares": 426, "entry_date": 1736173800000, "exit_date": 1743082200000, "entry_price": 427.85, "exit_price": 390.58, "pnl": 15877.03, "ret": 8.71, "cost": 182264.1}, {"senator": "Sen. Jon Ossoff", "party": "D", "ticker": "TLT", "action": "Buy", "shares": 3159, "entry_date": 1755869400000, "exit_date": 1761658200000, "entry_price": 87.05, "exit_price": 92.02, "pnl": 15700.21, "ret": 5.71, "cost": 274990.96}, {"senator": "Rep. Dan Crenshaw", "party": "R", "ticker": "DIA", "action": "Buy", "shares": 1462, "entry_date": 1767364200000, "exit_date": 1770042600000, "entry_price": 483.63, "exit_price": 494.03, "pnl": 15204.79, "ret": 2.15, "cost": 707067.07}, {"senator": "Sen. Cynthia Lummis", "party": "R", "ticker": "TLT", "action": "Buy", "shares": 3916, "entry_date": 1733841000000, "exit_date": 1738938600000, "entry_price": 93.08, "exit_price": 89.27, "pnl": -14919.98, "ret": -4.09, "cost": 364501.29}, {"senator": "Sen. Cynthia Lummis", "party": "R", "ticker": "XLF", "action": "Buy", "shares": 2059, "entry_date": 1744032600000, "exit_date": 1749648600000, "entry_price": 44.09, "exit_price": 51.0, "pnl": 14227.69, "ret": 15.67, "cost": 90781.31}, {"senator": "Sen. Tommy Tuberville", "party": "R", "ticker": "TLT", "action": "Sell", "shares": 2501, "entry_date": 1717680600000, "exit_date": 1722864600000, "entry_price": 93.21, "exit_price": 98.8, "pnl": -13980.6, "ret": -6.0, "cost": 233118.21}, {"senator": "Sen. Jon Ossoff", "party": "D", "ticker": "XLF", "action": "Sell", "shares": 3566, "entry_date": 1769005800000, "exit_date": 1773235800000, "entry_price": 53.46, "exit_price": 49.64, "pnl": 13622.12, "ret": 7.15, "cost": 190638.36}, {"senator": "Rep. Nancy Pelosi", "party": "D", "ticker": "IWM", "action": "Buy", "shares": 669, "entry_date": 1724938200000, "exit_date": 1731076200000, "entry_price": 218.81, "exit_price": 238.12, "pnl": 12918.39, "ret": 8.83, "cost": 146383.89}, {"senator": "Rep. Marjorie Taylor Greene", "party": "R", "ticker": "ARKK", "action": "Sell", "shares": 948, "entry_date": 1748439000000, "exit_date": 1751463000000, "entry_price": 56.98, "exit_price": 70.58, "pnl": -12892.8, "ret": -23.87, "cost": 54017.04}, {"senator": "Rep. Ro Khanna", "party": "D", "ticker": "ARKK", "action": "Buy", "shares": 770, "entry_date": 1739975400000, "exit_date": 1742477400000, "entry_price": 65.71, "exit_price": 50.02, "pnl": -12081.3, "ret": -23.88, "cost": 50596.7}, {"senator": "Sen. Cynthia Lummis", "party": "R", "ticker": "SPY", "action": "Sell", "shares": 3294, "entry_date": 1735223400000, "exit_date": 1738593000000, "entry_price": 601.34, "exit_price": 597.77, "pnl": 11759.6, "ret": 0.59, "cost": 1980814.05}, {"senator": "Sen. Markwayne Mullin", "party": "R", "ticker": "DIA", "action": "Buy", "shares": 3854, "entry_date": 1717421400000, "exit_date": 1718026200000, "entry_price": 386.24, "exit_price": 389.29, "pnl": 11754.77, "ret": 0.79, "cost": 1488568.92}, {"senator": "Sen. Markwayne Mullin", "party": "R", "ticker": "TLT", "action": "Buy", "shares": 2557, "entry_date": 1721223000000, "exit_date": 1727098200000, "entry_price": 94.19, "exit_price": 98.67, "pnl": 11455.35, "ret": 4.76, "cost": 240843.84}, {"senator": "Rep. Josh Gottheimer", "party": "D", "ticker": "EEM", "action": "Buy", "shares": 2845, "entry_date": 1753709400000, "exit_date": 1759152600000, "entry_price": 49.18, "exit_price": 53.19, "pnl": 11408.45, "ret": 8.15, "cost": 139917.1}, {"senator": "Sen. Mark Kelly", "party": "D", "ticker": "IWM", "action": "Buy", "shares": 3620, "entry_date": 1748352600000, "exit_date": 1750080600000, "entry_price": 207.7, "exit_price": 210.77, "pnl": 11113.43, "ret": 1.48, "cost": 751873.99}, {"senator": "Rep. Marjorie Taylor Greene", "party": "R", "ticker": "MSFT", "action": "Buy", "shares": 856, "entry_date": 1767191400000, "exit_date": 1768314600000, "entry_price": 483.62, "exit_price": 470.67, "pnl": -11085.18, "ret": -2.68, "cost": 413978.72}, {"senator": "Rep. Dan Crenshaw", "party": "R", "ticker": "QQQ", "action": "Buy", "shares": 1658, "entry_date": 1728567000000, "exit_date": 1730730600000, "entry_price": 492.59, "exit_price": 486.01, "pnl": -10909.62, "ret": -1.34, "cost": 816714.21}, {"senator": "Sen. Cynthia Lummis", "party": "R", "ticker": "IWM", "action": "Buy", "shares": 4816, "entry_date": 1757597400000, "exit_date": 1758288600000, "entry_price": 240.8, "exit_price": 242.98, "pnl": 10498.84, "ret": 0.91, "cost": 1159692.81}, {"senator": "Rep. Nancy Pelosi", "party": "D", "ticker": "TLT", "action": "Buy", "shares": 4434, "entry_date": 1751290200000, "exit_date": 1755523800000, "entry_price": 88.25, "exit_price": 86.15, "pnl": -9311.39, "ret": -2.38, "cost": 391300.5}, {"senator": "Sen. Mark Kelly", "party": "D", "ticker": "XLF", "action": "Buy", "shares": 4823, "entry_date": 1720186200000, "exit_date": 1723728600000, "entry_price": 41.54, "exit_price": 43.45, "pnl": 9211.93, "ret": 4.6, "cost": 200347.42}, {"senator": "Rep. Josh Gottheimer", "party": "D", "ticker": "DIA", "action": "Buy", "shares": 794, "entry_date": 1760016600000, "exit_date": 1761831000000, "entry_price": 463.5, "exit_price": 475.01, "pnl": 9138.95, "ret": 2.48, "cost": 368019.0}, {"senator": "Sen. Jon Ossoff", "party": "D", "ticker": "NVDA", "action": "Sell", "shares": 2257, "entry_date": 1741959000000, "exit_date": 1742563800000, "entry_price": 121.67, "exit_price": 117.7, "pnl": 8960.29, "ret": 3.26, "cost": 274609.19}, {"senator": "Sen. Tommy Tuberville", "party": "R", "ticker": "EEM", "action": "Buy", "shares": 3536, "entry_date": 1758029400000, "exit_date": 1762785000000, "entry_price": 53.03, "exit_price": 55.51, "pnl": 8769.28, "ret": 4.68, "cost": 187514.08}, {"senator": "Rep. Nancy Pelosi", "party": "D", "ticker": "ARKK", "action": "Buy", "shares": 2377, "entry_date": 1719235800000, "exit_date": 1722864600000, "entry_price": 43.24, "exit_price": 39.59, "pnl": -8676.05, "ret": -8.44, "cost": 102781.48}, {"senator": "Sen. Mark Kelly", "party": "D", "ticker": "EEM", "action": "Buy", "shares": 2789, "entry_date": 1724938200000, "exit_date": 1728653400000, "entry_price": 43.28, "exit_price": 46.36, "pnl": 8590.13, "ret": 7.12, "cost": 120707.92}, {"senator": "Sen. Tommy Tuberville", "party": "R", "ticker": "AAPL", "action": "Buy", "shares": 937, "entry_date": 1761744600000, "exit_date": 1764945000000, "entry_price": 269.7, "exit_price": 278.78, "pnl": 8507.95, "ret": 3.37, "cost": 252708.91}, {"senator": "Rep. Josh Gottheimer", "party": "D", "ticker": "SPY", "action": "Buy", "shares": 1821, "entry_date": 1732026600000, "exit_date": 1734964200000, "entry_price": 590.3, "exit_price": 594.69, "pnl": 7994.22, "ret": 0.74, "cost": 1074936.28}, {"senator": "Sen. Mark Kelly", "party": "D", "ticker": "TLT", "action": "Buy", "shares": 4492, "entry_date": 1756387800000, "exit_date": 1763562600000, "entry_price": 87.22, "exit_price": 88.88, "pnl": 7456.7, "ret": 1.9, "cost": 391792.25}, {"senator": "Sen. Cynthia Lummis", "party": "R", "ticker": "AAPL", "action": "Sell", "shares": 3290, "entry_date": 1766154600000, "exit_date": 1770301800000, "entry_price": 273.67, "exit_price": 275.91, "pnl": -7369.57, "ret": -0.82, "cost": 900374.34}, {"senator": "Sen. Jon Ossoff", "party": "D", "ticker": "SPY", "action": "Buy", "shares": 680, "entry_date": 1768228200000, "exit_date": 1771511400000, "entry_price": 695.16, "exit_price": 684.48, "pnl": -7262.4, "ret": -1.54, "cost": 472708.78}, {"senator": "Sen. Markwayne Mullin", "party": "R", "ticker": "XLF", "action": "Buy", "shares": 1389, "entry_date": 1767709800000, "exit_date": 1772548200000, "entry_price": 56.4, "exit_price": 51.21, "pnl": -7208.91, "ret": -9.2, "cost": 78339.6}, {"senator": "Sen. Cynthia Lummis", "party": "R", "ticker": "XLF", "action": "Buy", "shares": 3988, "entry_date": 1741613400000, "exit_date": 1743427800000, "entry_price": 48.02, "exit_price": 49.81, "pnl": 7138.52, "ret": 3.73, "cost": 191503.76}, {"senator": "Sen. Mark Kelly", "party": "D", "ticker": "TLT", "action": "Buy", "shares": 2132, "entry_date": 1764167400000, "exit_date": 1770301800000, "entry_price": 90.64, "exit_price": 87.48, "pnl": -6737.11, "ret": -3.49, "cost": 193244.48}, {"senator": "Sen. Mark Kelly", "party": "D", "ticker": "ARKK", "action": "Sell", "shares": 1734, "entry_date": 1742995800000, "exit_date": 1745415000000, "entry_price": 51.66, "exit_price": 47.95, "pnl": 6433.14, "ret": 7.18, "cost": 89578.44}, {"senator": "Sen. Markwayne Mullin", "party": "R", "ticker": "XLF", "action": "Buy", "shares": 1622, "entry_date": 1717767000000, "exit_date": 1725370200000, "entry_price": 41.48, "exit_price": 45.4, "pnl": 6358.24, "ret": 9.45, "cost": 67280.56}, {"senator": "Rep. Dan Crenshaw", "party": "R", "ticker": "XLE", "action": "Sell", "shares": 3385, "entry_date": 1726493400000, "exit_date": 1733841000000, "entry_price": 43.28, "exit_price": 45.12, "pnl": -6228.4, "ret": -4.25, "cost": 146519.72}, {"senator": "Sen. Jon Ossoff", "party": "D", "ticker": "XLE", "action": "Sell", "shares": 4463, "entry_date": 1765204200000, "exit_date": 1766154600000, "entry_price": 45.42, "exit_price": 44.13, "pnl": 5757.26, "ret": 2.84, "cost": 202709.45}, {"senator": "Sen. Jon Ossoff", "party": "D", "ticker": "XLF", "action": "Sell", "shares": 1747, "entry_date": 1761226200000, "exit_date": 1767796200000, "entry_price": 52.54, "exit_price": 55.61, "pnl": -5363.29, "ret": -5.84, "cost": 91787.38}, {"senator": "Rep. Nancy Pelosi", "party": "D", "ticker": "AAPL", "action": "Sell", "shares": 753, "entry_date": 1762353000000, "exit_date": 1765290600000, "entry_price": 270.14, "exit_price": 277.18, "pnl": -5301.1, "ret": -2.61, "cost": 203415.43}, {"senator": "Rep. Josh Gottheimer", "party": "D", "ticker": "AAPL", "action": "Buy", "shares": 478, "entry_date": 1722259800000, "exit_date": 1722951000000, "entry_price": 218.24, "exit_price": 207.23, "pnl": -5262.78, "ret": -5.04, "cost": 104318.72}], "spy_return": 31.55, "most_traded": [{"ticker": "DIA", "count": 15}, {"ticker": "TLT", "count": 14}, {"ticker": "AAPL", "count": 14}, {"ticker": "XLF", "count": 12}, {"ticker": "NVDA", "count": 12}, {"ticker": "QQQ", "count": 11}, {"ticker": "ARKK", "count": 11}, {"ticker": "SPY", "count": 10}, {"ticker": "SHY", "count": 9}, {"ticker": "IWM", "count": 8}], "total_trades": 143, "party_stats": {"R": {"pnl": 275544.57, "trades": 57, "avg_ret": 0.74}, "D": {"pnl": 83054.72, "trades": 86, "avg_ret": -0.51}}};
+
+// Hero
+(function(){
+  const best = DATA.senators[0];
+  const totalPnl = DATA.senators.reduce((s,x) => s + x.total_pnl, 0);
+  const avgWR = (DATA.senators.reduce((s,x) => s + x.win_rate, 0) / DATA.senators.length).toFixed(1);
+  document.getElementById('heroGrid').innerHTML = `
+    <div class="hero-card"><div class="label">Top Trader</div><div class="value gold">${best.name.split(' ').pop()}</div><div class="sub">$${best.total_pnl.toLocaleString()} P&L</div></div>
+    <div class="hero-card"><div class="label">Total Trades Tracked</div><div class="value blue">${DATA.total_trades}</div><div class="sub">${DATA.senators.length} congress members</div></div>
+    <div class="hero-card"><div class="label">Combined P&L</div><div class="value ${totalPnl>=0?'green':'red'}">$${Math.round(totalPnl).toLocaleString()}</div><div class="sub">All tracked members</div></div>
+    <div class="hero-card"><div class="label">SPY Buy & Hold</div><div class="value ${DATA.spy_return>=0?'green':'red'}">${DATA.spy_return}%</div><div class="sub">Same period benchmark</div></div>
+    <div class="hero-card"><div class="label">Avg Win Rate</div><div class="value green">${avgWR}%</div><div class="sub">Across all members</div></div>
+  `;
+})();
+
+// Leaderboard
+(function(){
+  let html = '<thead><tr><th>#</th><th>Member</th><th>Party</th><th>State</th><th>Trades</th><th>Win Rate</th><th>Avg Return</th><th>Total P&L</th></tr></thead><tbody>';
+  DATA.senators.forEach((s, i) => {
+    const rc = i < 3 ? 'rank-' + (i+1) : 'rank-n';
+    const pc = s.party === 'R' ? 'party-r' : 'party-d';
+    const ptc = s.party === 'R' ? 'party-tag-r' : 'party-tag-d';
+    const pnlClass = s.total_pnl >= 0 ? 'green' : 'red';
+    const retClass = s.avg_return >= 0 ? 'green' : 'red';
+    html += `<tr>
+      <td><span class="rank ${rc}">${i+1}</span></td>
+      <td><span class="avatar ${pc}">${s.avatar}</span>${s.name}</td>
+      <td><span class="party-tag ${ptc}">${s.party === 'R' ? 'Republican' : 'Democrat'}</span></td>
+      <td>${s.state}</td>
+      <td>${s.total_trades}</td>
+      <td>${s.win_rate}%</td>
+      <td class="${retClass}">${s.avg_return > 0 ? '+' : ''}${s.avg_return}%</td>
+      <td class="${pnlClass}"><b>$${s.total_pnl.toLocaleString()}</b></td>
+    </tr>`;
+  });
+  html += '</tbody>';
+  document.getElementById('leaderboard').innerHTML = html;
+})();
+
+// Party chart
+(function(){
+  const chart = echarts.init(document.getElementById('partyChart'));
+  const ps = DATA.party_stats;
+  chart.setOption({
+    backgroundColor:'transparent',
+    tooltip:{trigger:'axis',backgroundColor:'#fafafa',borderColor:'rgba(0,0,0,0.07)',textStyle:{color:'rgba(0,0,0,0.9)'}},
+    grid:{left:80,right:20,top:30,bottom:40},
+    xAxis:{type:'category',data:['Total P&L','Avg Return %','Total Trades'],axisLabel:{color:'rgba(0,0,0,0.5)'},axisLine:{lineStyle:{color:'rgba(0,0,0,0.07)'}}},
+    yAxis:{type:'value',axisLabel:{color:'rgba(0,0,0,0.5)'},splitLine:{lineStyle:{color:'rgba(0,0,0,0.05)'}}},
+    series:[
+      {name:'Republican',type:'bar',data:[ps.R.pnl, ps.R.avg_ret * 1000, ps.R.trades * 1000],itemStyle:{color:'#e05357'},barWidth:'30%'},
+      {name:'Democrat',type:'bar',data:[ps.D.pnl, ps.D.avg_ret * 1000, ps.D.trades * 1000],itemStyle:{color:'#49a3a6'},barWidth:'30%'}
+    ],
+    legend:{bottom:0,textStyle:{color:'rgba(0,0,0,0.5)'}}
+  });
+  window.addEventListener('resize', () => chart.resize());
+})();
+
+// Ticker chart
+(function(){
+  const chart = echarts.init(document.getElementById('tickerChart'));
+  const mt = DATA.most_traded;
+  chart.setOption({
+    backgroundColor:'transparent',
+    tooltip:{trigger:'axis',backgroundColor:'#fafafa',borderColor:'rgba(0,0,0,0.07)',textStyle:{color:'rgba(0,0,0,0.9)'}},
+    grid:{left:60,right:20,top:10,bottom:30},
+    xAxis:{type:'value',axisLabel:{color:'rgba(0,0,0,0.5)'},splitLine:{lineStyle:{color:'rgba(0,0,0,0.05)'}}},
+    yAxis:{type:'category',data:mt.map(t=>t.ticker).reverse(),axisLabel:{color:'rgba(0,0,0,0.5)',fontWeight:600},axisLine:{lineStyle:{color:'rgba(0,0,0,0.07)'}}},
+    series:[{type:'bar',data:mt.map(t=>t.count).reverse(),itemStyle:{color:new echarts.graphic.LinearGradient(0,0,1,0,[{offset:0,color:'#49a3a6'},{offset:1,color:'#a878dc'}])},barWidth:'60%',label:{show:true,position:'right',color:'rgba(0,0,0,0.9)',fontSize:12,formatter:'{c} trades'}}]
+  });
+  window.addEventListener('resize', () => chart.resize());
+})();
+
+// Equity curves — computed from actual trade data
+(function(){
+  const chart = echarts.init(document.getElementById('eqChart'));
+  const colors = ['#49a3a6','#2a9b7d','#e6a91a','#a878dc','#e05357','#79c0ff','#56d364','#e3b341','#d2a8ff','#ff7b72'];
+  const START_CAPITAL = 100000;
+  const series = DATA.senators.slice(0, 6).map((s, i) => {
+    // Get this senator's trades sorted by exit date
+    const trades = DATA.trades
+      .filter(t => t.senator === s.name)
+      .sort((a, b) => a.exit_date - b.exit_date);
+    // Build equity curve from cumulative P&L at each trade exit
+    let cumPnl = 0;
+    const points = [];
+    if (trades.length > 0) {
+      // Start point: first trade entry date at $100k
+      const firstEntry = Math.min(...trades.map(t => t.entry_date));
+      points.push([firstEntry, START_CAPITAL]);
+      trades.forEach(t => {
+        cumPnl += t.pnl;
+        points.push([t.exit_date, START_CAPITAL + cumPnl]);
+      });
+    }
+    return {
+      name: s.name.split(' ').pop(),
+      type:'line',smooth:false,symbol:'circle',symbolSize:4,
+      data: points,
+      lineStyle:{width:2},
+      itemStyle:{color:colors[i]}
+    };
+  });
+  chart.setOption({
+    backgroundColor:'transparent',
+    tooltip:{trigger:'axis',backgroundColor:'#fafafa',borderColor:'rgba(0,0,0,0.07)',textStyle:{color:'rgba(0,0,0,0.9)',fontSize:12},
+      formatter: params => {
+        let d = new Date(params[0].value[0]);
+        let ds = d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+        let html = '<b>'+ds+'</b><br>';
+        params.forEach(p => html += p.marker+' '+p.seriesName+': <b>$'+p.value[1].toLocaleString()+'</b><br>');
+        return html;
+      }
+    },
+    legend:{type:'scroll',bottom:0,textStyle:{color:'rgba(0,0,0,0.5)',fontSize:11}},
+    grid:{left:70,right:20,top:20,bottom:50},
+    xAxis:{type:'time',axisLine:{lineStyle:{color:'rgba(0,0,0,0.07)'}},axisLabel:{color:'rgba(0,0,0,0.5)',fontSize:11}},
+    yAxis:{type:'value',axisLine:{show:false},splitLine:{lineStyle:{color:'rgba(0,0,0,0.05)'}},axisLabel:{color:'rgba(0,0,0,0.5)',formatter:v=>'$'+(v/1000).toFixed(0)+'k'}},
+    series
+  });
+  window.addEventListener('resize', () => chart.resize());
+})();
+
+// Trade table
+(function(){
+  let html = '<thead><tr><th>Member</th><th>Ticker</th><th>Action</th><th>Shares</th><th>Entry</th><th>Exit</th><th>P&L</th><th>Return</th></tr></thead><tbody>';
+  DATA.trades.slice(0, 20).forEach(t => {
+    const pnlClass = t.pnl >= 0 ? 'green' : 'red';
+    const d1 = new Date(t.entry_date).toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    const d2 = new Date(t.exit_date).toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    html += `<tr>
+      <td>${t.senator.split(' ').slice(-1)}</td>
+      <td><b>${t.ticker}</b></td>
+      <td>${t.action === 'Buy' ? '🟢 Buy' : '🔴 Sell'}</td>
+      <td>${t.shares.toLocaleString()}</td>
+      <td>$${t.entry_price} (${d1})</td>
+      <td>$${t.exit_price} (${d2})</td>
+      <td class="${pnlClass}"><b>$${t.pnl.toLocaleString()}</b></td>
+      <td class="${pnlClass}">${t.ret > 0 ? '+' : ''}${t.ret}%</td>
+    </tr>`;
+  });
+  html += '</tbody>';
+  document.getElementById('tradeTable').innerHTML = html;
+})();
+</script>
+</body>
+</html>

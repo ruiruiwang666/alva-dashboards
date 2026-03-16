@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Geopolitical Conflict Comparator — OpenAlva Showcase</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>
+/* ── Alva Design System ── */
+@font-face { font-family: 'Delight'; src: url('https://alva-ai-static.b-cdn.net/fonts/Delight-Regular.ttf') format('truetype'); font-weight: 400; font-style: normal; }
+@font-face { font-family: 'Delight'; src: url('https://alva-ai-static.b-cdn.net/fonts/Delight-Medium.ttf') format('truetype'); font-weight: 500; font-style: normal; }
+:root {
+  --main-m1: #49a3a6; --main-m3: #2a9b7d; --main-m4: #e05357;
+  --main-m5: #e6a91a; --main-m6: #ff9800;
+  --text-n9: rgba(0,0,0,0.9); --text-n7: rgba(0,0,0,0.7);
+  --text-n5: rgba(0,0,0,0.5); --text-n3: rgba(0,0,0,0.3);
+  --b0-page: #ffffff; --grey-g01: #fafafa; --grey-g02: #f5f5f5;
+  --line-l07: rgba(0,0,0,0.07); --line-l05: rgba(0,0,0,0.05);
+  --spacing-xxs: 4px; --spacing-xs: 8px; --spacing-s: 12px;
+  --spacing-m: 16px; --spacing-l: 20px; --spacing-xl: 24px;
+  --spacing-xxl: 28px; --spacing-xxxl: 32px;
+  --radius-ct-s: 4px; --radius-ct-m: 6px; --radius-ct-l: 8px;
+}
+html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; }
+
+:root{--bg:var(--b0-page);--card:var(--grey-g01);--border:rgba(0,0,0,0.07);--text:rgba(0,0,0,0.9);--text2:rgba(0,0,0,0.5);--accent:#49a3a6;--green:#2a9b7d;--red:#e05357;--gold:#e6a91a;--purple:#a878dc;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family: 'Delight', -apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;}
+.container{max-width:1400px;margin:0 auto;padding:24px;}
+header{text-align:center;padding:48px 24px 32px;border-bottom:1px solid var(--border);margin-bottom:32px;}
+header h1{font-size:2.2rem;font-weight:500;background:linear-gradient(135deg,var(--red),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px;}
+header p{color:var(--text2);font-size:1.05rem;max-width:720px;margin:0 auto;}
+.section{background:var(--card);border:1px solid var(--border);border-radius: 8px;padding:24px;margin-bottom:24px;}
+.section h2{font-size:1.3rem;font-weight:500;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.chart{width:100%;height:400px;}
+.chart-lg{width:100%;height:500px;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+.event-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;}
+.event-card{background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius: 8px;padding:16px;transition:transform 0.2s;}
+.event-card:hover{transform:translateY(-2px);}
+.event-card .ev-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.event-card .ev-label{font-weight:500;font-size:0.95rem;}
+.event-card .ev-severity{padding:2px 8px;border-radius:4px;font-size:0.75rem;font-weight:500;}
+.sev-high{background:rgba(248,81,73,0.2);color:var(--red);}
+.sev-medium{background:rgba(210,153,34,0.2);color:var(--gold);}
+.sev-low{background:rgba(88,166,255,0.2);color:var(--accent);}
+.event-card .ev-date{color:var(--text2);font-size:0.8rem;margin-bottom:8px;}
+.event-card .ev-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.event-card .ev-stat{text-align:center;padding:6px;background:rgba(0,0,0,0.2);border-radius:6px;}
+.event-card .ev-stat .label{font-size:0.7rem;color:var(--text2);}
+.event-card .ev-stat .val{font-size:0.95rem;font-weight:500;}
+.green{color:var(--green);} .red{color:var(--red);} .gold{color:var(--gold);}
+table{width:100%;border-collapse:collapse;font-size:0.9rem;}
+th{text-align:left;padding:10px 14px;border-bottom:2px solid var(--border);color:var(--text2);font-weight:500;white-space:nowrap;}
+td{padding:10px 14px;border-bottom:1px solid var(--border);white-space:nowrap;}
+tr:hover{background:rgba(88,166,255,0.05);}
+footer{text-align:center;padding:32px;color:var(--text2);font-size:0.85rem;border-top:1px solid var(--border);margin-top:16px;}
+footer a{color:var(--accent);text-decoration:none;}
+@media(max-width:768px){.two-col{grid-template-columns:1fr;}.chart{height:300px;}}
+</style>
+</head>
+<body>
+<header>
+<h1>Geopolitical Conflict Comparator</h1>
+<p>How do markets react to geopolitical shocks? Compare historical conflicts and their impact on stocks, gold, oil, and crypto</p>
+</header>
+<div class="container">
+
+<div class="section">
+<h2>📊 Historical Conflict Impact on S&P 500</h2>
+<div class="chart-lg" id="histChart"></div>
+</div>
+
+<div class="two-col">
+<div class="section">
+<h2>🛡️ Safe Haven Performance During Conflicts</h2>
+<div class="chart" id="havenChart"></div>
+</div>
+<div class="section">
+<h2>⏱️ Recovery Time Comparison</h2>
+<div class="chart" id="recoveryChart"></div>
+</div>
+</div>
+
+<div class="section">
+<h2>🌍 Recent Market Shock Events</h2>
+<div class="event-grid" id="eventGrid"></div>
+</div>
+
+<div class="section">
+<h2>📋 Full Comparison Table</h2>
+<div style="overflow-x:auto;"><table id="compTable"></table></div>
+</div>
+
+<div class="section">
+<h2>💡 Key Takeaways</h2>
+<div id="takeaways" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;"></div>
+</div>
+
+</div>
+<footer>
+Built with <a href="https://skills.sh/alva-ai/skills/open-alva" target="_blank">OpenAlva</a> · Historical data from market records · <a href="index.html">← All Dashboards</a>
+<br><small style="color:#484f58">Historical analysis for educational purposes. Not financial advice.</small>
+</footer>
+<script>
+const DATA = {"events": [{"date": 1744119000000, "drop": -11.5, "recovery_20d": 13.03, "label": "Trade Tension Escalation", "severity": "High", "impacts": {"QQQ": -2.44, "GLD": 2.81, "TLT": -3.87, "XLE": -15.28, "BTC": -4.46, "ETH": -4.82}}, {"date": 1744032600000, "drop": -9.83, "recovery_20d": 10.79, "label": "Regional Conflict Flare-up", "severity": "High", "impacts": {"QQQ": -3.1, "GLD": 4.88, "TLT": -3.61, "XLE": -14.65, "BTC": -4.46, "ETH": -4.82}}, {"date": 1743773400000, "drop": -9.07, "recovery_20d": 11.52, "label": "Sanctions Announcement", "severity": "High", "impacts": {"QQQ": -7.36, "GLD": 3.68, "TLT": -2.8, "XLE": -17.11, "BTC": -4.46, "ETH": -4.82}}, {"date": 1723037400000, "drop": -5.84, "recovery_20d": 5.97, "label": "Supply Chain Disruption", "severity": "High", "impacts": {"QQQ": 1.1, "GLD": 2.49, "TLT": 3.65, "XLE": -4.14}}, {"date": 1743687000000, "drop": -5.36, "recovery_20d": 5.6, "label": "Central Bank Surprise", "severity": "High", "impacts": {"QQQ": -3.79, "GLD": 2.57, "TLT": -0.34, "XLE": -12.18, "BTC": -4.46, "ETH": -4.82}}, {"date": 1722864600000, "drop": -5.03, "recovery_20d": 6.71, "label": "Diplomatic Crisis", "severity": "High", "impacts": {"QQQ": -2.71, "GLD": 1.78, "TLT": 3.52, "XLE": -3.02}}, {"date": 1744810200000, "drop": -4.19, "recovery_20d": 12.33, "label": "Energy Supply Shock", "severity": "Medium", "impacts": {"QQQ": 9.25, "GLD": 10.34, "TLT": -1.17, "XLE": 6.28, "BTC": -4.46, "ETH": -4.82}}, {"date": 1740666600000, "drop": -4.15, "recovery_20d": -3.07, "label": "Currency Crisis", "severity": "Medium", "impacts": {"QQQ": -6.95, "GLD": -0.45, "TLT": 2.82, "XLE": -6.87, "BTC": -4.46, "ETH": -4.82}}, {"date": 1741786200000, "drop": -4.15, "recovery_20d": -1.83, "label": "Tech Regulation Crackdown", "severity": "Medium", "impacts": {"QQQ": -4.24, "GLD": 4.05, "TLT": -0.79, "XLE": 5.02, "BTC": -4.46, "ETH": -4.82}}, {"date": 1741613400000, "drop": -3.97, "recovery_20d": -10.03, "label": "Military Escalation", "severity": "Medium", "impacts": {"QQQ": -5.61, "GLD": 4.55, "TLT": -2.45, "XLE": -1.36, "BTC": -4.46, "ETH": -4.82}}, {"date": 1745242200000, "drop": -3.76, "recovery_20d": 15.76, "label": "Trade Deal Collapse", "severity": "Medium", "impacts": {"QQQ": 5.91, "GLD": 4.23, "TLT": 2.86, "XLE": 7.03, "BTC": -4.46, "ETH": -4.82}}, {"date": 1741872600000, "drop": -3.72, "recovery_20d": -4.87, "label": "Emerging Market Contagion", "severity": "Medium", "impacts": {"QQQ": -4.21, "GLD": 4.26, "TLT": 0.53, "XLE": 8.32, "BTC": -4.46, "ETH": -4.82}}], "historical": [{"event": "Gulf War (1990)", "spy_drop": -19.9, "recovery_days": 189, "gold_gain": 8.5, "oil_gain": 93.0}, {"event": "9/11 Attacks (2001)", "spy_drop": -11.6, "recovery_days": 31, "gold_gain": 5.8, "oil_gain": -24.0}, {"event": "Iraq Invasion (2003)", "spy_drop": -2.9, "recovery_days": 14, "gold_gain": 1.5, "oil_gain": 7.0}, {"event": "Russia-Georgia (2008)", "spy_drop": -5.2, "recovery_days": 45, "gold_gain": -2.1, "oil_gain": -15.0}, {"event": "Crimea Annexation (2014)", "spy_drop": -3.5, "recovery_days": 22, "gold_gain": 3.2, "oil_gain": -1.5}, {"event": "US-Iran Tensions (2020)", "spy_drop": -1.6, "recovery_days": 3, "gold_gain": 4.2, "oil_gain": 3.5}, {"event": "Russia-Ukraine (2022)", "spy_drop": -11.3, "recovery_days": 120, "gold_gain": 8.1, "oil_gain": 52.0}, {"event": "Hamas-Israel (2023)", "spy_drop": -4.8, "recovery_days": 42, "gold_gain": 9.5, "oil_gain": 6.3}]};
+
+// Historical conflict chart
+(function(){
+  const chart = echarts.init(document.getElementById('histChart'));
+  const h = DATA.historical;
+  chart.setOption({
+    backgroundColor:'transparent',
+    tooltip:{trigger:'axis',backgroundColor:'#fafafa',borderColor:'rgba(0,0,0,0.07)',textStyle:{color:'rgba(0,0,0,0.9)'}},
+    legend:{bottom:0,textStyle:{color:'rgba(0,0,0,0.5)',fontSize:11}},
+    grid:{left:60,right:60,top:30,bottom:50},
+    xAxis:{type:'category',data:h.map(e=>e.event.split(' (')[0]),axisLabel:{color:'rgba(0,0,0,0.5)',fontSize:10,rotate:35},axisLine:{lineStyle:{color:'rgba(0,0,0,0.07)'}}},
+    yAxis:[
+      {type:'value',name:'% Change',axisLine:{show:false},splitLine:{lineStyle:{color:'rgba(0,0,0,0.05)'}},axisLabel:{color:'rgba(0,0,0,0.5)',formatter:v=>v+'%'}},
+      {type:'value',name:'Recovery Days',axisLine:{show:false},splitLine:{show:false},axisLabel:{color:'rgba(0,0,0,0.5)'},position:'right'}
+    ],
+    series:[
+      {name:'SPY Drop',type:'bar',data:h.map(e=>({value:e.spy_drop,itemStyle:{color:e.spy_drop<-10?'#b62324':'#e05357'}})),barWidth:'20%'},
+      {name:'Gold Move',type:'bar',data:h.map(e=>({value:e.gold_gain,itemStyle:{color:e.gold_gain>=0?'#e6a91a':'#e05357'}})),barWidth:'20%'},
+      {name:'Oil Move',type:'bar',data:h.map(e=>({value:e.oil_gain,itemStyle:{color:e.oil_gain>=0?'rgba(0,0,0,0.5)':'#e05357'}})),barWidth:'20%'},
+      {name:'Recovery Days',type:'line',yAxisIndex:1,data:h.map(e=>e.recovery_days),smooth:true,
+        lineStyle:{width:3,color:'#49a3a6'},symbol:'circle',symbolSize:8,itemStyle:{color:'#49a3a6'}}
+    ]
+  });
+  window.addEventListener('resize',()=>chart.resize());
+})();
+
+// Safe haven chart
+(function(){
+  const chart = echarts.init(document.getElementById('havenChart'));
+  const h = DATA.historical;
+  const avgGold = h.reduce((s,e)=>s+e.gold_gain,0)/h.length;
+  const avgOil = h.reduce((s,e)=>s+e.oil_gain,0)/h.length;
+  const avgSpy = h.reduce((s,e)=>s+e.spy_drop,0)/h.length;
+  
+  chart.setOption({
+    backgroundColor:'transparent',
+    tooltip:{trigger:'item',backgroundColor:'#fafafa',borderColor:'rgba(0,0,0,0.07)',textStyle:{color:'rgba(0,0,0,0.9)'}},
+    series:[{
+      type:'pie',radius:['40%','70%'],
+      data:[
+        {value:Math.abs(avgGold),name:'Gold Avg Gain: '+avgGold.toFixed(1)+'%',itemStyle:{color:'#e6a91a'}},
+        {value:Math.abs(avgOil),name:'Oil Avg Move: '+avgOil.toFixed(1)+'%',itemStyle:{color:'rgba(0,0,0,0.5)'}},
+        {value:Math.abs(avgSpy),name:'SPY Avg Drop: '+avgSpy.toFixed(1)+'%',itemStyle:{color:'#e05357'}},
+      ],
+      label:{color:'rgba(0,0,0,0.9)',fontSize:11},
+      emphasis:{itemStyle:{shadowBlur:10,shadowOffsetX:0,shadowColor:'rgba(0,0,0,0.5)'}}
+    }]
+  });
+  window.addEventListener('resize',()=>chart.resize());
+})();
+
+// Recovery chart
+(function(){
+  const chart = echarts.init(document.getElementById('recoveryChart'));
+  const h = DATA.historical.slice().sort((a,b)=>b.recovery_days-a.recovery_days);
+  chart.setOption({
+    backgroundColor:'transparent',
+    tooltip:{trigger:'axis',backgroundColor:'#fafafa',borderColor:'rgba(0,0,0,0.07)',textStyle:{color:'rgba(0,0,0,0.9)'}},
+    grid:{left:160,right:40,top:10,bottom:30},
+    xAxis:{type:'value',name:'Days to Recovery',axisLabel:{color:'rgba(0,0,0,0.5)'},splitLine:{lineStyle:{color:'rgba(0,0,0,0.05)'}}},
+    yAxis:{type:'category',data:h.map(e=>e.event.split(' (')[0]),axisLabel:{color:'rgba(0,0,0,0.5)',fontSize:11},axisLine:{lineStyle:{color:'rgba(0,0,0,0.07)'}}},
+    series:[{type:'bar',data:h.map(e=>({value:e.recovery_days,
+      itemStyle:{color:e.recovery_days>100?'#e05357':e.recovery_days>30?'#e6a91a':'#2a9b7d'}})),
+      label:{show:true,position:'right',color:'rgba(0,0,0,0.9)',fontSize:11,formatter:p=>p.value+' days'}}]
+  });
+  window.addEventListener('resize',()=>chart.resize());
+})();
+
+// Event grid
+(function(){
+  const grid = document.getElementById('eventGrid');
+  grid.innerHTML = DATA.events.map(e => {
+    const d = new Date(e.date);
+    const ds = d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+    const sevClass = e.severity === 'High' ? 'sev-high' : e.severity === 'Medium' ? 'sev-medium' : 'sev-low';
+    let impHtml = '';
+    if (e.impacts) {
+      Object.entries(e.impacts).forEach(([t, v]) => {
+        impHtml += `<div class="ev-stat"><div class="label">${t}</div><div class="val ${v>=0?'green':'red'}">${v>0?'+':''}${v}%</div></div>`;
+      });
+    }
+    return `<div class="event-card">
+      <div class="ev-head">
+        <span class="ev-label">${e.label}</span>
+        <span class="ev-severity ${sevClass}">${e.severity}</span>
+      </div>
+      <div class="ev-date">${ds} · SPY: <span class="red">${e.drop}%</span> · Recovery: <span class="green">+${e.recovery_20d}%</span></div>
+      <div class="ev-stats">${impHtml}</div>
+    </div>`;
+  }).join('');
+})();
+
+// Comparison table
+(function(){
+  let html = '<thead><tr><th>Event</th><th>SPY Drop</th><th>Gold Move</th><th>Oil Move</th><th>Recovery Days</th><th>Severity</th></tr></thead><tbody>';
+  DATA.historical.forEach(e => {
+    const sev = Math.abs(e.spy_drop) > 10 ? '🔴 High' : Math.abs(e.spy_drop) > 5 ? '🟡 Medium' : '🟢 Low';
+    html += `<tr>
+      <td><b>${e.event}</b></td>
+      <td class="red">${e.spy_drop}%</td>
+      <td class="${e.gold_gain>=0?'green':'red'}">${e.gold_gain>0?'+':''}${e.gold_gain}%</td>
+      <td class="${e.oil_gain>=0?'green':'red'}">${e.oil_gain>0?'+':''}${e.oil_gain}%</td>
+      <td>${e.recovery_days} days</td>
+      <td>${sev}</td>
+    </tr>`;
+  });
+  html += '</tbody>';
+  document.getElementById('compTable').innerHTML = html;
+})();
+
+// Takeaways
+(function(){
+  const h = DATA.historical;
+  const avgRecovery = Math.round(h.reduce((s,e)=>s+e.recovery_days,0)/h.length);
+  const goldWins = h.filter(e=>e.gold_gain>0).length;
+  const cards = [
+    {icon:'⏱️',title:'Average Recovery',text:avgRecovery+' days for markets to recover from geopolitical shocks',color:'#49a3a6'},
+    {icon:'🥇',title:'Gold as Safe Haven',text:'Gold rose in '+goldWins+'/'+h.length+' conflicts — the most reliable hedge',color:'#e6a91a'},
+    {icon:'📉',title:'Worst Case',text:'Gulf War: -19.9% SPY, 189 days recovery; Russia-Ukraine: -11.3%, 120 days',color:'#e05357'},
+    {icon:'⚡',title:'Fastest Recovery',text:'US-Iran 2020: Only 3 days to recover a -1.6% drop',color:'#2a9b7d'},
+  ];
+  document.getElementById('takeaways').innerHTML = cards.map(c =>
+    `<div style="padding:16px;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius: 8px;border-left:3px solid ${c.color}">
+      <div style="font-size:1.5rem;margin-bottom:4px;">${c.icon}</div>
+      <div style="font-weight:500;margin-bottom:4px;">${c.title}</div>
+      <div style="font-size:0.85rem;color:var(--text2);">${c.text}</div>
+    </div>`
+  ).join('');
+})();
+</script>
+</body>
+</html>

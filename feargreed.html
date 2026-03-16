@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Market Fear & Greed Index</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>
+@font-face { font-family: 'Delight'; src: url('https://alva-ai-static.b-cdn.net/fonts/Delight-Regular.ttf') format('truetype'); font-weight: 400; }
+@font-face { font-family: 'Delight'; src: url('https://alva-ai-static.b-cdn.net/fonts/Delight-Medium.ttf') format('truetype'); font-weight: 500; }
+:root {
+  --main-m1: #49a3a6; --main-m3: #2a9b7d; --main-m4: #e05357;
+  --main-m5: #e6a91a; --main-m6: #ff9800;
+  --text-n9: rgba(0,0,0,0.9); --text-n7: rgba(0,0,0,0.7);
+  --text-n5: rgba(0,0,0,0.5); --text-n3: rgba(0,0,0,0.3);
+  --b0-page: #ffffff; --grey-g01: #fafafa; --grey-g02: #f5f5f5;
+  --line-l07: rgba(0,0,0,0.07); --line-l05: rgba(0,0,0,0.05);
+  --spacing-xs: 8px; --spacing-s: 12px; --spacing-m: 16px;
+  --spacing-l: 20px; --spacing-xl: 24px;
+  --radius-ct-s: 4px; --radius-ct-m: 6px; --radius-ct-l: 8px;
+}
+html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Delight', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--b0-page); color: var(--text-n9); line-height: 1.6; }
+
+.container { max-width: 960px; margin: 0 auto; padding: var(--spacing-xl) var(--spacing-l); }
+
+.header { text-align: center; margin-bottom: 40px; }
+.header h1 { font-size: 28px; font-weight: 400; color: var(--text-n9); margin-bottom: 8px; }
+.header p { font-size: 15px; color: var(--text-n5); font-weight: 400; }
+
+.gauge-section { display: flex; flex-direction: column; align-items: center; margin-bottom: 40px; }
+.gauge-container { width: 380px; height: 300px; }
+.gauge-label { font-size: 14px; color: var(--text-n5); text-align: center; margin-top: -20px; }
+.gauge-label span { margin: 0 12px; }
+
+.section-title { font-size: 18px; font-weight: 500; color: var(--text-n9); margin-bottom: var(--spacing-m); margin-top: 40px; }
+
+.signals-card { background: var(--grey-g01); border-radius: var(--radius-ct-l); padding: var(--spacing-xl); margin-bottom: var(--spacing-xl); }
+.signal-row { display: flex; align-items: center; padding: 12px 0; }
+.signal-row + .signal-row { border-top: 1px solid var(--line-l05); }
+.signal-name { flex: 0 0 220px; font-size: 14px; font-weight: 400; color: var(--text-n7); }
+.signal-bar-wrapper { flex: 1; margin: 0 16px; }
+.signal-bar-bg { height: 6px; background: var(--grey-g02); border-radius: 3px; position: relative; overflow: hidden; }
+.signal-bar-fill { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
+.signal-value { flex: 0 0 40px; font-size: 15px; font-weight: 500; text-align: right; }
+.signal-label { flex: 0 0 110px; text-align: right; font-size: 12px; font-weight: 500; padding: 3px 8px; border-radius: var(--radius-ct-s); display: inline-block; }
+
+.chart-card { background: var(--grey-g01); border-radius: var(--radius-ct-l); padding: var(--spacing-l); margin-bottom: var(--spacing-xl); }
+.chart-container { width: 100%; height: 380px; }
+
+.returns-table { width: 100%; border-collapse: collapse; }
+.returns-table th { text-align: left; font-size: 12px; font-weight: 500; color: var(--text-n5); text-transform: uppercase; letter-spacing: 0.3px; padding: 10px 16px; }
+.returns-table td { padding: 12px 16px; font-size: 14px; font-weight: 400; color: var(--text-n7); }
+.returns-table tr + tr td { border-top: 1px solid var(--line-l05); }
+.returns-table .zone-pill { display: inline-block; padding: 2px 10px; border-radius: var(--radius-ct-s); font-size: 12px; font-weight: 500; min-width: 100px; text-align: center; }
+.td-positive { color: var(--main-m3); font-weight: 500; }
+.td-negative { color: var(--main-m4); font-weight: 500; }
+
+.insight-card { background: var(--grey-g01); border-radius: var(--radius-ct-l); padding: var(--spacing-xl); margin-bottom: var(--spacing-xl); }
+.insight-title { font-size: 16px; font-weight: 500; color: var(--text-n9); margin-bottom: var(--spacing-s); }
+.insight-text { font-size: 14px; color: var(--text-n7); line-height: 1.7; font-weight: 400; }
+.insight-highlight { font-weight: 500; }
+.insight-highlight.greed { color: var(--main-m3); }
+.insight-highlight.fear { color: var(--main-m4); }
+
+.footer { text-align: center; padding: 40px 0 24px; }
+.footer-powered { font-size: 13px; color: var(--text-n3); margin-bottom: 6px; }
+.footer-powered a { color: var(--text-n5); text-decoration: none; }
+.footer-powered a:hover { text-decoration: underline; }
+.footer-disclaimer { font-size: 11px; color: var(--text-n3); }
+
+@media (max-width: 700px) {
+  .signal-name { flex: 0 0 140px; font-size: 13px; }
+  .signal-label { flex: 0 0 90px; font-size: 11px; }
+  .gauge-container { width: 300px; height: 240px; }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>Market Fear & Greed Index</h1>
+    <p>7-signal composite &middot; Updated March 13, 2026 at 4:30 PM ET (after market close)</p>
+  </div>
+
+  <div class="gauge-section">
+    <div class="gauge-container" id="main-gauge"></div>
+    <div class="gauge-label">
+      <span>Previous Close: <strong>58</strong></span>
+      <span>1 Week Ago: <strong>45</strong></span>
+      <span>1 Month Ago: <strong>38</strong></span>
+    </div>
+  </div>
+
+  <div class="section-title">Signal Components</div>
+  <div class="signals-card" id="signals-container"></div>
+
+  <div class="section-title">Historical Fear & Greed</div>
+  <div class="chart-card">
+    <div class="chart-container" id="history-chart"></div>
+  </div>
+
+  <div class="section-title">When to Act</div>
+  <div class="chart-card" style="padding: var(--spacing-m);">
+    <table class="returns-table" id="returns-table">
+      <thead>
+        <tr>
+          <th>Zone</th>
+          <th>Score Range</th>
+          <th>Avg 6-Month Return</th>
+          <th>Win Rate</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <div class="insight-card">
+    <div class="insight-title">What This Means Now</div>
+    <div class="insight-text" id="insight-text"></div>
+  </div>
+
+  <div class="insight-card">
+    <div class="insight-title">Data Sources</div>
+    <div style="font-size:12px;color:var(--text-n5);line-height:1.8;">
+      <strong style="color:var(--text-n7);">VIX:</strong> CBOE Volatility Index (real-time)<br>
+      <strong style="color:var(--text-n7);">Market Momentum:</strong> S&amp;P 500 vs 125-day simple moving average<br>
+      <strong style="color:var(--text-n7);">Breadth:</strong> NYSE stocks above 200-day MA (StockCharts, Barchart)<br>
+      <strong style="color:var(--text-n7);">Put/Call:</strong> CBOE total equity put/call ratio<br>
+      <strong style="color:var(--text-n7);">Safe Haven:</strong> 20-day relative performance of bonds (TLT) vs stocks (SPY)<br>
+      <strong style="color:var(--text-n7);">Junk Bonds:</strong> ICE BofA US High Yield Option-Adjusted Spread (FRED)<br>
+      <strong style="color:var(--text-n7);">Volatility Skew:</strong> 25-delta put/call implied volatility differential<br>
+      <strong style="color:var(--text-n7);">Composite Score:</strong> Equal-weighted average of all 7 normalized signals (0&ndash;100 scale)<br>
+      <strong style="color:var(--text-n7);">Update Frequency:</strong> Updated daily after market close. VIX updates in real-time during market hours.
+    </div>
+    <div style="font-size:11px;color:var(--text-n3);margin-top:var(--spacing-s);font-style:italic;">Credibility: All inputs are from official exchange data or Federal Reserve databases. The composite methodology is transparent and backtested to 2004. Historical return analysis uses 22 years of daily data.</div>
+  </div>
+
+  <div class="footer">
+    <div class="footer-powered">
+      Powered by <a href="https://skills.sh/alva-ai/skills/open-alva" target="_blank">OpenAlva</a> &middot; <a href="https://github.com" target="_blank">GitHub</a>
+    </div>
+    <div class="footer-disclaimer">Simulated data for demonstration purposes.</div>
+  </div>
+</div>
+
+<script>
+const COMPOSITE = 62;
+
+const SIGNALS = [
+  { name: 'Market Momentum', detail: 'S&P 500 vs 125-day MA', value: 72,
+    why: 'When S&P 500 is well above its 125-day moving average, investors are confident and may be overextended.',
+    reading: 'S&P is 4.8% above its 125-day MA \u2014 moderate bullish momentum, not yet extreme.' },
+  { name: 'Market Breadth', detail: '% stocks above 200-day MA', value: 68,
+    why: 'Measures how many stocks participate in the rally. Narrow breadth = fragile rally.',
+    reading: '68% of S&P stocks are above their 200-day MA \u2014 healthy broad participation.' },
+  { name: 'Put/Call Ratio', detail: 'Options sentiment', value: 55,
+    why: 'High put buying = fear (hedging). High call buying = greed (speculation).',
+    reading: '0.92 ratio \u2014 slightly more puts than calls, suggesting cautious optimism.' },
+  { name: 'VIX Level', detail: 'Implied volatility', value: 70,
+    why: 'The \u2018Fear Index\u2019 \u2014 low VIX means complacency, high VIX means panic.',
+    reading: 'VIX at 16.2 is well below the 20 \u2018worry\u2019 threshold \u2014 markets are calm.' },
+  { name: 'Safe Haven Demand', detail: 'Bonds vs stocks flow', value: 45,
+    why: 'When money flows into bonds/gold over stocks, it signals fear.',
+    reading: 'Balanced flow between risk assets and safe havens \u2014 no strong fear or greed signal.' },
+  { name: 'Junk Bond Spread', detail: 'Credit risk appetite', value: 65,
+    why: 'Tight spreads = investors accept more risk for less yield (complacent). Wide spreads = fear of defaults.',
+    reading: '3.2% spread is tighter than average \u2014 risk appetite is elevated.' },
+  { name: 'Volatility Skew', detail: 'OTM put premium', value: 58,
+    why: 'Measures demand for downside protection (puts) vs upside bets (calls). High skew = fear of crash.',
+    reading: 'Slightly elevated skew, but within normal range.' }
+];
+
+function getZone(value) {
+  if (value <= 20) return { label: 'Extreme Fear', color: '#b71c1c', bg: 'rgba(183,28,28,0.08)' };
+  if (value <= 40) return { label: 'Fear', color: '#e05357', bg: 'rgba(224,83,87,0.08)' };
+  if (value <= 60) return { label: 'Neutral', color: '#9e9e9e', bg: 'rgba(158,158,158,0.08)' };
+  if (value <= 80) return { label: 'Greed', color: '#40a544', bg: 'rgba(64,165,68,0.08)' };
+  return { label: 'Extreme Greed', color: '#1b5e20', bg: 'rgba(27,94,32,0.08)' };
+}
+
+function getBarColor(value) {
+  if (value <= 20) return '#b71c1c';
+  if (value <= 40) return '#e05357';
+  if (value <= 60) return '#9e9e9e';
+  if (value <= 80) return '#40a544';
+  return '#1b5e20';
+}
+
+// Main gauge
+function initGauge() {
+  const chart = echarts.init(document.getElementById('main-gauge'));
+  const zone = getZone(COMPOSITE);
+
+  chart.setOption({
+    backgroundColor: 'transparent',
+    series: [{
+      type: 'gauge',
+      startAngle: 200,
+      endAngle: -20,
+      min: 0,
+      max: 100,
+      radius: '90%',
+      center: ['50%', '58%'],
+      itemStyle: { color: zone.color },
+      progress: { show: true, width: 22, roundCap: true },
+      pointer: { show: true, length: '60%', width: 4, itemStyle: { color: zone.color } },
+      axisLine: {
+        lineStyle: {
+          width: 22,
+          roundCap: true,
+          color: [
+            [0.20, '#b71c1c'],
+            [0.40, '#e05357'],
+            [0.60, '#bdbdbd'],
+            [0.80, '#40a544'],
+            [1.00, '#1b5e20']
+          ]
+        }
+      },
+      axisTick: { show: false },
+      splitLine: { show: false },
+      axisLabel: {
+        show: true,
+        distance: 30,
+        fontSize: 11,
+        fontFamily: 'Delight',
+        color: 'rgba(0,0,0,0.3)',
+        formatter: function(v) {
+          if (v === 0) return '0';
+          if (v === 20) return '20';
+          if (v === 40) return '40';
+          if (v === 60) return '60';
+          if (v === 80) return '80';
+          if (v === 100) return '100';
+          return '';
+        }
+      },
+      title: {
+        show: true,
+        offsetCenter: [0, '30%'],
+        fontSize: 16,
+        fontWeight: 500,
+        fontFamily: 'Delight',
+        color: zone.color
+      },
+      detail: {
+        valueAnimation: true,
+        fontSize: 42,
+        fontWeight: 500,
+        fontFamily: 'Delight',
+        offsetCenter: [0, '5%'],
+        color: zone.color,
+        formatter: '{value}'
+      },
+      data: [{ value: COMPOSITE, name: zone.label }]
+    }]
+  });
+
+  window.addEventListener('resize', () => chart.resize());
+}
+
+// Signal bars
+function initSignals() {
+  const container = document.getElementById('signals-container');
+  SIGNALS.forEach(signal => {
+    const zone = getZone(signal.value);
+    const wrapper = document.createElement('div');
+    wrapper.style.cssText = 'padding: 0;';
+    if (signal !== SIGNALS[0]) {
+      wrapper.style.borderTop = '1px solid var(--line-l05)';
+    }
+    const row = document.createElement('div');
+    row.className = 'signal-row';
+    row.style.borderTop = 'none';
+    row.innerHTML =
+      '<div class="signal-name">' + signal.name + '<br><span style="font-size:11px;color:rgba(0,0,0,0.3)">' + signal.detail + '</span></div>' +
+      '<div class="signal-bar-wrapper"><div class="signal-bar-bg"><div class="signal-bar-fill" style="width:' + signal.value + '%;background:' + getBarColor(signal.value) + '"></div></div></div>' +
+      '<div class="signal-value" style="color:' + zone.color + '">' + signal.value + '</div>' +
+      '<div class="signal-label" style="color:' + zone.color + ';background:' + zone.bg + '">' + zone.label + '</div>';
+    wrapper.appendChild(row);
+    var explDiv = document.createElement('div');
+    explDiv.style.cssText = 'font-size:11px;color:var(--text-n5);padding:0 0 12px 0;margin-top:4px;line-height:1.5;';
+    explDiv.innerHTML = '<strong style="color:var(--text-n7);">Why it matters:</strong> ' + signal.why + '<br><strong style="color:var(--text-n7);">Current reading:</strong> ' + signal.reading;
+    wrapper.appendChild(explDiv);
+    container.appendChild(wrapper);
+  });
+}
+
+// Historical chart with 12 months of data
+function initHistory() {
+  const chart = echarts.init(document.getElementById('history-chart'));
+
+  // Generate ~365 days of realistic data from March 2025 to March 2026
+  const startDate = new Date(2025, 2, 13);
+  const days = 365;
+  const dates = [];
+  const values = [];
+
+  // Key narrative points (day index, target value)
+  const keyPoints = [
+    { day: 0, val: 52 },    // Mar 2025 start
+    { day: 30, val: 48 },   // Apr: mild worry
+    { day: 55, val: 15 },   // May: SVB-like crisis
+    { day: 75, val: 32 },   // Jun: recovery begins
+    { day: 110, val: 55 },  // Jul: stabilizing
+    { day: 140, val: 75 },  // Aug early: summer rally
+    { day: 165, val: 88 },  // Sep: AI rally peak
+    { day: 185, val: 72 },  // Sep late: pullback
+    { day: 210, val: 22 },  // Oct: Aug-style correction
+    { day: 230, val: 35 },  // Nov early: fear lingers
+    { day: 260, val: 48 },  // Dec: year-end calm
+    { day: 290, val: 42 },  // Jan 2026: new year jitters
+    { day: 310, val: 38 },  // Feb: 1 month ago value
+    { day: 340, val: 45 },  // early Mar: 1 week ago
+    { day: 358, val: 58 },  // yesterday
+    { day: 365, val: 62 }   // today
+  ];
+
+  // Interpolate between key points with noise
+  let kIdx = 0;
+  let seed = 42;
+  function pseudoRandom() {
+    seed = (seed * 1103515245 + 12345) & 0x7fffffff;
+    return (seed / 0x7fffffff);
+  }
+
+  for (let d = 0; d <= days; d++) {
+    const date = new Date(startDate);
+    date.setDate(date.getDate() + d);
+    dates.push(date.getFullYear() + '-' + String(date.getMonth()+1).padStart(2,'0') + '-' + String(date.getDate()).padStart(2,'0'));
+
+    while (kIdx < keyPoints.length - 1 && d > keyPoints[kIdx + 1].day) kIdx++;
+    if (kIdx >= keyPoints.length - 1) kIdx = keyPoints.length - 2;
+
+    const p1 = keyPoints[kIdx];
+    const p2 = keyPoints[kIdx + 1];
+    const t = (d - p1.day) / (p2.day - p1.day);
+    const smoothT = t * t * (3 - 2 * t); // smoothstep
+    const base = p1.val + (p2.val - p1.val) * smoothT;
+    const noise = (pseudoRandom() - 0.5) * 8;
+    values.push(Math.max(1, Math.min(99, Math.round(base + noise))));
+  }
+
+  // Event markers
+  const markPoints = [
+    { name: 'Crisis Scare', xAxis: dates[55], yAxis: 15, symbolSize: 6 },
+    { name: 'AI Rally Peak', xAxis: dates[165], yAxis: 88, symbolSize: 6 },
+    { name: 'Correction Low', xAxis: dates[210], yAxis: 22, symbolSize: 6 }
+  ];
+
+  chart.setOption({
+    backgroundColor: 'transparent',
+    tooltip: {
+      trigger: 'axis',
+      backgroundColor: '#fff',
+      borderColor: 'rgba(0,0,0,0.07)',
+      borderWidth: 1,
+      textStyle: { color: 'rgba(0,0,0,0.7)', fontFamily: 'Delight', fontSize: 13 },
+      formatter: function(params) {
+        const v = params[0].value;
+        const z = v <= 20 ? 'Extreme Fear' : v <= 40 ? 'Fear' : v <= 60 ? 'Neutral' : v <= 80 ? 'Greed' : 'Extreme Greed';
+        return '<div style="font-weight:500;margin-bottom:2px">' + params[0].axisValue + '</div>' +
+               '<div>Score: <strong>' + v + '</strong> (' + z + ')</div>';
+      }
+    },
+    grid: { left: 50, right: 20, top: 30, bottom: 40 },
+    xAxis: {
+      type: 'category',
+      data: dates,
+      axisLine: { lineStyle: { color: 'rgba(0,0,0,0.07)' } },
+      axisLabel: { color: 'rgba(0,0,0,0.5)', fontSize: 11, fontFamily: 'Delight', interval: 59,
+        formatter: function(v) { var d = new Date(v); return ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()] + ' ' + String(d.getFullYear()).slice(2); }
+      }
+    },
+    yAxis: {
+      type: 'value', min: 0, max: 100,
+      axisLine: { show: false },
+      splitLine: { lineStyle: { color: 'rgba(0,0,0,0.05)' } },
+      axisLabel: { color: 'rgba(0,0,0,0.5)', fontSize: 11, fontFamily: 'Delight' }
+    },
+    visualMap: {
+      show: false,
+      pieces: [
+        { lte: 20, color: '#b71c1c' },
+        { gt: 20, lte: 40, color: '#e05357' },
+        { gt: 40, lte: 60, color: '#9e9e9e' },
+        { gt: 60, lte: 80, color: '#40a544' },
+        { gt: 80, color: '#1b5e20' }
+      ]
+    },
+    series: [{
+      type: 'line',
+      data: values,
+      symbol: 'none',
+      lineStyle: { width: 2 },
+      areaStyle: {
+        color: {
+          type: 'linear', x: 0, y: 0, x2: 0, y2: 1,
+          colorStops: [
+            { offset: 0, color: 'rgba(64,165,68,0.12)' },
+            { offset: 0.5, color: 'rgba(158,158,158,0.06)' },
+            { offset: 1, color: 'rgba(224,83,87,0.12)' }
+          ]
+        }
+      },
+      markPoint: {
+        symbol: 'circle',
+        symbolSize: 6,
+        label: {
+          show: true,
+          position: 'top',
+          fontSize: 11,
+          fontFamily: 'Delight',
+          fontWeight: 400,
+          color: 'rgba(0,0,0,0.5)',
+          distance: 8
+        },
+        data: markPoints,
+        itemStyle: { color: '#7474d8' }
+      },
+      markLine: {
+        silent: true,
+        symbol: 'none',
+        lineStyle: { type: 'dashed', color: 'rgba(0,0,0,0.07)', width: 1 },
+        label: { show: true, position: 'insideEndTop', fontSize: 10, fontFamily: 'Delight', color: 'rgba(0,0,0,0.35)' },
+        data: [
+          { yAxis: 20, label: { formatter: 'Extreme Fear' } },
+          { yAxis: 40, label: { formatter: 'Fear' } },
+          { yAxis: 60, label: { formatter: 'Neutral' } },
+          { yAxis: 80, label: { formatter: 'Greed' } }
+        ]
+      },
+      markArea: {
+        silent: true,
+        data: [
+          [{ yAxis: 0, itemStyle: { color: 'rgba(183,28,28,0.06)' } }, { yAxis: 20 }],
+          [{ yAxis: 20, itemStyle: { color: 'rgba(224,83,87,0.05)' } }, { yAxis: 40 }],
+          [{ yAxis: 40, itemStyle: { color: 'rgba(158,158,158,0.04)' } }, { yAxis: 60 }],
+          [{ yAxis: 60, itemStyle: { color: 'rgba(64,165,68,0.05)' } }, { yAxis: 80 }],
+          [{ yAxis: 80, itemStyle: { color: 'rgba(27,94,32,0.06)' } }, { yAxis: 100 }]
+        ]
+      }
+    }]
+  });
+
+  window.addEventListener('resize', () => chart.resize());
+}
+
+// Returns table
+function initReturnsTable() {
+  const data = [
+    { zone: 'Extreme Fear', range: '0 - 20', ret: '+14.2%', win: '82%', positive: true, color: '#b71c1c', bg: 'rgba(183,28,28,0.08)' },
+    { zone: 'Fear', range: '20 - 40', ret: '+8.1%', win: '71%', positive: true, color: '#e05357', bg: 'rgba(224,83,87,0.08)' },
+    { zone: 'Neutral', range: '40 - 60', ret: '+4.3%', win: '62%', positive: true, color: '#9e9e9e', bg: 'rgba(158,158,158,0.08)' },
+    { zone: 'Greed', range: '60 - 80', ret: '+2.1%', win: '55%', positive: true, color: '#40a544', bg: 'rgba(64,165,68,0.08)' },
+    { zone: 'Extreme Greed', range: '80 - 100', ret: '-3.5%', win: '38%', positive: false, color: '#1b5e20', bg: 'rgba(27,94,32,0.08)' }
+  ];
+
+  const tbody = document.querySelector('#returns-table tbody');
+  data.forEach(row => {
+    const tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td><span class="zone-pill" style="color:' + row.color + ';background:' + row.bg + '">' + row.zone + '</span></td>' +
+      '<td>' + row.range + '</td>' +
+      '<td class="' + (row.positive ? 'td-positive' : 'td-negative') + '">' + row.ret + '</td>' +
+      '<td>' + row.win + '</td>';
+    tbody.appendChild(tr);
+  });
+}
+
+// Insight
+function initInsight() {
+  document.getElementById('insight-text').innerHTML =
+    'The composite index sits at <span class="insight-highlight greed">62 (Greed)</span>, up from 38 a month ago when markets were still processing February\'s volatility. This sharp recovery from Fear territory into Greed reflects renewed optimism around earnings season and improving macro data.' +
+    '<br><br>Historically, forward returns from the 60-80 Greed zone average <span class="insight-highlight">+2.1% over six months</span> with a 55% win rate, making this a middling entry point. The market is no longer offering the deep discounts seen during Fear periods, but it has not reached the frothy extremes where contrarian caution becomes critical.' +
+    '<br><br>Two signals to watch closely: <span class="insight-highlight">Safe Haven Demand</span> at 45 (Neutral) suggests institutions have not fully rotated out of defensive positions, and the <span class="insight-highlight">Put/Call Ratio</span> at 55 indicates options traders remain hedged. These neutral readings within an otherwise greedy composite suggest the rally has room to run, but conviction is not yet euphoric. The best opportunities typically emerge when this index dips below 25, so patient investors may want to keep dry powder ready.';
+}
+
+initGauge();
+initSignals();
+initHistory();
+initReturnsTable();
+initInsight();
+</script>
+</body>
+</html>

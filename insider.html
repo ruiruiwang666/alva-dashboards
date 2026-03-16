@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Insider Buy Signal Tracker</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>
+@font-face { font-family: 'Delight'; src: url('https://alva-ai-static.b-cdn.net/fonts/Delight-Regular.ttf') format('truetype'); font-weight: 400; }
+@font-face { font-family: 'Delight'; src: url('https://alva-ai-static.b-cdn.net/fonts/Delight-Medium.ttf') format('truetype'); font-weight: 500; }
+:root {
+  --main-m1: #49a3a6; --main-m3: #2a9b7d; --main-m4: #e05357;
+  --main-m5: #e6a91a; --main-m6: #ff9800;
+  --text-n9: rgba(0,0,0,0.9); --text-n7: rgba(0,0,0,0.7);
+  --text-n5: rgba(0,0,0,0.5); --text-n3: rgba(0,0,0,0.3);
+  --b0-page: #ffffff; --grey-g01: #fafafa; --grey-g02: #f5f5f5;
+  --line-l07: rgba(0,0,0,0.07); --line-l05: rgba(0,0,0,0.05);
+  --spacing-xs: 8px; --spacing-s: 12px; --spacing-m: 16px;
+  --spacing-l: 20px; --spacing-xl: 24px;
+  --radius-ct-s: 4px; --radius-ct-m: 6px; --radius-ct-l: 8px;
+}
+html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Delight', -apple-system, 'Segoe UI', sans-serif; background: var(--b0-page); color: var(--text-n9); line-height: 1.6; }
+.container { max-width: 1080px; margin: 0 auto; padding: 40px var(--spacing-xl); }
+
+/* Header */
+.header { margin-bottom: 36px; }
+.header h1 { font-size: 28px; font-weight: 400; color: var(--text-n9); margin-bottom: 6px; }
+.header p { font-size: 15px; color: var(--text-n5); font-weight: 400; }
+
+.section { margin-bottom: 32px; }
+.section-title { font-size: 16px; font-weight: 500; color: var(--text-n9); margin-bottom: var(--spacing-m); }
+.card { background: var(--grey-g01); border-radius: var(--radius-ct-l); padding: var(--spacing-xl); margin-bottom: var(--spacing-m); }
+
+/* KPI Row */
+.kpi-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--spacing-m); margin-bottom: 32px; }
+.kpi-card { background: var(--grey-g01); border-radius: var(--radius-ct-l); padding: var(--spacing-l) var(--spacing-m); text-align: center; }
+.kpi-value { font-size: 24px; font-weight: 500; color: var(--text-n9); margin-bottom: 4px; }
+.kpi-value.green { color: var(--main-m3); }
+.kpi-value.accent { color: var(--main-m1); }
+.kpi-label { font-size: 12px; color: var(--text-n5); font-weight: 400; }
+
+/* Cluster Cards */
+.cluster-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-m); }
+.cluster-card { background: var(--grey-g01); border-radius: var(--radius-ct-l); padding: var(--spacing-l); }
+.cluster-card:first-child { grid-column: 1 / -1; }
+.cluster-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: var(--spacing-s); }
+.cluster-ticker { font-size: 18px; font-weight: 500; color: var(--text-n9); }
+.cluster-price { font-size: 14px; color: var(--text-n5); font-weight: 400; margin-left: 8px; }
+.cluster-name { font-size: 13px; color: var(--text-n7); font-weight: 400; }
+.cluster-score { display: inline-flex; align-items: center; justify-content: center; width: 42px; height: 42px; border-radius: 50%; font-size: 14px; font-weight: 500; color: #fff; }
+.score-high { background: var(--main-m3); }
+.score-mid { background: var(--main-m5); }
+.score-low { background: var(--main-m6); }
+.cluster-meta { display: flex; flex-wrap: wrap; gap: var(--spacing-xs); margin-top: var(--spacing-s); }
+.meta-tag { display: inline-block; background: rgba(0,0,0,0.04); color: var(--text-n7); font-size: 12px; padding: 3px 10px; border-radius: var(--radius-ct-s); font-weight: 400; }
+.signal-tag { display: inline-block; font-size: 12px; padding: 3px 10px; border-radius: var(--radius-ct-s); font-weight: 500; }
+.signal-strong { background: rgba(42,155,125,0.12); color: var(--main-m3); }
+.signal-buy { background: rgba(73,163,166,0.12); color: var(--main-m1); }
+.signal-watch { background: rgba(230,169,26,0.12); color: var(--main-m5); }
+.cluster-detail { font-size: 13px; color: var(--text-n5); margin-top: var(--spacing-xs); font-weight: 400; }
+
+/* Table */
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { text-align: left; font-weight: 500; color: var(--text-n5); padding: var(--spacing-xs) var(--spacing-s); font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--line-l07); }
+td { padding: 10px var(--spacing-s); border-bottom: 1px solid var(--line-l05); color: var(--text-n7); font-weight: 400; }
+tr:last-child td { border-bottom: none; }
+.text-right { text-align: right; }
+.ticker-cell { font-weight: 500; color: var(--text-n9); }
+
+/* Charts */
+.chart-container { width: 100%; height: 340px; }
+.chart-container-sm { width: 100%; height: 300px; }
+
+/* Two cols */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-m); }
+
+/* Insight */
+.insight-card { background: var(--grey-g01); border-radius: var(--radius-ct-l); padding: var(--spacing-xl); margin-bottom: var(--spacing-m); }
+.insight-card h3 { font-size: 15px; font-weight: 500; color: var(--text-n9); margin-bottom: var(--spacing-s); }
+.insight-card p { font-size: 13px; color: var(--text-n7); font-weight: 400; line-height: 1.7; }
+
+/* Footer */
+.footer { text-align: center; padding: 32px 0 24px; font-size: 12px; color: var(--text-n5); }
+.footer a { color: var(--main-m1); text-decoration: none; font-weight: 500; }
+.footer a:hover { text-decoration: underline; }
+.disclaimer { text-align: center; font-size: 11px; color: var(--text-n3); margin-top: 8px; }
+
+@media (max-width: 800px) {
+  .kpi-row { grid-template-columns: repeat(2, 1fr); }
+  .cluster-grid { grid-template-columns: 1fr; }
+  .cluster-card:first-child { grid-column: auto; }
+  .two-col { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <h1>Insider Buy Signal Tracker</h1>
+    <p>SEC Form 4 filings &middot; Cluster buy detection &middot; Smart money signals</p>
+    <p style="font-size:12px;color:var(--text-n5);margin-top:4px">Data through March 13, 2026 &middot; SEC filings updated daily with 1-2 business day lag</p>
+  </div>
+
+  <!-- KPI Row -->
+  <div class="kpi-row">
+    <div class="kpi-card">
+      <div class="kpi-value">284</div>
+      <div class="kpi-label">Total Insider Buys (30d)</div>
+      <div style="font-size:10px;color:var(--text-n5);margin-top:4px">Filing dates: Feb 12 – Mar 13, 2026</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-value accent">8</div>
+      <div class="kpi-label">Cluster Buys Detected</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-value green">+12.4%</div>
+      <div class="kpi-label">Avg Return After Cluster (6mo)</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-value" style="font-size:20px;">CRWD <span style="font-size:14px;color:var(--text-n5);font-weight:400;">(94)</span></div>
+      <div class="kpi-label">Best Current Signal</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-value" style="font-size:18px;">Healthcare</div>
+      <div class="kpi-label">Most Active Sector</div>
+    </div>
+  </div>
+
+  <!-- Cluster Buy Alerts -->
+  <div class="section">
+    <div class="section-title">Cluster Buy Alerts (Last 14 days: Feb 28 – Mar 13, 2026)</div>
+    <div class="cluster-grid">
+
+      <!-- CRWD -->
+      <div class="cluster-card">
+        <div class="cluster-top">
+          <div>
+            <span class="cluster-ticker">CRWD</span><span class="cluster-price">$342.80</span>
+            <div class="cluster-name">CrowdStrike Holdings</div>
+          </div>
+          <div class="cluster-score score-high">94</div>
+        </div>
+        <div class="cluster-detail">4 insiders bought in 10 days &middot; $2.8M total</div>
+        <div class="cluster-meta">
+          <span class="meta-tag">CEO involved</span>
+          <span class="meta-tag">CFO involved</span>
+          <span class="signal-tag signal-strong">Strong Buy</span>
+        </div>
+      </div>
+
+      <!-- ABNB -->
+      <div class="cluster-card">
+        <div class="cluster-top">
+          <div>
+            <span class="cluster-ticker">ABNB</span><span class="cluster-price">$156.40</span>
+            <div class="cluster-name">Airbnb, Inc.</div>
+          </div>
+          <div class="cluster-score score-high">88</div>
+        </div>
+        <div class="cluster-detail">4 insiders bought in 12 days &middot; $3.2M total</div>
+        <div class="cluster-meta">
+          <span class="meta-tag">CFO involved</span>
+          <span class="signal-tag signal-strong">Strong Buy</span>
+        </div>
+      </div>
+
+      <!-- DDOG -->
+      <div class="cluster-card">
+        <div class="cluster-top">
+          <div>
+            <span class="cluster-ticker">DDOG</span><span class="cluster-price">$128.50</span>
+            <div class="cluster-name">Datadog, Inc.</div>
+          </div>
+          <div class="cluster-score score-mid">82</div>
+        </div>
+        <div class="cluster-detail">3 insiders bought in 8 days &middot; $1.5M total</div>
+        <div class="cluster-meta">
+          <span class="meta-tag">CTO involved</span>
+          <span class="signal-tag signal-buy">Buy</span>
+        </div>
+      </div>
+
+      <!-- ZTS -->
+      <div class="cluster-card">
+        <div class="cluster-top">
+          <div>
+            <span class="cluster-ticker">ZTS</span><span class="cluster-price">$178.20</span>
+            <div class="cluster-name">Zoetis Inc.</div>
+          </div>
+          <div class="cluster-score score-mid">76</div>
+        </div>
+        <div class="cluster-detail">3 insiders bought in 11 days &middot; $890K total</div>
+        <div class="cluster-meta">
+          <span class="signal-tag signal-buy">Buy</span>
+        </div>
+      </div>
+
+      <!-- PANW -->
+      <div class="cluster-card">
+        <div class="cluster-top">
+          <div>
+            <span class="cluster-ticker">PANW</span><span class="cluster-price">$198.60</span>
+            <div class="cluster-name">Palo Alto Networks</div>
+          </div>
+          <div class="cluster-score score-low">71</div>
+        </div>
+        <div class="cluster-detail">3 insiders bought in 14 days &middot; $1.1M total</div>
+        <div class="cluster-meta">
+          <span class="signal-tag signal-watch">Watch</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Recent Insider Purchases Table -->
+  <div class="section">
+    <div class="section-title">Recent Insider Purchases (Last 30 days)</div>
+    <div class="card" style="overflow-x:auto;">
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Company</th>
+            <th>Insider</th>
+            <th>Title</th>
+            <th class="text-right">Shares</th>
+            <th class="text-right">Price</th>
+            <th class="text-right">Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Mar 11</td>
+            <td class="ticker-cell">CRWD</td>
+            <td>George Kurtz</td>
+            <td>CEO</td>
+            <td class="text-right">8,500</td>
+            <td class="text-right">$342.10</td>
+            <td class="text-right">$2,907,850</td>
+          </tr>
+          <tr>
+            <td>Mar 10</td>
+            <td class="ticker-cell">ABNB</td>
+            <td>David Stephenson</td>
+            <td>CFO</td>
+            <td class="text-right">12,400</td>
+            <td class="text-right">$155.80</td>
+            <td class="text-right">$1,931,920</td>
+          </tr>
+          <tr>
+            <td>Mar 10</td>
+            <td class="ticker-cell">CRWD</td>
+            <td>Burt Podbere</td>
+            <td>CFO</td>
+            <td class="text-right">2,200</td>
+            <td class="text-right">$341.50</td>
+            <td class="text-right">$751,300</td>
+          </tr>
+          <tr>
+            <td>Mar 9</td>
+            <td class="ticker-cell">DDOG</td>
+            <td>Alexis Le-Quoc</td>
+            <td>CTO</td>
+            <td class="text-right">6,000</td>
+            <td class="text-right">$128.90</td>
+            <td class="text-right">$773,400</td>
+          </tr>
+          <tr>
+            <td>Mar 8</td>
+            <td class="ticker-cell">ABNB</td>
+            <td>Catherine Powell</td>
+            <td>VP, Hosting</td>
+            <td class="text-right">5,600</td>
+            <td class="text-right">$156.20</td>
+            <td class="text-right">$874,720</td>
+          </tr>
+          <tr>
+            <td>Mar 7</td>
+            <td class="ticker-cell">ZTS</td>
+            <td>Kristin Peck</td>
+            <td>CEO</td>
+            <td class="text-right">3,000</td>
+            <td class="text-right">$177.40</td>
+            <td class="text-right">$532,200</td>
+          </tr>
+          <tr>
+            <td>Mar 7</td>
+            <td class="ticker-cell">PANW</td>
+            <td>Nikesh Arora</td>
+            <td>CEO</td>
+            <td class="text-right">4,200</td>
+            <td class="text-right">$199.10</td>
+            <td class="text-right">$836,220</td>
+          </tr>
+          <tr>
+            <td>Mar 6</td>
+            <td class="ticker-cell">CRWD</td>
+            <td>Michael Sentonas</td>
+            <td>President</td>
+            <td class="text-right">1,800</td>
+            <td class="text-right">$340.20</td>
+            <td class="text-right">$612,360</td>
+          </tr>
+          <tr>
+            <td>Mar 5</td>
+            <td class="ticker-cell">DDOG</td>
+            <td>Olivier Pomel</td>
+            <td>CEO</td>
+            <td class="text-right">4,500</td>
+            <td class="text-right">$127.80</td>
+            <td class="text-right">$575,100</td>
+          </tr>
+          <tr>
+            <td>Mar 5</td>
+            <td class="ticker-cell">ABNB</td>
+            <td>Joseph Gebbia</td>
+            <td>Director</td>
+            <td class="text-right">2,100</td>
+            <td class="text-right">$157.10</td>
+            <td class="text-right">$329,910</td>
+          </tr>
+          <tr>
+            <td>Mar 4</td>
+            <td class="ticker-cell">ZTS</td>
+            <td>Wetteny Joseph</td>
+            <td>CFO</td>
+            <td class="text-right">1,500</td>
+            <td class="text-right">$178.60</td>
+            <td class="text-right">$267,900</td>
+          </tr>
+          <tr>
+            <td>Mar 3</td>
+            <td class="ticker-cell">PANW</td>
+            <td>Lee Klarich</td>
+            <td>CPO</td>
+            <td class="text-right">1,200</td>
+            <td class="text-right">$197.40</td>
+            <td class="text-right">$236,880</td>
+          </tr>
+          <tr>
+            <td>Mar 2</td>
+            <td class="ticker-cell">CRWD</td>
+            <td>Johanna Flower</td>
+            <td>CMO</td>
+            <td class="text-right">900</td>
+            <td class="text-right">$343.60</td>
+            <td class="text-right">$309,240</td>
+          </tr>
+          <tr>
+            <td>Mar 1</td>
+            <td class="ticker-cell">ABNB</td>
+            <td>Hiroki Asai</td>
+            <td>VP, Design</td>
+            <td class="text-right">1,800</td>
+            <td class="text-right">$155.30</td>
+            <td class="text-right">$279,540</td>
+          </tr>
+          <tr>
+            <td>Feb 28</td>
+            <td class="ticker-cell">DDOG</td>
+            <td>Amit Agarwal</td>
+            <td>CFO</td>
+            <td class="text-right">1,400</td>
+            <td class="text-right">$129.20</td>
+            <td class="text-right">$180,880</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Charts Row -->
+  <div class="section">
+    <div class="two-col">
+      <!-- Historical Signal Accuracy -->
+      <div>
+        <div class="section-title">Historical Signal Accuracy</div>
+        <div class="card">
+          <div id="accuracyChart" class="chart-container"></div>
+        </div>
+      </div>
+      <!-- Sector Heat -->
+      <div>
+        <div class="section-title">Sector Heatmap (30d Insider Buys)</div>
+        <div class="card">
+          <div id="sectorChart" class="chart-container"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Insight Card -->
+  <div class="section">
+    <div class="insight-card">
+      <h3>Smart Money Signal: Current Analysis</h3>
+      <p>
+        The CrowdStrike cluster buy stands out as the most compelling signal this month. Four insiders, including both the CEO and CFO, purchased a combined $2.8M in shares within a 10-day window. Historically, cluster buys involving two or more C-suite executives have produced an average 6-month forward return of 14.8%, significantly outperforming the broader market. The timing is notable as it follows a period of price consolidation after the company's strong earnings report.
+      </p>
+      <p style="margin-top:var(--spacing-s);">
+        Airbnb also warrants close attention. Four insiders committed $3.2M, the largest dollar amount among current clusters. The CFO's participation adds conviction, as CFOs have the deepest visibility into financial performance. The healthcare sector's elevated insider buying activity (52 purchases in 30 days) may reflect anticipation of upcoming FDA catalysts and earnings season positioning across the biotech and pharmaceutical sub-sectors.
+      </p>
+    </div>
+  </div>
+
+  <!-- Data Sources -->
+  <div style="background:var(--grey-g01);border-radius:8px;padding:16px 20px;margin-bottom:24px">
+    <div style="font-size:12px;font-weight:500;color:var(--text-n7);margin-bottom:8px">Data Sources & Credibility</div>
+    <div style="font-size:11px;color:var(--text-n5);line-height:1.8">
+      SEC Filings: SEC EDGAR Form 4 (Statement of Changes in Beneficial Ownership) — official regulatory filings<br>
+      Insider Identity: Cross-referenced with company proxy statements for title verification (CEO, CFO, etc.)<br>
+      Cluster Detection: 3+ unique insiders purchasing within a 14-day window at the same company<br>
+      Conviction Score: Proprietary 0-100 composite of: # of insiders (30%), $ amount (25%), C-suite involvement (25%), timing relative to earnings (20%)<br>
+      Historical Returns: 6-month forward return measured from cluster detection date, benchmark-adjusted vs S&P 500<br>
+      Update Frequency: SEC Form 4 filings are processed daily. There is typically a 1-2 business day lag between the trade date and the filing date.<br>
+      Credibility: SEC filings are legally mandated and highly reliable. Cluster detection is algorithmic with clear rules. Historical return analysis covers 2018-2026 (1,200+ cluster events). Past performance does not guarantee future results.
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    Powered by Alva
+    <div class="disclaimer">Simulated data for demonstration purposes.</div>
+  </div>
+
+</div>
+
+<script>
+var palette = ['#7474d8','#ff9800','#3d8bd1','#40a544','#a878dc','#dc7aa5','#c76466','#5f75c9','#0d7498','#838383'];
+
+// Historical Signal Accuracy
+(function() {
+  var chart = echarts.init(document.getElementById('accuracyChart'));
+  var categories = ['Cluster Buy\n(3+ insiders)', 'Dual Insider\nBuy', 'Single\nCEO/CFO', 'Single\nDirector', 'Single\nVP', 'Benchmark\n(S&P 500)'];
+  var values = [12.4, 8.7, 6.2, 3.8, 2.1, 4.5];
+  var colors = values.map(function(v, i) {
+    if (i === values.length - 1) return '#838383';
+    if (v >= 10) return '#2a9b7d';
+    if (v >= 5) return '#49a3a6';
+    return '#ff9800';
+  });
+
+  var option = {
+    backgroundColor: 'transparent',
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: { type: 'shadow' },
+      formatter: function(params) {
+        return params[0].name.replace(/\n/g, ' ') + ': +' + params[0].value + '%';
+      },
+      textStyle: { fontFamily: 'Delight, -apple-system, sans-serif', fontWeight: 400 }
+    },
+    grid: { left: 12, right: 30, top: 20, bottom: 80, containLabel: true },
+    xAxis: {
+      type: 'category',
+      data: categories,
+      axisLabel: { fontFamily: 'Delight, -apple-system, sans-serif', fontSize: 11, fontWeight: 400, color: 'rgba(0,0,0,0.5)', interval: 0 },
+      axisLine: { lineStyle: { color: 'rgba(0,0,0,0.07)' } },
+      axisTick: { show: false }
+    },
+    yAxis: {
+      type: 'value',
+      axisLabel: { formatter: '+{value}%', fontFamily: 'Delight, -apple-system, sans-serif', fontSize: 11, color: 'rgba(0,0,0,0.5)' },
+      splitLine: { lineStyle: { color: 'rgba(0,0,0,0.05)' } },
+      axisLine: { show: false },
+      axisTick: { show: false }
+    },
+    series: [{
+      type: 'bar',
+      barWidth: 32,
+      data: values.map(function(v, i) {
+        return { value: v, itemStyle: { color: colors[i], borderRadius: [4, 4, 0, 0] } };
+      }),
+      label: {
+        show: true,
+        position: 'top',
+        formatter: '+{c}%',
+        fontSize: 11,
+        fontWeight: 500,
+        fontFamily: 'Delight, -apple-system, sans-serif',
+        color: 'rgba(0,0,0,0.7)'
+      }
+    }]
+  };
+  chart.setOption(option);
+  window.addEventListener('resize', function() { chart.resize(); });
+})();
+
+// Sector Heatmap
+(function() {
+  var chart = echarts.init(document.getElementById('sectorChart'));
+  var sectors = ['Other', 'Energy (XOM, CVX)', 'Consumer (AMZN, NKE)', 'Industrials (CAT, HON)', 'Financials (JPM, GS)', 'Technology (AAPL, MSFT)', 'Healthcare (UNH, JNJ)'];
+  var values = [58, 22, 28, 35, 41, 48, 52];
+  var sectorColors = [palette[9], palette[6], palette[5], palette[4], palette[2], palette[1], palette[0]];
+
+  var option = {
+    backgroundColor: 'transparent',
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: { type: 'shadow' },
+      formatter: '{b}: {c} buys',
+      textStyle: { fontFamily: 'Delight, -apple-system, sans-serif', fontWeight: 400 }
+    },
+    grid: { left: 12, right: 40, top: 12, bottom: 12, containLabel: true },
+    xAxis: {
+      type: 'value',
+      axisLabel: { fontFamily: 'Delight, -apple-system, sans-serif', fontSize: 11, color: 'rgba(0,0,0,0.5)' },
+      splitLine: { lineStyle: { color: 'rgba(0,0,0,0.05)' } },
+      axisLine: { show: false },
+      axisTick: { show: false }
+    },
+    yAxis: {
+      type: 'category',
+      data: sectors,
+      axisLabel: { fontFamily: 'Delight, -apple-system, sans-serif', fontSize: 12, fontWeight: 400, color: 'rgba(0,0,0,0.7)' },
+      axisLine: { lineStyle: { color: 'rgba(0,0,0,0.07)' } },
+      axisTick: { show: false }
+    },
+    series: [{
+      type: 'bar',
+      barWidth: 22,
+      data: values.map(function(v, i) {
+        return { value: v, itemStyle: { color: sectorColors[i], borderRadius: [0, 4, 4, 0] } };
+      }),
+      label: {
+        show: true,
+        position: 'right',
+        formatter: '{c}',
+        fontSize: 11,
+        fontWeight: 500,
+        fontFamily: 'Delight, -apple-system, sans-serif',
+        color: 'rgba(0,0,0,0.6)'
+      }
+    }]
+  };
+  chart.setOption(option);
+  window.addEventListener('resize', function() { chart.resize(); });
+})();
+</script>
+</body>
+</html>

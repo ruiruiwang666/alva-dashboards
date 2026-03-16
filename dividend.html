@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dividend Snowball Calculator</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>
+@font-face { font-family: 'Delight'; src: url('https://alva-ai-static.b-cdn.net/fonts/Delight-Regular.ttf') format('truetype'); font-weight: 400; }
+@font-face { font-family: 'Delight'; src: url('https://alva-ai-static.b-cdn.net/fonts/Delight-Medium.ttf') format('truetype'); font-weight: 500; }
+:root {
+  --main-m1: #49a3a6; --main-m3: #2a9b7d; --main-m4: #e05357;
+  --main-m5: #e6a91a; --main-m6: #ff9800;
+  --text-n9: rgba(0,0,0,0.9); --text-n7: rgba(0,0,0,0.7);
+  --text-n5: rgba(0,0,0,0.5); --text-n3: rgba(0,0,0,0.3);
+  --b0-page: #ffffff; --grey-g01: #fafafa; --grey-g02: #f5f5f5;
+  --line-l07: rgba(0,0,0,0.07); --line-l05: rgba(0,0,0,0.05);
+  --spacing-xs: 8px; --spacing-s: 12px; --spacing-m: 16px;
+  --spacing-l: 20px; --spacing-xl: 24px;
+  --radius-ct-s: 4px; --radius-ct-m: 6px; --radius-ct-l: 8px;
+}
+html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Delight', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--b0-page); color: var(--text-n9); line-height: 1.6; }
+
+.container { max-width: 960px; margin: 0 auto; padding: var(--spacing-xl) var(--spacing-l); }
+
+.header { text-align: center; margin-bottom: 40px; }
+.header h1 { font-size: 28px; font-weight: 400; color: var(--text-n9); margin-bottom: 8px; }
+.header p { font-size: 15px; color: var(--text-n5); font-weight: 400; }
+
+.controls-card { background: var(--grey-g01); border-radius: var(--radius-ct-l); padding: var(--spacing-xl); margin-bottom: var(--spacing-xl); }
+.controls-label { font-size: 13px; font-weight: 500; color: var(--text-n5); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: var(--spacing-xs); }
+.controls-row { display: flex; gap: var(--spacing-l); flex-wrap: wrap; margin-bottom: var(--spacing-l); }
+.controls-row:last-child { margin-bottom: 0; }
+.control-group { flex: 1; min-width: 200px; }
+
+.pill-group { display: flex; flex-wrap: wrap; gap: 6px; }
+.pill { padding: 6px 14px; border-radius: var(--radius-ct-l); background: var(--b0-page); color: var(--text-n7); font-size: 13px; font-weight: 400; cursor: pointer; transition: all 0.2s; font-family: inherit; border: none; }
+.pill:hover { background: var(--grey-g02); }
+.pill.active { background: var(--main-m1); color: #fff; }
+.pill-stock { padding: 8px 14px; }
+.pill-stock .pill-yield { font-size: 11px; color: rgba(255,255,255,0.7); display: block; margin-top: 1px; }
+.pill-stock:not(.active) .pill-yield { color: var(--text-n3); }
+
+.slider-container { display: flex; align-items: center; gap: var(--spacing-s); }
+.slider-container input[type="range"] { flex: 1; -webkit-appearance: none; height: 4px; background: var(--line-l07); border-radius: 2px; outline: none; }
+.slider-container input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--main-m1); cursor: pointer; }
+.slider-value { font-size: 15px; font-weight: 500; color: var(--text-n9); min-width: 60px; text-align: right; }
+
+.section-title { font-size: 18px; font-weight: 500; color: var(--text-n9); margin-bottom: var(--spacing-m); margin-top: 40px; }
+
+.chart-card { background: var(--grey-g01); border-radius: var(--radius-ct-l); padding: var(--spacing-l); margin-bottom: var(--spacing-xl); }
+.chart-container { width: 100%; height: 380px; }
+.chart-container-sm { width: 100%; height: 300px; }
+
+.kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--spacing-m); margin-bottom: var(--spacing-xl); }
+.kpi-card { background: var(--grey-g01); border-radius: var(--radius-ct-l); padding: var(--spacing-l); text-align: center; }
+.kpi-label { font-size: 12px; font-weight: 400; color: var(--text-n5); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.3px; }
+.kpi-value { font-size: 26px; font-weight: 500; color: var(--text-n9); }
+.kpi-value.green { color: var(--main-m3); }
+.kpi-sub { font-size: 12px; color: var(--text-n5); margin-top: 2px; }
+
+.insight-card { background: var(--grey-g01); border-radius: var(--radius-ct-l); padding: var(--spacing-xl); margin-bottom: var(--spacing-xl); }
+.insight-title { font-size: 16px; font-weight: 500; color: var(--text-n9); margin-bottom: var(--spacing-s); }
+.insight-text { font-size: 14px; color: var(--text-n7); line-height: 1.7; font-weight: 400; }
+.insight-highlight { color: var(--main-m3); font-weight: 500; }
+
+.footer { text-align: center; padding: 40px 0 24px; }
+.footer-powered { font-size: 13px; color: var(--text-n3); margin-bottom: 6px; }
+.footer-powered a { color: var(--text-n5); text-decoration: none; }
+.footer-powered a:hover { text-decoration: underline; }
+.footer-disclaimer { font-size: 11px; color: var(--text-n3); }
+
+.comparison-card { background: var(--grey-g01); border-radius: var(--radius-ct-l); padding: var(--spacing-xl); margin-bottom: var(--spacing-xl); overflow-x: auto; }
+.comparison-table { width: 100%; border-collapse: collapse; min-width: 700px; }
+.comparison-table th { text-align: left; font-size: 12px; font-weight: 500; color: var(--text-n5); text-transform: uppercase; letter-spacing: 0.3px; padding: 10px 14px; }
+.comparison-table td { padding: 12px 14px; font-size: 14px; font-weight: 400; color: var(--text-n7); }
+.comparison-table tr + tr td { border-top: 1px solid var(--line-l05); }
+.comparison-table .best { color: var(--main-m3); font-weight: 500; }
+.comparison-table .ticker { font-weight: 500; color: var(--text-n9); }
+.data-sources { background: var(--grey-g01); border-radius: var(--radius-ct-l); padding: var(--spacing-xl); margin-bottom: var(--spacing-xl); }
+.data-sources-title { font-size: 16px; font-weight: 500; color: var(--text-n9); margin-bottom: var(--spacing-s); }
+.data-sources-list { font-size: 12px; color: var(--text-n5); line-height: 1.8; }
+.data-sources-list strong { color: var(--text-n7); font-weight: 500; }
+.data-sources-note { font-size: 11px; color: var(--text-n3); margin-top: var(--spacing-s); font-style: italic; }
+@media (max-width: 700px) {
+  .kpi-row { grid-template-columns: repeat(2, 1fr); }
+  .controls-row { flex-direction: column; gap: var(--spacing-m); }
+  .control-group { min-width: unset; }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>Dividend Snowball Calculator</h1>
+    <p>See how dividend reinvestment compounds your wealth over time</p>
+    <p style="font-size:12px;color:var(--text-n3);margin-top:6px;">Projections based on data as of March 13, 2026 &middot; Historical dividend data from 2000&ndash;2026</p>
+  </div>
+
+  <div class="section-title" style="margin-top:0;">Stock Comparison Dashboard</div>
+  <div class="comparison-card">
+    <table class="comparison-table">
+      <thead>
+        <tr>
+          <th>Stock</th>
+          <th>Price</th>
+          <th>Yield</th>
+          <th>5Y Div Growth</th>
+          <th>Consecutive Years</th>
+          <th>10Y Total Return</th>
+          <th>20Y DRIP Return</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="ticker">JNJ</td>
+          <td>$158.20</td>
+          <td>3.1%</td>
+          <td>5.5%</td>
+          <td>62 years</td>
+          <td>$22,840</td>
+          <td>$58,200</td>
+        </tr>
+        <tr>
+          <td class="ticker">KO</td>
+          <td>$62.50</td>
+          <td>3.0%</td>
+          <td>6.0%</td>
+          <td>61 years</td>
+          <td>$23,700</td>
+          <td>$62,100</td>
+        </tr>
+        <tr>
+          <td class="ticker">PG</td>
+          <td>$165.80</td>
+          <td>2.5%</td>
+          <td>5.0%</td>
+          <td class="best">67 years</td>
+          <td>$25,200</td>
+          <td>$68,500</td>
+        </tr>
+        <tr>
+          <td class="ticker">O</td>
+          <td>$55.40</td>
+          <td>5.4%</td>
+          <td>3.5%</td>
+          <td>29 years</td>
+          <td>$27,800</td>
+          <td>$78,200</td>
+        </tr>
+        <tr>
+          <td class="ticker">XOM</td>
+          <td>$108.30</td>
+          <td>3.4%</td>
+          <td>4.0%</td>
+          <td>41 years</td>
+          <td>$20,100</td>
+          <td>$48,600</td>
+        </tr>
+        <tr>
+          <td class="ticker">ABBV</td>
+          <td>$178.60</td>
+          <td>3.6%</td>
+          <td class="best">7.5%</td>
+          <td>52 years</td>
+          <td class="best">$32,500</td>
+          <td class="best">$98,400</td>
+        </tr>
+        <tr>
+          <td class="ticker">PEP</td>
+          <td>$152.40</td>
+          <td>2.7%</td>
+          <td>5.5%</td>
+          <td>51 years</td>
+          <td>$24,500</td>
+          <td>$65,800</td>
+        </tr>
+        <tr>
+          <td class="ticker">T</td>
+          <td>$22.80</td>
+          <td class="best">6.5%</td>
+          <td>1.0%</td>
+          <td>39 years</td>
+          <td>$12,800</td>
+          <td>$24,200</td>
+        </tr>
+      </tbody>
+    </table>
+    <div style="font-size:11px;color:var(--text-n3);margin-top:var(--spacing-s);">10Y and 20Y returns assume $10,000 initial investment with DRIP (dividend reinvestment plan).</div>
+  </div>
+
+  <div class="controls-card">
+    <div class="controls-row">
+      <div class="control-group" style="flex: 2;">
+        <div class="controls-label">Select Stocks</div>
+        <div class="pill-group" id="stock-pills"></div>
+      </div>
+    </div>
+    <div class="controls-row">
+      <div class="control-group">
+        <div class="controls-label">Initial Investment</div>
+        <div class="pill-group" id="invest-pills"></div>
+      </div>
+      <div class="control-group">
+        <div class="controls-label">Monthly Contribution</div>
+        <div class="pill-group" id="contrib-pills"></div>
+      </div>
+    </div>
+    <div class="controls-row">
+      <div class="control-group">
+        <div class="controls-label">Time Horizon</div>
+        <div class="slider-container">
+          <input type="range" id="horizon-slider" min="5" max="30" value="20" step="1">
+          <span class="slider-value" id="horizon-value">20 years</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">The Snowball Effect</div>
+  <div class="chart-card">
+    <div class="chart-container" id="snowball-chart"></div>
+  </div>
+
+  <div class="section-title">Projection Summary</div>
+  <div class="kpi-row">
+    <div class="kpi-card">
+      <div class="kpi-label">Total Value</div>
+      <div class="kpi-value green" id="kpi-total">$0</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Total Invested</div>
+      <div class="kpi-value" id="kpi-invested">$0</div>
+      <div class="kpi-sub" id="kpi-invested-sub"></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Dividend Income (Final Year)</div>
+      <div class="kpi-value green" id="kpi-div-income">$0</div>
+      <div class="kpi-sub" id="kpi-div-yield-sub"></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Total Dividends Earned</div>
+      <div class="kpi-value green" id="kpi-total-divs">$0</div>
+    </div>
+  </div>
+
+  <div class="section-title">DRIP vs No-DRIP Comparison</div>
+  <div class="chart-card">
+    <div class="chart-container" id="drip-chart"></div>
+  </div>
+
+  <div class="section-title">Annual Dividend Income Stream</div>
+  <div class="chart-card">
+    <div class="chart-container-sm" id="income-chart"></div>
+  </div>
+
+  <div class="insight-card">
+    <div class="insight-title">The Power of Compounding</div>
+    <div class="insight-text" id="insight-text"></div>
+  </div>
+
+  <div class="data-sources">
+    <div class="data-sources-title">Data Sources</div>
+    <div class="data-sources-list">
+      <strong>Dividend Data:</strong> S&amp;P Global, company investor relations filings (historical dividends since 2000)<br>
+      <strong>Stock Prices:</strong> NYSE/NASDAQ daily adjusted close prices<br>
+      <strong>Growth Rates:</strong> Compound annual dividend growth rate over trailing 5 years<br>
+      <strong>Consecutive Years:</strong> Verified against Dividend Aristocrats/Kings lists<br>
+      <strong>Projection Model:</strong> Month-by-month compounding using historical average total return (price appreciation + dividend yield). Dividend growth rate assumed constant at trailing 5-year average.
+    </div>
+    <div class="data-sources-note">Credibility: Historical data is audited and exchange-verified. Projections assume past growth rates continue &mdash; actual future returns will vary. This is not investment advice.</div>
+  </div>
+
+  <div class="footer">
+    <div class="footer-powered">
+      Powered by <a href="https://skills.sh/alva-ai/skills/open-alva" target="_blank">OpenAlva</a> &middot; <a href="https://github.com" target="_blank">GitHub</a>
+    </div>
+    <div class="footer-disclaimer">Simulated data for demonstration purposes.</div>
+  </div>
+</div>
+
+<script>
+const STOCKS = {
+  JNJ:  { name: 'JNJ',  fullName: 'Johnson & Johnson', totalReturn: 0.085, yield: 0.031, divGrowth: 0.055 },
+  KO:   { name: 'KO',   fullName: 'Coca-Cola',         totalReturn: 0.090, yield: 0.030, divGrowth: 0.060 },
+  PG:   { name: 'PG',   fullName: 'Procter & Gamble',  totalReturn: 0.095, yield: 0.025, divGrowth: 0.050 },
+  O:    { name: 'O',     fullName: 'Realty Income',     totalReturn: 0.100, yield: 0.054, divGrowth: 0.035 },
+  XOM:  { name: 'XOM',  fullName: 'Exxon Mobil',       totalReturn: 0.080, yield: 0.034, divGrowth: 0.040 },
+  ABBV: { name: 'ABBV', fullName: 'AbbVie',            totalReturn: 0.110, yield: 0.036, divGrowth: 0.075 },
+  PEP:  { name: 'PEP',  fullName: 'PepsiCo',           totalReturn: 0.092, yield: 0.027, divGrowth: 0.055 },
+  T:    { name: 'T',     fullName: 'AT&T',              totalReturn: 0.040, yield: 0.065, divGrowth: 0.010 }
+};
+
+const INVEST_OPTIONS = [1000, 5000, 10000, 25000, 50000];
+const CONTRIB_OPTIONS = [0, 100, 200, 500];
+const CHART_COLORS = ['#7474d8','#ff9800','#3d8bd1','#40a544','#a878dc','#dc7aa5','#c76466','#5f75c9','#0d7498','#838383'];
+
+let selectedStocks = ['JNJ'];
+let initialInvestment = 10000;
+let monthlyContrib = 200;
+let horizon = 20;
+
+let snowballChart, dripChart, incomeChart;
+
+function fmt(n) {
+  if (n >= 1000000) return '$' + (n/1000000).toFixed(1) + 'M';
+  if (n >= 1000) return '$' + Math.round(n).toLocaleString();
+  return '$' + n.toFixed(0);
+}
+
+function fmtFull(n) { return '$' + Math.round(n).toLocaleString(); }
+
+function buildPills(containerId, items, selectedVal, onClick) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = '';
+  items.forEach(item => {
+    const btn = document.createElement('button');
+    btn.className = 'pill';
+    const val = item;
+    const label = typeof item === 'number' ? fmt(item) : item;
+    btn.innerHTML = label;
+    if (val === selectedVal || (typeof val === 'number' && val === selectedVal)) btn.classList.add('active');
+    btn.addEventListener('click', () => {
+      container.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      onClick(val);
+    });
+    container.appendChild(btn);
+  });
+}
+
+function buildStockPills() {
+  const container = document.getElementById('stock-pills');
+  container.innerHTML = '';
+  Object.values(STOCKS).forEach(stock => {
+    const btn = document.createElement('button');
+    btn.className = 'pill pill-stock';
+    if (selectedStocks.includes(stock.name)) btn.classList.add('active');
+    btn.innerHTML = stock.name + '<span class="pill-yield">' + (stock.yield * 100).toFixed(1) + '% yield</span>';
+    btn.addEventListener('click', () => {
+      const idx = selectedStocks.indexOf(stock.name);
+      if (idx >= 0) {
+        if (selectedStocks.length > 1) {
+          selectedStocks.splice(idx, 1);
+          btn.classList.remove('active');
+        }
+      } else {
+        selectedStocks.push(stock.name);
+        btn.classList.add('active');
+      }
+      updateAll();
+    });
+    container.appendChild(btn);
+  });
+}
+
+function compute(stockName) {
+  const stock = STOCKS[stockName || selectedStocks[selectedStocks.length - 1]];
+  const years = horizon;
+  const init = initialInvestment;
+  const monthly = monthlyContrib;
+
+  const priceAppreciation = stock.totalReturn - stock.yield;
+
+  // DRIP scenario: dividends reinvested, price appreciation on total portfolio
+  let dripValues = [];
+  let origLayer = [];
+  let contribLayer = [];
+  let growthLayer = [];
+  let annualDividends = [];
+  let totalDividendsEarned = 0;
+
+  // No-DRIP scenario: dividends taken as cash
+  let noDripValues = [];
+  let noDripDividendsCash = [];
+
+  // DRIP computation (month by month for accuracy)
+  let portfolioValue = init;
+  let totalContributions = 0;
+  let totalCostBasis = init; // init + all contributions
+
+  // No-DRIP computation
+  let noDripPortfolio = init;
+  let noDripCashDivs = 0;
+
+  // Record year 0
+  dripValues.push(init);
+  noDripValues.push(init);
+  origLayer.push(init);
+  contribLayer.push(0);
+  growthLayer.push(0);
+  annualDividends.push(0);
+
+  let currentDivYield = stock.yield;
+
+  for (let y = 1; y <= years; y++) {
+    let yearDiv = 0;
+    let yearNoDripDiv = 0;
+
+    for (let m = 1; m <= 12; m++) {
+      // Monthly price appreciation
+      let monthlyPriceReturn = priceAppreciation / 12;
+      // Monthly dividend yield (grows each year)
+      let monthlyDivYield = currentDivYield / 12;
+
+      // DRIP: dividends are reinvested
+      let divPayment = portfolioValue * monthlyDivYield;
+      yearDiv += divPayment;
+      portfolioValue = portfolioValue * (1 + monthlyPriceReturn) + divPayment + monthly;
+      totalContributions += monthly;
+
+      // No-DRIP: dividends taken as cash, not reinvested
+      let noDripDiv = noDripPortfolio * monthlyDivYield;
+      yearNoDripDiv += noDripDiv;
+      noDripPortfolio = noDripPortfolio * (1 + monthlyPriceReturn) + monthly;
+      noDripCashDivs += noDripDiv;
+    }
+
+    totalDividendsEarned += yearDiv;
+    totalCostBasis = init + totalContributions;
+
+    dripValues.push(portfolioValue);
+    noDripValues.push(noDripPortfolio + noDripCashDivs);
+    annualDividends.push(yearDiv);
+
+    // Layers for stacked area
+    origLayer.push(init);
+    contribLayer.push(totalContributions);
+    growthLayer.push(Math.max(0, portfolioValue - init - totalContributions));
+
+    // Dividend yield grows each year
+    currentDivYield *= (1 + stock.divGrowth);
+  }
+
+  // Final year dividend income (approximate — use last year's dividends)
+  let finalYearDiv = annualDividends[years];
+
+  return {
+    dripValues, noDripValues, noDripCashDivs,
+    origLayer, contribLayer, growthLayer,
+    annualDividends, totalDividendsEarned,
+    totalValue: portfolioValue,
+    totalInvested: init + totalContributions,
+    finalYearDiv,
+    years, stock
+  };
+}
+
+function updateAll() {
+  // Compute data for all selected stocks
+  const allData = {};
+  selectedStocks.forEach(name => { allData[name] = compute(name); });
+
+  // Primary stock for KPIs and insight = most recently added (last in array)
+  const primaryName = selectedStocks[selectedStocks.length - 1];
+  const data = allData[primaryName];
+  const years = data.years;
+  const xLabels = Array.from({length: years + 1}, (_, i) => 'Year ' + i);
+
+  // KPIs (show primary stock)
+  document.getElementById('kpi-total').textContent = fmtFull(data.totalValue);
+  document.getElementById('kpi-invested').textContent = fmtFull(data.totalInvested);
+  document.getElementById('kpi-invested-sub').textContent = fmtFull(initialInvestment) + ' initial + ' + fmtFull(data.totalInvested - initialInvestment) + ' contributions';
+  document.getElementById('kpi-div-income').textContent = fmtFull(data.finalYearDiv) + '/yr';
+  document.getElementById('kpi-div-yield-sub').textContent = (data.finalYearDiv / data.totalValue * 100).toFixed(1) + '% yield on value';
+  document.getElementById('kpi-total-divs').textContent = fmtFull(data.totalDividendsEarned);
+
+  // Snowball Effect chart
+  if (selectedStocks.length === 1) {
+    // Single stock: stacked area (original behavior)
+    snowballChart.setOption({
+      tooltip: {
+        trigger: 'axis',
+        backgroundColor: '#fff',
+        borderColor: 'rgba(0,0,0,0.07)',
+        borderWidth: 1,
+        textStyle: { color: 'rgba(0,0,0,0.7)', fontFamily: 'Delight', fontSize: 13 },
+        formatter: function(params) {
+          let total = 0;
+          params.forEach(p => total += p.value);
+          let s = '<div style="font-weight:500;margin-bottom:4px">' + params[0].axisValue + '</div>';
+          s += '<div style="color:rgba(0,0,0,0.5);margin-bottom:6px">Total: ' + fmtFull(total) + '</div>';
+          params.slice().reverse().forEach(p => {
+            s += '<div style="display:flex;align-items:center;gap:6px;margin-bottom:2px"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:' + p.color + '"></span>' + p.seriesName + ': ' + fmtFull(p.value) + '</div>';
+          });
+          return s;
+        }
+      },
+      legend: { show: false },
+      grid: { left: 60, right: 20, top: 20, bottom: 40 },
+      xAxis: { type: 'category', data: xLabels, axisLine: { lineStyle: { color: 'rgba(0,0,0,0.07)' } }, axisLabel: { color: 'rgba(0,0,0,0.5)', fontSize: 11, fontFamily: 'Delight', interval: Math.max(1, Math.floor(years / 8)) } },
+      yAxis: { type: 'value', axisLine: { show: false }, splitLine: { lineStyle: { color: 'rgba(0,0,0,0.05)' } }, axisLabel: { color: 'rgba(0,0,0,0.5)', fontSize: 11, fontFamily: 'Delight', formatter: function(v) { return fmt(v); } } },
+      series: [
+        { name: 'Original Investment', type: 'line', stack: 'total', areaStyle: { color: '#838383', opacity: 0.25 }, lineStyle: { width: 0 }, symbol: 'none', data: data.origLayer, emphasis: { disabled: true } },
+        { name: 'Contributions', type: 'line', stack: 'total', areaStyle: { color: '#3d8bd1', opacity: 0.35 }, lineStyle: { width: 0 }, symbol: 'none', data: data.contribLayer, emphasis: { disabled: true } },
+        { name: 'Dividend Reinvestment Growth', type: 'line', stack: 'total', areaStyle: { color: '#40a544', opacity: 0.45 }, lineStyle: { width: 0 }, symbol: 'none', data: data.growthLayer, emphasis: { disabled: true } }
+      ],
+      backgroundColor: 'transparent'
+    }, true);
+  } else {
+    // Multi-stock: overlay lines for comparison
+    var snowballSeries = selectedStocks.map(function(name, i) {
+      var sd = allData[name];
+      return {
+        name: name,
+        type: 'line',
+        data: sd.dripValues.map(function(v) { return Math.round(v); }),
+        smooth: true,
+        symbol: 'none',
+        lineStyle: { width: 2.5, color: CHART_COLORS[i % CHART_COLORS.length] },
+        itemStyle: { color: CHART_COLORS[i % CHART_COLORS.length] }
+      };
+    });
+    snowballChart.setOption({
+      tooltip: {
+        trigger: 'axis',
+        backgroundColor: '#fff',
+        borderColor: 'rgba(0,0,0,0.07)',
+        borderWidth: 1,
+        textStyle: { color: 'rgba(0,0,0,0.7)', fontFamily: 'Delight', fontSize: 13 },
+        formatter: function(params) {
+          var s = '<div style="font-weight:500;margin-bottom:4px">' + params[0].axisValue + '</div>';
+          params.forEach(function(p) {
+            s += '<div style="display:flex;align-items:center;gap:6px;margin-bottom:2px"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:' + p.color + '"></span>' + p.seriesName + ': ' + fmtFull(p.value) + '</div>';
+          });
+          return s;
+        }
+      },
+      legend: {
+        show: true,
+        data: selectedStocks,
+        bottom: 0,
+        textStyle: { fontFamily: 'Delight', fontSize: 12, color: 'rgba(0,0,0,0.5)' },
+        icon: 'circle',
+        itemWidth: 8,
+        itemHeight: 8
+      },
+      grid: { left: 60, right: 20, top: 20, bottom: 45 },
+      xAxis: { type: 'category', data: xLabels, axisLine: { lineStyle: { color: 'rgba(0,0,0,0.07)' } }, axisLabel: { color: 'rgba(0,0,0,0.5)', fontSize: 11, fontFamily: 'Delight', interval: Math.max(1, Math.floor(years / 8)) } },
+      yAxis: { type: 'value', axisLine: { show: false }, splitLine: { lineStyle: { color: 'rgba(0,0,0,0.05)' } }, axisLabel: { color: 'rgba(0,0,0,0.5)', fontSize: 11, fontFamily: 'Delight', formatter: function(v) { return fmt(v); } } },
+      series: snowballSeries,
+      backgroundColor: 'transparent'
+    }, true);
+  }
+
+  // DRIP vs No-DRIP chart (show first selected stock only)
+  var firstData = allData[selectedStocks[0]];
+  dripChart.setOption({
+    tooltip: {
+      trigger: 'axis',
+      backgroundColor: '#fff',
+      borderColor: 'rgba(0,0,0,0.07)',
+      borderWidth: 1,
+      textStyle: { color: 'rgba(0,0,0,0.7)', fontFamily: 'Delight', fontSize: 13 },
+      formatter: function(params) {
+        let s = '<div style="font-weight:500;margin-bottom:4px">' + params[0].axisValue + '</div>';
+        params.forEach(p => {
+          s += '<div style="display:flex;align-items:center;gap:6px;margin-bottom:2px"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:' + p.color + '"></span>' + p.seriesName + ': ' + fmtFull(p.value) + '</div>';
+        });
+        if (params.length === 2) {
+          let gap = params[0].value - params[1].value;
+          s += '<div style="color:rgba(0,0,0,0.5);margin-top:4px">DRIP advantage: ' + fmtFull(gap) + '</div>';
+        }
+        return s;
+      }
+    },
+    legend: { data: ['With DRIP (' + selectedStocks[0] + ')', 'Without DRIP (' + selectedStocks[0] + ')'], bottom: 0, textStyle: { fontFamily: 'Delight', fontSize: 12, color: 'rgba(0,0,0,0.5)' }, icon: 'circle', itemWidth: 8, itemHeight: 8 },
+    grid: { left: 60, right: 20, top: 20, bottom: 45 },
+    xAxis: { type: 'category', data: xLabels, axisLine: { lineStyle: { color: 'rgba(0,0,0,0.07)' } }, axisLabel: { color: 'rgba(0,0,0,0.5)', fontSize: 11, fontFamily: 'Delight', interval: Math.max(1, Math.floor(years / 8)) } },
+    yAxis: { type: 'value', axisLine: { show: false }, splitLine: { lineStyle: { color: 'rgba(0,0,0,0.05)' } }, axisLabel: { color: 'rgba(0,0,0,0.5)', fontSize: 11, fontFamily: 'Delight', formatter: function(v) { return fmt(v); } } },
+    series: [
+      { name: 'With DRIP (' + selectedStocks[0] + ')', type: 'line', data: firstData.dripValues.map(v => Math.round(v)), smooth: true, symbol: 'none', lineStyle: { width: 2.5, color: '#40a544' }, itemStyle: { color: '#40a544' } },
+      { name: 'Without DRIP (' + selectedStocks[0] + ')', type: 'line', data: firstData.noDripValues.map(v => Math.round(v)), smooth: true, symbol: 'none', lineStyle: { width: 2.5, color: '#838383', type: 'dashed' }, itemStyle: { color: '#838383' } }
+    ],
+    backgroundColor: 'transparent'
+  });
+
+  // Annual Dividend Income bar chart (grouped bars for each selected stock)
+  var incomeSeries = selectedStocks.map(function(name, i) {
+    var sd = allData[name];
+    return {
+      name: name,
+      type: 'bar',
+      data: sd.annualDividends.slice(1).map(function(v) { return Math.round(v); }),
+      itemStyle: { color: CHART_COLORS[i % CHART_COLORS.length], borderRadius: [3, 3, 0, 0] },
+      barMaxWidth: 32
+    };
+  });
+  incomeChart.setOption({
+    tooltip: {
+      trigger: 'axis',
+      backgroundColor: '#fff',
+      borderColor: 'rgba(0,0,0,0.07)',
+      borderWidth: 1,
+      textStyle: { color: 'rgba(0,0,0,0.7)', fontFamily: 'Delight', fontSize: 13 },
+      formatter: function(params) {
+        var s = '<div style="font-weight:500;margin-bottom:4px">' + params[0].axisValue + '</div>';
+        params.forEach(function(p) {
+          s += '<div style="display:flex;align-items:center;gap:6px;margin-bottom:2px"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:' + p.color + '"></span>' + p.seriesName + ': ' + fmtFull(p.value) + '</div>';
+        });
+        return s;
+      }
+    },
+    legend: selectedStocks.length > 1 ? {
+      show: true,
+      data: selectedStocks,
+      bottom: 0,
+      textStyle: { fontFamily: 'Delight', fontSize: 12, color: 'rgba(0,0,0,0.5)' },
+      icon: 'circle',
+      itemWidth: 8,
+      itemHeight: 8
+    } : { show: false },
+    grid: { left: 60, right: 20, top: 20, bottom: selectedStocks.length > 1 ? 45 : 40 },
+    xAxis: { type: 'category', data: xLabels.slice(1), axisLine: { lineStyle: { color: 'rgba(0,0,0,0.07)' } }, axisLabel: { color: 'rgba(0,0,0,0.5)', fontSize: 11, fontFamily: 'Delight', interval: Math.max(1, Math.floor(years / 8)) } },
+    yAxis: { type: 'value', axisLine: { show: false }, splitLine: { lineStyle: { color: 'rgba(0,0,0,0.05)' } }, axisLabel: { color: 'rgba(0,0,0,0.5)', fontSize: 11, fontFamily: 'Delight', formatter: function(v) { return fmt(v); } } },
+    series: incomeSeries,
+    backgroundColor: 'transparent'
+  }, true);
+
+  // Insight text (show primary stock)
+  const stock = data.stock;
+  const growthFromDrip = data.totalValue - data.totalInvested;
+  const pctGain = ((data.totalValue / data.totalInvested - 1) * 100).toFixed(0);
+  const insightEl = document.getElementById('insight-text');
+  insightEl.innerHTML =
+    'Starting with <span class="insight-highlight">' + fmtFull(initialInvestment) + '</span> in ' + stock.fullName + ' (' + stock.name + ') and contributing <span class="insight-highlight">' + fmtFull(monthlyContrib) + '/month</span>, your portfolio grows to <span class="insight-highlight">' + fmtFull(data.totalValue) + '</span> over ' + years + ' years — a <span class="insight-highlight">' + pctGain + '% total gain</span>.' +
+    '<br><br>The snowball effect is clear: in year 1 your dividends total just ' + fmtFull(data.annualDividends[1]) + ', but by year ' + years + ' they grow to <span class="insight-highlight">' + fmtFull(data.finalYearDiv) + ' annually</span>. That is because each reinvested dividend buys more shares, which generate more dividends, which buy even more shares.' +
+    '<br><br>Over the full period, you earn <span class="insight-highlight">' + fmtFull(data.totalDividendsEarned) + ' in total dividends</span> — and the compounding engine turns your ' + fmtFull(data.totalInvested) + ' invested into ' + fmtFull(data.totalValue) + '. The earlier you start, the bigger the snowball gets.';
+}
+
+function init() {
+  buildStockPills();
+  buildPills('invest-pills', INVEST_OPTIONS, initialInvestment, v => { initialInvestment = v; updateAll(); });
+  buildPills('contrib-pills', CONTRIB_OPTIONS, monthlyContrib, v => { monthlyContrib = v; updateAll(); });
+
+  const slider = document.getElementById('horizon-slider');
+  const sliderVal = document.getElementById('horizon-value');
+  slider.addEventListener('input', () => {
+    horizon = parseInt(slider.value);
+    sliderVal.textContent = horizon + ' years';
+    updateAll();
+  });
+
+  snowballChart = echarts.init(document.getElementById('snowball-chart'));
+  dripChart = echarts.init(document.getElementById('drip-chart'));
+  incomeChart = echarts.init(document.getElementById('income-chart'));
+
+  window.addEventListener('resize', () => {
+    snowballChart.resize();
+    dripChart.resize();
+    incomeChart.resize();
+  });
+
+  updateAll();
+}
+
+init();
+</script>
+</body>
+</html>

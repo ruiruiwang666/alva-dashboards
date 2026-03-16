@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alva Strategy Dashboard - BTC/ETH/SOL/BNB Rotation</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <style>
+/* ── Alva Design System ── */
+@font-face { font-family: 'Delight'; src: url('https://alva-ai-static.b-cdn.net/fonts/Delight-Regular.ttf') format('truetype'); font-weight: 400; font-style: normal; }
+@font-face { font-family: 'Delight'; src: url('https://alva-ai-static.b-cdn.net/fonts/Delight-Medium.ttf') format('truetype'); font-weight: 500; font-style: normal; }
+:root {
+  --main-m1: #49a3a6; --main-m3: #2a9b7d; --main-m4: #e05357;
+  --main-m5: #e6a91a; --main-m6: #ff9800;
+  --text-n9: rgba(0,0,0,0.9); --text-n7: rgba(0,0,0,0.7);
+  --text-n5: rgba(0,0,0,0.5); --text-n3: rgba(0,0,0,0.3);
+  --b0-page: #ffffff; --grey-g01: #fafafa; --grey-g02: #f5f5f5;
+  --line-l07: rgba(0,0,0,0.07); --line-l05: rgba(0,0,0,0.05);
+  --spacing-xxs: 4px; --spacing-xs: 8px; --spacing-s: 12px;
+  --spacing-m: 16px; --spacing-l: 20px; --spacing-xl: 24px;
+  --spacing-xxl: 28px; --spacing-xxxl: 32px;
+  --radius-ct-s: 4px; --radius-ct-m: 6px; --radius-ct-l: 8px;
+}
+html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; }
+
+    :root {
+      --bg: #0f1117;
+      --card: #1a1d2e;
+      --border: #2a2d3e;
+      --text: #e1e4ed;
+      --muted: #8b8fa3;
+      --accent: #6c5ce7;
+      --green: #00b894;
+      --red: #ff6b6b;
+      --yellow: #ffd93d;
+      --blue: #74b9ff;
+      --purple: #a29bfe;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Delight', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 24px;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    .header h1 {
+      font-size: 28px;
+      font-weight: 500;
+      background: linear-gradient(135deg, #6c5ce7, #a29bfe, #74b9ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 8px;
+    }
+    .header .subtitle {
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .header .assets {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .asset-badge {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 4px 14px;
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .asset-badge.btc { color: #f7931a; border-color: #f7931a40; }
+    .asset-badge.eth { color: #627eea; border-color: #627eea40; }
+    .asset-badge.sol { color: #9945ff; border-color: #9945ff40; }
+    .asset-badge.bnb { color: #f3ba2f; border-color: #f3ba2f40; }
+
+    /* Strategy Cards */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-bottom: 32px;
+    }
+    .strategy-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+    .strategy-card.winner {
+      border-color: var(--green);
+      box-shadow: 0 0 30px rgba(0, 184, 148, 0.1);
+    }
+    .strategy-card.winner::before {
+      content: '🏆 BEST';
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: var(--green);
+      color: #000;
+      font-size: 11px;
+      font-weight: 500;
+      padding: 3px 10px;
+      border-radius: 8px;
+    }
+    .card-title {
+      font-size: 16px;
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+    .card-desc {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+    .metric-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .metric-row:last-child { border-bottom: none; }
+    .metric-label { font-size: 13px; color: var(--muted); }
+    .metric-value { font-size: 14px; font-weight: 500; font-variant-numeric: tabular-nums; }
+    .metric-value.positive { color: var(--green); }
+    .metric-value.negative { color: var(--red); }
+    .metric-value.neutral { color: var(--blue); }
+
+    .big-return {
+      font-size: 36px;
+      font-weight: 500;
+      margin-bottom: 4px;
+      font-variant-numeric: tabular-nums;
+    }
+    .big-equity {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+
+    /* Charts Section */
+    .charts-section {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 32px;
+    }
+    .chart-container {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 24px;
+    }
+    .chart-title {
+      font-size: 16px;
+      font-weight: 500;
+      margin-bottom: 16px;
+    }
+
+    /* Comparison Table */
+    .table-container {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 24px;
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th {
+      text-align: left;
+      padding: 12px 16px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--muted);
+      border-bottom: 2px solid var(--border);
+    }
+    td {
+      padding: 12px 16px;
+      font-size: 14px;
+      border-bottom: 1px solid var(--border);
+      font-variant-numeric: tabular-nums;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(108, 92, 231, 0.05); }
+    .highlight-cell { font-weight: 500; color: var(--green); }
+
+    .footer {
+      text-align: center;
+      margin-top: 32px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    @media (max-width: 900px) {
+      .cards-grid { grid-template-columns: 1fr; }
+      .charts-section { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Alva Strategy Dashboard</h1>
+    <div class="subtitle">Crypto Rotation Backtest · 2025-03-11 → 2026-03-11 · Initial Capital: $1,000,000 USDT · Fee: 0.1%</div>
+    <div class="assets">
+      <span class="asset-badge btc">₿ BTC</span>
+      <span class="asset-badge eth">Ξ ETH</span>
+      <span class="asset-badge sol">◎ SOL</span>
+      <span class="asset-badge bnb">◆ BNB</span>
+    </div>
+  </div>
+
+  <!-- Strategy Cards -->
+  <div class="cards-grid">
+    <!-- Strategy 1 -->
+    <div class="strategy-card">
+      <div class="card-title">📈 Momentum Rotation</div>
+      <div class="card-desc">20-day price momentum · All-in best performer · Daily rebalance</div>
+      <div class="big-return positive">+17.81%</div>
+      <div class="big-equity">$1,178,103 → +$178,103</div>
+      <div class="metric-row"><span class="metric-label">Sharpe Ratio</span><span class="metric-value neutral">0.57</span></div>
+      <div class="metric-row"><span class="metric-label">Sortino Ratio</span><span class="metric-value neutral">0.90</span></div>
+      <div class="metric-row"><span class="metric-label">Max Drawdown</span><span class="metric-value negative">-63.94%</span></div>
+      <div class="metric-row"><span class="metric-label">Annual Volatility</span><span class="metric-value">67.28%</span></div>
+      <div class="metric-row"><span class="metric-label">Calmar Ratio</span><span class="metric-value">0.28</span></div>
+      <div class="metric-row"><span class="metric-label">Omega Ratio</span><span class="metric-value">1.09</span></div>
+      <div class="metric-row"><span class="metric-label">Trades</span><span class="metric-value">65</span></div>
+    </div>
+
+    <!-- Strategy 2 -->
+    <div class="strategy-card">
+      <div class="card-title">⚖️ Equal Weight Monthly</div>
+      <div class="card-desc">25% each asset · Monthly rebalance · Benchmark strategy</div>
+      <div class="big-return negative">-5.26%</div>
+      <div class="big-equity">$947,412 → -$52,588</div>
+      <div class="metric-row"><span class="metric-label">Sharpe Ratio</span><span class="metric-value">0.19</span></div>
+      <div class="metric-row"><span class="metric-label">Sortino Ratio</span><span class="metric-value">0.28</span></div>
+      <div class="metric-row"><span class="metric-label">Max Drawdown</span><span class="metric-value negative">-57.36%</span></div>
+      <div class="metric-row"><span class="metric-label">Annual Volatility</span><span class="metric-value">57.70%</span></div>
+      <div class="metric-row"><span class="metric-label">Calmar Ratio</span><span class="metric-value negative">-0.09</span></div>
+      <div class="metric-row"><span class="metric-label">Omega Ratio</span><span class="metric-value">1.03</span></div>
+      <div class="metric-row"><span class="metric-label">Trades</span><span class="metric-value">13</span></div>
+    </div>
+
+    <!-- Strategy 3 -->
+    <div class="strategy-card winner">
+      <div class="card-title">🧠 Composite Risk-Adjusted</div>
+      <div class="card-desc">Momentum/Vol ratio · Top-2 weighted · Cash when bearish</div>
+      <div class="big-return positive">+52.17%</div>
+      <div class="big-equity">$1,521,747 → +$521,747</div>
+      <div class="metric-row"><span class="metric-label">Sharpe Ratio</span><span class="metric-value positive">1.12</span></div>
+      <div class="metric-row"><span class="metric-label">Sortino Ratio</span><span class="metric-value positive">1.80</span></div>
+      <div class="metric-row"><span class="metric-label">Max Drawdown</span><span class="metric-value negative">-35.07%</span></div>
+      <div class="metric-row"><span class="metric-label">Annual Volatility</span><span class="metric-value positive">47.52%</span></div>
+      <div class="metric-row"><span class="metric-label">Calmar Ratio</span><span class="metric-value positive">1.49</span></div>
+      <div class="metric-row"><span class="metric-label">Omega Ratio</span><span class="metric-value positive">1.24</span></div>
+      <div class="metric-row"><span class="metric-label">Trades</span><span class="metric-value">107</span></div>
+    </div>
+  </div>
+
+  <!-- Charts -->
+  <div class="charts-section">
+    <div class="chart-container">
+      <div class="chart-title">📊 Return & Risk Comparison</div>
+      <canvas id="barChart"></canvas>
+    </div>
+    <div class="chart-container">
+      <div class="chart-title">🎯 Risk-Adjusted Performance Radar</div>
+      <canvas id="radarChart"></canvas>
+    </div>
+    <div class="chart-container">
+      <div class="chart-title">📉 Drawdown Comparison</div>
+      <canvas id="ddChart"></canvas>
+    </div>
+    <div class="chart-container">
+      <div class="chart-title">⚡ Efficiency Metrics</div>
+      <canvas id="effChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Comparison Table -->
+  <div class="table-container">
+    <div class="chart-title">📋 Full Metrics Comparison</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Metric</th>
+          <th>Momentum Rotation</th>
+          <th>Equal Weight Monthly</th>
+          <th>Composite Risk-Adj</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Total Return</td><td>+17.81%</td><td style="color:var(--red)">-5.26%</td><td class="highlight-cell">+52.17%</td></tr>
+        <tr><td>Sharpe Ratio</td><td>0.57</td><td>0.19</td><td class="highlight-cell">1.12</td></tr>
+        <tr><td>Sortino Ratio</td><td>0.90</td><td>0.28</td><td class="highlight-cell">1.80</td></tr>
+        <tr><td>Max Drawdown</td><td style="color:var(--red)">-63.94%</td><td>-57.36%</td><td class="highlight-cell">-35.07%</td></tr>
+        <tr><td>Ann. Volatility</td><td>67.28%</td><td>57.70%</td><td class="highlight-cell">47.52%</td></tr>
+        <tr><td>CAGR</td><td>17.81%</td><td style="color:var(--red)">-5.26%</td><td class="highlight-cell">52.17%</td></tr>
+        <tr><td>Calmar Ratio</td><td>0.28</td><td style="color:var(--red)">-0.09</td><td class="highlight-cell">1.49</td></tr>
+        <tr><td>Omega Ratio</td><td>1.09</td><td>1.03</td><td class="highlight-cell">1.24</td></tr>
+        <tr><td>Final Equity</td><td>$1,178,103</td><td>$947,412</td><td class="highlight-cell">$1,521,747</td></tr>
+        <tr><td>Trade Count</td><td>65</td><td>13</td><td>107</td></tr>
+        <tr><td>Strategy</td><td>All-in top momentum</td><td>25% × 4 assets</td><td>Top-2 risk-adj weighted</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="footer">
+    Powered by <strong>Alva Platform</strong> · Altra Backtest Engine · Data: Binance Spot · Generated 2026-03-11
+  </div>
+
+  <script>
+    Chart.defaults.color = '#8b8fa3';
+    Chart.defaults.borderColor = '#2a2d3e';
+
+    const strategyColors = {
+      momentum: '#74b9ff',
+      equalweight: '#ffd93d',
+      composite: '#00b894',
+    };
+
+    // Bar Chart: Return & Risk
+    new Chart(document.getElementById('barChart'), {
+      type: 'bar',
+      data: {
+        labels: ['Total Return', 'Max Drawdown', 'Ann. Volatility'],
+        datasets: [
+          {
+            label: 'Momentum',
+            data: [17.81, -63.94, 67.28],
+            backgroundColor: strategyColors.momentum + '90',
+            borderColor: strategyColors.momentum,
+            borderWidth: 1,
+          },
+          {
+            label: 'Equal Weight',
+            data: [-5.26, -57.36, 57.70],
+            backgroundColor: strategyColors.equalweight + '90',
+            borderColor: strategyColors.equalweight,
+            borderWidth: 1,
+          },
+          {
+            label: 'Composite',
+            data: [52.17, -35.07, 47.52],
+            backgroundColor: strategyColors.composite + '90',
+            borderColor: strategyColors.composite,
+            borderWidth: 1,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position: 'top' },
+          tooltip: { callbacks: { label: (c) => c.dataset.label + ': ' + c.raw.toFixed(2) + '%' } },
+        },
+        scales: {
+          y: { ticks: { callback: (v) => v + '%' }, grid: { color: '#2a2d3e40' } },
+          x: { grid: { display: false } },
+        },
+      },
+    });
+
+    // Radar Chart
+    new Chart(document.getElementById('radarChart'), {
+      type: 'radar',
+      data: {
+        labels: ['Sharpe', 'Sortino', 'Calmar', 'Omega', 'Return Score', 'Low DD Score'],
+        datasets: [
+          {
+            label: 'Momentum',
+            data: [0.57, 0.90, 0.28, 1.09, 0.34, 0.36],
+            borderColor: strategyColors.momentum,
+            backgroundColor: strategyColors.momentum + '20',
+            pointBackgroundColor: strategyColors.momentum,
+          },
+          {
+            label: 'Equal Weight',
+            data: [0.19, 0.28, 0, 1.03, 0, 0.43],
+            borderColor: strategyColors.equalweight,
+            backgroundColor: strategyColors.equalweight + '20',
+            pointBackgroundColor: strategyColors.equalweight,
+          },
+          {
+            label: 'Composite',
+            data: [1.12, 1.80, 1.49, 1.24, 1.0, 0.65],
+            borderColor: strategyColors.composite,
+            backgroundColor: strategyColors.composite + '20',
+            pointBackgroundColor: strategyColors.composite,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { position: 'top' } },
+        scales: {
+          r: {
+            beginAtZero: true,
+            grid: { color: '#2a2d3e60' },
+            angleLines: { color: '#2a2d3e60' },
+            pointLabels: { font: { size: 11 } },
+          },
+        },
+      },
+    });
+
+    // Drawdown Chart
+    new Chart(document.getElementById('ddChart'), {
+      type: 'bar',
+      data: {
+        labels: ['Momentum Rotation', 'Equal Weight Monthly', 'Composite Risk-Adj'],
+        datasets: [{
+          label: 'Max Drawdown',
+          data: [-63.94, -57.36, -35.07],
+          backgroundColor: ['#ff6b6b90', '#ffd93d90', '#00b89490'],
+          borderColor: ['#ff6b6b', '#ffd93d', '#00b894'],
+          borderWidth: 2,
+          borderRadius: 8,
+        }],
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: (c) => 'Max DD: ' + c.raw.toFixed(2) + '%' } },
+        },
+        scales: {
+          x: { ticks: { callback: (v) => v + '%' }, grid: { color: '#2a2d3e40' } },
+          y: { grid: { display: false } },
+        },
+      },
+    });
+
+    // Efficiency Chart: Return per unit of risk
+    new Chart(document.getElementById('effChart'), {
+      type: 'bar',
+      data: {
+        labels: ['Return/Vol', 'Return/MaxDD', 'Sharpe', 'Sortino'],
+        datasets: [
+          {
+            label: 'Momentum',
+            data: [17.81/67.28, 17.81/63.94, 0.57, 0.90],
+            backgroundColor: strategyColors.momentum + '90',
+            borderColor: strategyColors.momentum,
+            borderWidth: 1,
+          },
+          {
+            label: 'Equal Weight',
+            data: [-5.26/57.70, -5.26/57.36, 0.19, 0.28],
+            backgroundColor: strategyColors.equalweight + '90',
+            borderColor: strategyColors.equalweight,
+            borderWidth: 1,
+          },
+          {
+            label: 'Composite',
+            data: [52.17/47.52, 52.17/35.07, 1.12, 1.80],
+            backgroundColor: strategyColors.composite + '90',
+            borderColor: strategyColors.composite,
+            borderWidth: 1,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { position: 'top' } },
+        scales: {
+          y: { grid: { color: '#2a2d3e40' } },
+          x: { grid: { display: false } },
+        },
+      },
+    });
+  </script>
+</body>
+</html>
